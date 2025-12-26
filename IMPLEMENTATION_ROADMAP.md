@@ -1,11 +1,11 @@
 # 🛠️ Implementation Roadmap
-## CodeQuest: Migration to Online Multiplayer Infrastructure
+## Code of Meridaeia: Migration to Online Multiplayer Infrastructure
 
 ---
 
 ## 📋 Overview
 
-This document provides a **step-by-step technical implementation plan** for migrating CodeQuest from a local IndexedDB-based game to a fully online multiplayer experience with user accounts, leaderboards, and server-authoritative progression.
+This document provides a **step-by-step technical implementation plan** for migrating Code of Meridaeia from a local IndexedDB-based game to a fully online multiplayer experience with user accounts, leaderboards, and server-authoritative progression.
 
 **Estimated Timeline**: 4-6 weeks (part-time development)  
 **Difficulty**: Intermediate (requires JavaScript, SQL, REST API knowledge)  
@@ -143,7 +143,7 @@ Add to `index.html` (before game content):
 <!-- Auth Modal -->
 <div id="authModal" class="modal">
   <div class="modal-content">
-    <h2 id="authTitle">Welcome to CodeQuest</h2>
+    <h2 id="authTitle">Welcome to Code of Meridaeia</h2>
     
     <!-- Login Form -->
     <form id="loginForm" class="auth-form">
@@ -655,7 +655,7 @@ In `styles.css`, add:
 Create `BETA_TESTER_GUIDE.md`:
 
 ```markdown
-# CodeQuest Beta Testing Guide
+# Code of Meridaeia Beta Testing Guide
 
 ## How to Access
 1. Visit: https://codequest-beta.vercel.app

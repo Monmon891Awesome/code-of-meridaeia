@@ -1,7 +1,7 @@
 # 📜 Phase 1: The Soul of the Hero (UI & Narrative)
 
 ## Overview
-**Phase 1** transformed CodeQuest from a modern quiz application into an immersive medieval fantasy RPG experience. This phase focused on establishing the narrative foundation, character identity system, and thematic UI elements.
+**Phase 1** transformed Code of Meridaeia from a modern quiz application into an immersive medieval fantasy RPG experience. This phase focused on establishing the narrative foundation, character identity system, and thematic UI elements.
 
 ---
 

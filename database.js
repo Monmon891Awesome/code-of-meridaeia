@@ -1,10 +1,11 @@
-// CodeQuest Database Module - IndexedDB Implementation
+// Code of Meridaeia Database Module - IndexedDB Implementation
 // This module handles all data persistence using IndexedDB
 
-const DB_NAME = 'CodeQuestDB';
+// Database configuration
+const DB_NAME = 'CodeOfMeridaeiaDB';
 const DB_VERSION = 1;
 
-class CodeQuestDatabase {
+class CodeOfMeridaeiaDatabase {
     constructor() {
         this.db = null;
         this.isReady = false;
@@ -23,7 +24,7 @@ class CodeQuestDatabase {
             request.onsuccess = (event) => {
                 this.db = event.target.result;
                 this.isReady = true;
-                console.log('🎮 CodeQuest Database initialized!');
+                console.log('🎮 Code of Meridaeia Database initialized!');
                 resolve(this.db);
             };
 
@@ -323,4 +324,4 @@ class CodeQuestDatabase {
 }
 
 // Export singleton instance
-const codeQuestDB = new CodeQuestDatabase();
+const codeQuestDB = new CodeOfMeridaeiaDatabase();

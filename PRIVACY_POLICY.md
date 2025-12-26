@@ -1,5 +1,5 @@
 # 🔐 Privacy Policy & Data Security Clause
-## CodeQuest: The Siege of Meridaeia - Beta Testing Program
+## Code of Meridaeia: The Siege of Meridaeia - Beta Testing Program
 
 **Effective Date**: 2025-12-27  
 **Version**: 1.0 (Beta)  
@@ -9,7 +9,7 @@
 
 ## 📋 Introduction
 
-Welcome to the **CodeQuest Beta Testing Program**! This document outlines how we collect, use, protect, and respect your data during the beta testing phase. We are committed to **privacy-first design** and **minimal data collection**.
+Welcome to the **Code of Meridaeia Beta Testing Program**! This document outlines how we collect, use, protect, and respect your data during the beta testing phase. We are committed to **privacy-first design** and **minimal data collection**.
 
 ### Our Core Principles
 
@@ -212,7 +212,7 @@ We use **only two** third-party services:
 
 ## 🧒 Age Restrictions
 
-CodeQuest is intended for users **13 years and older**. If you are under 13, please do not create an account. We do not knowingly collect data from children under 13.
+Code of Meridaeia is intended for users **13 years and older**. If you are under 13, please do not create an account. We do not knowingly collect data from children under 13.
 
 If we discover a user is under 13, we will:
 1. Immediately delete their account
@@ -339,7 +339,7 @@ You have the right to:
 
 ## 📜 Legal Disclaimer
 
-This privacy policy is a **good-faith commitment** to protect your data. While we take every precaution, no system is 100% secure. By using CodeQuest, you acknowledge:
+This privacy policy is a **good-faith commitment** to protect your data. While we take every precaution, no system is 100% secure. By using Code of Meridaeia, you acknowledge:
 
 1. You understand the risks of online gaming
 2. You will not share your password with others

@@ -1,4 +1,4 @@
-# CodeQuest: The Siege of Meridaeia
+# 🏰 Code of Meridaeia
 
 **An immersive RPG-style coding quiz game** where you master Java, C++, Networking, Data Engineering, and Kernel Development through epic battles and strategic progression.
 
@@ -184,7 +184,7 @@ This project helps you practice:
 ## 🏗️ Project Structure
 
 ```
-codequest/
+code-of-meridaeia/
 │
 ├── index.html                      # Main game file
 ├── game.js                         # Game logic & combat engine
@@ -321,7 +321,7 @@ Please don't:
 
 ## 🚀 Let's Build Something Epic!
 
-**CodeQuest** is more than a game—it's a **learning adventure**. Every question you answer makes you a better developer. Every monster you defeat builds your confidence. Every friend you invite creates a community.
+**Code of Meridaeia** is more than a game—it's a **learning adventure**. Every question you answer makes you a better developer. Every monster you defeat builds your confidence. Every friend you invite creates a community.
 
 **Ready to reclaim the Golden Compiler?** 🏆
 

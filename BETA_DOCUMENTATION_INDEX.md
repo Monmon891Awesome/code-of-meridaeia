@@ -1,5 +1,5 @@
 # 📚 Beta Testing Documentation Index
-## CodeQuest: The Siege of Meridaeia
+## Code of Meridaeia: The Siege of Meridaeia
 
 ---
 
@@ -173,9 +173,9 @@ START CODING! 🚀
 
 ### What Problem Are We Solving?
 
-**Current State**: CodeQuest is a local-only game (IndexedDB). Your friends can't play it unless you keep your laptop running.
+**Current State**: Code of Meridaeia is a local-only game (IndexedDB). Your friends can't play it unless you keep your laptop running.
 
-**Desired State**: CodeQuest is online. Friends can:
+**Desired State**: Code of Meridaeia is online. Friends can:
 - Create accounts
 - Play from any device (phone, tablet, laptop)
 - See their rank on a global leaderboard

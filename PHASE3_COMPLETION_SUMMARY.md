@@ -1,5 +1,5 @@
 # 🎉 Phase 3 Complete - Ready for Online Deployment!
-## CodeQuest: The Siege of Meridaeia
+## Code of Meridaeia: The Siege of Meridaeia
 
 **Date**: 2025-12-27  
 **Status**: Phase 3 Complete ✅ | Ready for Phase 4 (Online Infrastructure)
@@ -268,7 +268,7 @@ By implementing this online infrastructure, you'll learn:
 
 ## 🎯 Your Mission (If You Choose to Accept It)
 
-**Goal**: Get CodeQuest online and invite your first beta tester within 7 days.
+**Goal**: Get Code of Meridaeia online and invite your first beta tester within 7 days.
 
 **Timeline**:
 - **Day 1 (Today)**: Read QUICK_START_GUIDE.md, set up infrastructure
@@ -300,7 +300,7 @@ You've built an **incredible RPG game** with:
 
 **Next Action**: Open `QUICK_START_GUIDE.md` and follow Step 1 (Push to GitHub).
 
-You've got this, bro! Let's make CodeQuest the most epic coding practice game ever! 💪
+You've got this, bro! Let's make Code of Meridaeia the most epic coding practice game ever! 💪
 
 ---
 

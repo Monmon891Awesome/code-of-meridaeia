@@ -1,5 +1,5 @@
-// CodeQuest Game Engine
-class CodeQuestGame {
+// Code of Meridaeia Game Engine
+class CodeOfMeridaeiaGame {
     constructor() {
         this.currentCategory = null;
         this.currentQuestion = null;
@@ -44,7 +44,7 @@ class CodeQuestGame {
         // Load or create user profile
         this.userProfile = await codeQuestDB.getUserProfile();
         if (!this.userProfile) {
-            const username = prompt('Welcome to CodeQuest! Enter your username:') || 'Player';
+            const username = prompt('Welcome to Code of Meridaeia! Enter your username:') || 'Player';
             this.userProfile = await codeQuestDB.initializeNewUser(username);
         }
 
@@ -60,7 +60,7 @@ class CodeQuestGame {
             level: this.userProfile.level
         });
 
-        console.log('🎮 CodeQuest initialized!', this.userProfile);
+        console.log('🎮 Code of Meridaeia initialized!', this.userProfile);
     }
 
     // ============ CATEGORY MANAGEMENT ============
@@ -1341,5 +1341,5 @@ class CodeQuestGame {
 }
 
 // Initialize game
-const game = new CodeQuestGame();
+const game = new CodeOfMeridaeiaGame();
 document.addEventListener('DOMContentLoaded', () => game.init());

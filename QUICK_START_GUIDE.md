@@ -1,5 +1,5 @@
 # 🚀 Quick Start: Online Hosting Setup
-## Let's Get CodeQuest Online!
+## Let's Get Code of Meridaeia Online!
 
 **Status**: Ready to begin Phase 1 (Infrastructure Setup)  
 **Estimated Time**: 1-2 hours for initial setup  
@@ -81,7 +81,7 @@ git status
 ### 1.4 Create GitHub Repository
 
 1. Go to https://github.com/new
-2. Repository name: `codequest-siege-of-meridaeia`
+2. Repository name: `code-of-meridaeia-siege-of-meridaeia`
 3. Description: "An epic RPG-style coding practice game"
 4. **Keep it Private** (for now, until beta is ready)
 5. **Don't** initialize with README (you already have one)
@@ -91,7 +91,7 @@ git status
 
 ```bash
 # Add remote (replace YOUR_USERNAME with your GitHub username)
-git remote add origin https://github.com/YOUR_USERNAME/codequest-siege-of-meridaeia.git
+git remote add origin https://github.com/YOUR_USERNAME/code-of-meridaeia-siege-of-meridaeia.git
 
 # Push
 git branch -M main
@@ -116,7 +116,7 @@ git push -u origin main
 1. Click "New Project"
 2. Fill in details:
    - **Organization**: Create new (or use existing)
-   - **Name**: `codequest-beta`
+   - **Name**: `code-of-meridaeia-beta`
    - **Database Password**: Click "Generate a password" (SAVE THIS!)
    - **Region**: Choose closest to you (e.g., `Southeast Asia (Singapore)` for you)
    - **Pricing Plan**: Free (perfect for beta!)
@@ -195,7 +195,7 @@ INSERT INTO shop_items (id, name, type, cost_gold, stats, description, is_availa
 
 1. Click "Add New..." → "Project"
 2. You'll see your GitHub repos
-3. Find `codequest-siege-of-meridaeia`
+3. Find `code-of-meridaeia-siege-of-meridaeia`
 4. Click "Import"
 
 ### 3.3 Configure Project
@@ -227,7 +227,7 @@ Click "Environment Variables" and add these 2 variables:
 
 ### 3.6 Visit Your Live Game
 
-Click the **"Visit"** button or the domain (e.g., `codequest-xxxxx.vercel.app`)
+Click the **"Visit"** button or the domain (e.g., `code-of-meridaeia-xxxxx.vercel.app`)
 
 **✅ Checkpoint**: Your game loads! (It's still using IndexedDB for now, but it's ONLINE!)
 

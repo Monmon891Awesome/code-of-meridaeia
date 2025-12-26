@@ -1,11 +1,11 @@
 # 🗄️ Database Design Specification
-## CodeQuest: The Siege of Meridaeia
+## Code of Meridaeia: The Siege of Meridaeia
 
 ---
 
 ## 📋 Overview
 
-This document defines the **PostgreSQL database schema** for CodeQuest's online multiplayer infrastructure. The design prioritizes:
+This document defines the **PostgreSQL database schema** for Code of Meridaeia's online multiplayer infrastructure. The design prioritizes:
 - ✅ **Data integrity** (foreign keys, constraints)
 - ✅ **Performance** (indexed queries for leaderboards)
 - ✅ **Scalability** (normalized structure, no redundant data)

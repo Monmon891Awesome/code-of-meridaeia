@@ -25,7 +25,7 @@
 
 ## 🎯 Overview
 
-Phase 3 introduces a comprehensive RPG progression system to CodeQuest: The Siege of Meridaeia. Players can now purchase equipment, upgrade skills, manage consumables, and strategically enhance their character's capabilities through a multi-layered economy system.
+Phase 3 introduces a comprehensive RPG progression system to Code of Meridaeia: The Siege of Meridaeia. Players can now purchase equipment, upgrade skills, manage consumables, and strategically enhance their character's capabilities through a multi-layered economy system.
 
 ### Core Objectives Achieved
 - ✅ Fully functional shop with 4 categories (Weapons, Armor, Accessories, Consumables)

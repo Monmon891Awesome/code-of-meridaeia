@@ -1,4 +1,4 @@
-// CodeQuest Shop Inventory - The Armory of Meridaeia
+// Code of Meridaeia Shop Inventory - The Armory of Meridaeia
 // All purchasable items with stats and prices
 
 const shopInventory = {

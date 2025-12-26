@@ -1,11 +1,11 @@
 # 🚀 Beta Testing Infrastructure Plan
-## CodeQuest: The Siege of Meridaeia
+## Code of Meridaeia: The Siege of Meridaeia
 
 ---
 
 ## 📋 Executive Summary
 
-This document outlines the complete infrastructure strategy for hosting **CodeQuest** as a beta test for your friends, enabling:
+This document outlines the complete infrastructure strategy for hosting **Code of Meridaeia** as a beta test for your friends, enabling:
 - ✅ **Zero-maintenance hosting** (no need to keep your laptop running)
 - ✅ **Mobile-responsive gameplay** (works on phones)
 - ✅ **Online-only progression** (no local caches, server-authoritative)
@@ -41,7 +41,7 @@ This document outlines the complete infrastructure strategy for hosting **CodeQu
 ┌─────────────────────────────────────────────────────────────┐
 │                    USER'S DEVICE (Mobile/Desktop)            │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │         CodeQuest Web App (HTML/CSS/JS)              │   │
+│  │         Code of Meridaeia Web App (HTML/CSS/JS)              │   │
 │  │  - Character Selection                               │   │
 │  │  - Combat Engine                                     │   │
 │  │  - Shop System                                       │   │

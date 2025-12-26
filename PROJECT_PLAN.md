@@ -1,4 +1,4 @@
-# 🗺️ CodeQuest: Project Development Plan
+# 🗺️ Code of Meridaeia: Project Development Plan
 
 ## 🎯 Current Status: Phase 3.5 (Visual Identity & Assets Complete)
 We have successfully transitioned from basic placeholders to a **Premium Game Experience**. The foundation for performance tracking, category selection, and visual "WOW" factor is in place.
