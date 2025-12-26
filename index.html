@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="CodeQuest - Master Java, C++, Networking, and Data Engineering through interactive challenges">
+    <title>CodeQuest - Learn Java & C++ Programming</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Cinematic Intro -->
+    <div id="intro-cinematic">
+        <div class="intro-background">
+            <img src="assets/environments/landscape-wasteland.png" alt="Wasteland" class="intro-bg-image">
+            <div class="intro-overlay"></div>
+        </div>
+        <div class="intro-content">
+            <div class="intro-logo">
+                <h1 class="intro-title">CodeQuest</h1>
+                <p class="intro-subtitle">The Siege of Meridaeia</p>
+            </div>
+            
+            <div class="intro-story">
+                <p class="intro-text" style="animation-delay: 1s">The Great Compiler has fallen...</p>
+                <p class="intro-text" style="animation-delay: 3s">Valerion, your home, is but a whispering echo of ash.</p>
+                <p class="intro-text" style="animation-delay: 5s">Marakathalessa, the Witch of Corrupted Code, has stolen the Ancient Logic and retreated to her fortress in Meridaeia.</p>
+                <p class="intro-text" style="animation-delay: 7s">The land is plagued by syntax errors and memory leaks.</p>
+                <p class="intro-text" style="animation-delay: 9s">Only you can reclaim your heritage and restore order to the realm.</p>
+                <p class="intro-text intro-cta" style="animation-delay: 11s">Assemble your fellowship. The Siege begins now.</p>
+            </div>
+            
+            <button class="btn intro-btn" style="opacity: 0; animation: fadeInUp 2s forwards; animation-delay: 13s;" onclick="game.skipIntro()">
+                ⚔️ Enter the Wasteland
+            </button>
+        </div>
+        <button class="skip-intro" onclick="game.skipIntro()">Skip Intro ⏭</button>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="assets/icons/logo.svg" alt="CodeQuest Logo">
+                </div>
+                <h1>CodeQuest</h1>
+            </div>
+
+            <div class="user-profile">
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="username">Player</span>
+                        <span class="stat-label">Username</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="level">1</span>
+                        <span class="stat-label">Level</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="total-xp">0</span>
+                        <span class="stat-label">Total XP</span>
+                        <div class="xp-bar">
+                            <div id="xp-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-avatar">👤</div>
+            </div>
+        </header>
+
+        <!-- Character Selection -->
+        <section id="category-select">
+            <h2 class="fantasy-title">Assemble Your Fellowship</h2>
+            <p class="fantasy-subtitle">Choose your hero to reclaim Valerion from the Witch Marakathalessa</p>
+
+            <div class="category-grid">
+                <!-- Java / Barbarian -->
+                <div class="category-card java" onclick="game.selectCategory('java')">
+                    <div class="category-portrait">
+                        <img src="assets/heroes/hero-java.png" alt="Barbarian Warrior" class="hero-portrait">
+                    </div>
+                    <div class="character-info">
+                        <span class="hero-identity">Grom the Uncompiled</span>
+                        <h3>Barbarian Warrior</h3>
+                        <p class="hero-desc">Master of the "Write Once, Crush Everywhere" arts. High resilience and brute force.</p>
+                        <div class="hero-stats">
+                            <span class="stat-tag">Java</span>
+                            <span class="category-questions">12 Questions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C++ / Wizard -->
+                <div class="category-card cpp" onclick="game.selectCategory('cpp')">
+                    <div class="character-portrait">
+                        <img src="assets/heroes/hero-cpp.png" alt="Dark Wizard" class="hero-portrait">
+                    </div>
+                    <div class="character-info">
+                        <span class="hero-identity">Malloc the Void-Walker</span>
+                        <h3>Dark Wizard</h3>
+                        <p class="hero-desc">Wielder of volatile arcane memory. High power, but one slip leads to a Void Segfault.</p>
+                        <div class="hero-stats">
+                            <span class="stat-tag">C++</span>
+                            <span class="category-questions">12 Questions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Networking / Paladin -->
+                <div class="category-card networking" onclick="game.selectCategory('networking')">
+                    <div class="character-portrait">
+                        <img src="assets/heroes/hero-networking.png" alt="Knight Paladin" class="hero-portrait">
+                    </div>
+                    <div class="character-info">
+                        <span class="hero-identity">Ser Handshake</span>
+                        <h3>Knight Paladin</h3>
+                        <p class="hero-desc">Guardian of the Great Gateway. Restoring the Three-Way Handshake of light.</p>
+                        <div class="hero-stats">
+                            <span class="stat-tag">Networking</span>
+                            <span class="category-questions">12 Questions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Eng / Archer -->
+                <div class="category-card data-engineering" onclick="game.selectCategory('dataEngineering')">
+                    <div class="character-portrait">
+                        <img src="assets/heroes/hero-data.png" alt="Knight Archer" class="hero-portrait">
+                    </div>
+                    <div class="character-info">
+                        <span class="hero-identity">Artemis the Stream-Caller</span>
+                        <h3>Knight Archer</h3>
+                        <p class="hero-desc">Purifier of the Corrupted Lakes. His Pipeline of Arrows never misses the mark.</p>
+                        <div class="hero-stats">
+                            <span class="stat-tag">Data Eng</span>
+                            <span class="category-questions">12 Questions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kernel / Dragonoid -->
+                <div class="category-card kernel" onclick="game.selectCategory('kernel')">
+                    <div class="character-portrait">
+                        <img src="assets/heroes/hero-kernel.png" alt="Dragonoid Mercenary" class="hero-portrait">
+                    </div>
+                    <div class="character-info">
+                        <span class="hero-identity">Vulkun of Ring Zero</span>
+                        <h3>Dragonoid Mercenary</h3>
+                        <p class="hero-desc">Born from Silicon fires. Master of the Low-Level Ring Zero magic.</p>
+                        <div class="hero-stats">
+                            <span class="stat-tag">Kernel Dev</span>
+                            <span class="category-questions">30 Questions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Area -->
+        <section id="game-area" class="hidden">
+            <div class="game-header">
+                <div class="game-info">
+                    <span id="current-category">Category</span>
+                    <span id="question-number">Question 1 of 12</span>
+                    <span id="difficulty-badge" class="difficulty-badge">MEDIUM</span>
+                </div>
+
+                <div class="timer-container">
+                    <div id="timer-progress"></div>
+                    <div class="timer-inner">
+                        <span id="timer">60</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monster Combat HUD -->
+            <div id="monster-hud" class="monster-hud">
+                <div class="monster-info">
+                    <span id="monster-name">Shadow Goblin</span>
+                    <span id="monster-type" class="monster-type">EASY</span>
+                </div>
+                <div class="hp-bar-container">
+                    <div id="hp-bar" class="hp-bar" style="width: 100%"></div>
+                    <span id="hp-text">100 / 100 HP</span>
+                </div>
+                <div class="gold-display">
+                    <span>💰</span>
+                    <span id="gold-earned">0</span>
+                    <span class="gold-label">Gold</span>
+                </div>
+            </div>
+
+            <!-- Character Sheet Panel -->
+            <div id="character-sheet" class="character-sheet">
+                <div class="sheet-header">
+                    <h3>⚔️ Character</h3>
+                    <button class="toggle-sheet" onclick="game.toggleCharacterSheet()">
+                        <span id="sheet-toggle-icon">▼</span>
+                    </button>
+                </div>
+                <div id="sheet-content" class="sheet-content">
+                    <div class="character-portrait-display">
+                        <img id="current-hero-portrait" src="assets/heroes/hero-java.png" alt="Hero" class="current-portrait">
+                        <div class="character-name-display">
+                            <span id="character-class-name">Barbarian Warrior</span>
+                            <span id="character-identity-name" class="identity-subtitle">Grom the Uncompiled</span>
+                        </div>
+                    </div>
+                    
+                    <div class="character-stats-grid">
+                        <div class="char-stat">
+                            <span class="stat-icon">💰</span>
+                            <div class="stat-info">
+                                <span class="stat-value" id="char-gold">0</span>
+                                <span class="stat-label">Gold</span>
+                            </div>
+                        </div>
+                        <div class="char-stat">
+                            <span class="stat-icon">🛡️</span>
+                            <div class="stat-info">
+                                <span class="stat-value" id="char-barrier">3</span>
+                                <span class="stat-label">Barrier</span>
+                            </div>
+                        </div>
+                        <div class="char-stat">
+                            <span class="stat-icon">⚔️</span>
+                            <div class="stat-info">
+                                <span class="stat-value" id="char-attack">25</span>
+                                <span class="stat-label">Attack</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="equipment-slots">
+                        <h4>Equipment</h4>
+                        <div class="equipment-grid">
+                            <div class="equipment-slot" data-slot="weapon">
+                                <span class="slot-icon">🗡️</span>
+                                <span class="slot-label">Weapon</span>
+                                <span class="slot-item" id="equipped-weapon">None</span>
+                            </div>
+                            <div class="equipment-slot" data-slot="armor">
+                                <span class="slot-icon">🛡️</span>
+                                <span class="slot-label">Armor</span>
+                                <span class="slot-item" id="equipped-armor">None</span>
+                            </div>
+                            <div class="equipment-slot" data-slot="accessory">
+                                <span class="slot-icon">💍</span>
+                                <span class="slot-label">Accessory</span>
+                                <span class="slot-item" id="equipped-accessory">None</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <p id="question-text">Loading question...</p>
+
+                <div id="code-block" class="hidden">
+                    <pre><code id="code-content"></code></pre>
+                </div>
+
+                <div id="options-container">
+                    <!-- Options rendered dynamically -->
+                </div>
+
+                <div id="feedback-container" class="hidden">
+                    <div class="feedback-header">
+                        <span id="feedback-icon">✅</span>
+                        <span id="feedback-text">Correct!</span>
+                    </div>
+                    <p id="explanation">Explanation here...</p>
+                </div>
+
+                <button id="next-btn" class="btn hidden" onclick="game.nextQuestion()">
+                    Next Question →
+                </button>
+            </div>
+
+            <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="game.backToMenu()">
+                ← Back to Menu
+            </button>
+        </section>
+
+        <!-- Results Screen -->
+        <section id="results-screen" class="hidden">
+            <div class="results-card">
+                <div class="results-icon">🏆</div>
+                <h2>Quest Complete!</h2>
+
+                <div class="results-stats">
+                    <div class="result-stat">
+                        <div class="icon-small icon-xp"></div>
+                        <span class="stat-value" id="final-score">0</span>
+                        <span class="stat-label">XP Earned</span>
+                    </div>
+                    <div class="result-stat">
+                        <div class="icon-small icon-trophy"></div>
+                        <span class="stat-value" id="questions-correct">0/0</span>
+                        <span class="stat-label">Correct</span>
+                    </div>
+                    <div class="result-stat">
+                        <div class="icon-small icon-trophy" style="opacity: 0.6;"></div>
+                        <span class="stat-value" id="accuracy">0%</span>
+                        <span class="stat-label">Accuracy</span>
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button class="btn" onclick="game.playAgain()">Play Again</button>
+                    <button class="btn btn-secondary" onclick="game.playAgain()">Choose Category</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-bar">
+        <button class="bottom-btn" onclick="game.saveCheckpoint()">
+            <span class="icon">💾</span>
+            <span class="label">Save</span>
+        </button>
+        <button class="bottom-btn" onclick="game.loadCheckpoints()">
+            <span class="icon">📂</span>
+            <span class="label">Load</span>
+        </button>
+        <button class="bottom-btn" onclick="game.openShop()">
+            <span class="icon">🏪</span>
+            <span class="label">Shop</span>
+        </button>
+        <button class="bottom-btn" onclick="game.openSkills()">
+            <span class="icon">🌳</span>
+            <span class="label">Skills</span>
+        </button>
+        <button class="bottom-btn" onclick="game.openInventory()">
+            <span class="icon">🎒</span>
+            <span class="label">Inventory</span>
+        </button>
+        <button class="bottom-btn" onclick="game.showAnalytics()">
+            <span class="icon">📊</span>
+            <span class="label">Analytics</span>
+        </button>
+        <button class="bottom-btn" onclick="game.exportData()">
+            <span class="icon">📦</span>
+            <span class="label">Export</span>
+        </button>
+        <button class="bottom-btn" onclick="game.importData()">
+            <span class="icon">📥</span>
+            <span class="label">Import</span>
+        </button>
+        <button class="bottom-btn" onclick="game.resetProgress()">
+            <span class="icon">🔄</span>
+            <span class="label">Reset</span>
+        </button>
+    </nav>
+
+    <!-- Checkpoints Modal -->
+    <div id="checkpoints-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📂 Saved Checkpoints</h3>
+                <button class="close-modal" onclick="game.closeModal('checkpoints-modal')">×</button>
+            </div>
+            <div id="checkpoints-list">
+                <!-- Checkpoints rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Modal -->
+    <div id="analytics-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Your Analytics</h3>
+                <button class="close-modal" onclick="game.closeModal('analytics-modal')">×</button>
+            </div>
+            <div id="analytics-content">
+                <!-- Analytics rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Shop Modal -->
+    <div id="shop-modal" class="modal hidden">
+        <div class="modal-content shop-content">
+            <div class="modal-header">
+                <h2>🏪 The Hidden Camp</h2>
+                <button class="close-modal" onclick="game.closeShop()">×</button>
+            </div>
+            
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-category="weapons" onclick="game.switchShopTab('weapons')">⚔️ Weapons</button>
+                <button class="shop-tab" data-category="armor" onclick="game.switchShopTab('armor')">🛡️ Armor</button>
+                <button class="shop-tab" data-category="accessories" onclick="game.switchShopTab('accessories')">💍 Accessories</button>
+                <button class="shop-tab" data-category="consumables" onclick="game.switchShopTab('consumables')">📜 Consumables</button>
+            </div>
+            
+            <div class="shop-inventory" id="shop-inventory">
+                <!-- Items rendered dynamically -->
+            </div>
+            
+            <div class="shop-footer">
+                <div class="player-gold">
+                    <span>💰 Your Gold:</span>
+                    <span id="shop-gold">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Modal -->
+    <div id="skills-modal" class="modal hidden">
+        <div class="modal-content skills-content">
+            <div class="modal-header">
+                <h2>🌳 Skill Tree</h2>
+                <button class="close-modal" onclick="game.closeSkills()">×</button>
+            </div>
+            
+            <div class="available-xp">
+                <span>Available XP:</span>
+                <span id="available-xp">0</span>
+            </div>
+            
+            <div id="skill-tree-container">
+                <!-- Skills rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div id="inventory-modal" class="modal hidden">
+        <div class="modal-content inventory-content">
+            <div class="modal-header">
+                <h2>🎒 Inventory</h2>
+                <button class="close-modal" onclick="game.closeInventory()">×</button>
+            </div>
+            
+            <div id="inventory-items" class="inventory-items">
+                <!-- Items rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts - Load in correct order -->
+    <script src="database.js"></script>
+    <script src="shop-data.js"></script>
+    <script src="questions/java.js"></script>
+    <script src="questions/cpp.js"></script>
+    <script src="questions/networking.js"></script>
+    <script src="questions/data-engineering.js"></script>
+    <script src="questions/kernel.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>
