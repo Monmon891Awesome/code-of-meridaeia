@@ -135,7 +135,10 @@ body::before {
 }
 
 /* ============ TYPOGRAPHY ============ */
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     font-weight: 700;
     letter-spacing: -0.02em;
     font-family: 'Inter', sans-serif;
@@ -160,10 +163,21 @@ h1, h2, h3, h4 {
     font-style: italic;
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+h4 {
+    font-size: 1.25rem;
+}
 
 /* ============ LAYOUT ============ */
 .app-container {
@@ -1075,8 +1089,15 @@ h4 { font-size: 1.25rem; }
     -webkit-mask-repeat: no-repeat;
 }
 
-.icon-xp { -webkit-mask-image: url('assets/icons/xp-gem.svg'); mask-image: url('assets/icons/xp-gem.svg'); }
-.icon-trophy { -webkit-mask-image: url('assets/icons/trophy.svg'); mask-image: url('assets/icons/trophy.svg'); }
+.icon-xp {
+    -webkit-mask-image: url('assets/icons/xp-gem.svg');
+    mask-image: url('assets/icons/xp-gem.svg');
+}
+
+.icon-trophy {
+    -webkit-mask-image: url('assets/icons/trophy.svg');
+    mask-image: url('assets/icons/trophy.svg');
+}
 
 .result-stat .stat-value {
     font-size: 2rem;
@@ -1875,6 +1896,7 @@ body {
     0% {
         transform: scale(1);
     }
+
     100% {
         transform: scale(1.1);
     }
@@ -1883,12 +1905,10 @@ body {
 .intro-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.5) 0%,
-        rgba(0, 0, 0, 0.3) 50%,
-        rgba(0, 0, 0, 0.6) 100%
-    );
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.5) 0%,
+            rgba(0, 0, 0, 0.3) 50%,
+            rgba(0, 0, 0, 0.6) 100%);
 }
 
 .intro-content {
@@ -1957,7 +1977,7 @@ body {
     padding: 1rem 2.5rem;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     border: 2px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 
+    box-shadow:
         0 0 20px rgba(99, 102, 241, 0.5),
         0 8px 32px rgba(0, 0, 0, 0.6);
     transition: all 0.3s ease;
@@ -1965,7 +1985,7 @@ body {
 
 .intro-btn:hover {
     transform: translateY(-3px) scale(1.05);
-    box-shadow: 
+    box-shadow:
         0 0 30px rgba(99, 102, 241, 0.8),
         0 12px 40px rgba(0, 0, 0, 0.8);
     border-color: rgba(255, 215, 0, 0.6);
@@ -2004,7 +2024,7 @@ body {
     font-size: 2rem;
     font-weight: 900;
     color: #ef4444;
-    text-shadow: 
+    text-shadow:
         0 0 10px rgba(239, 68, 68, 0.8),
         0 0 20px rgba(239, 68, 68, 0.6),
         2px 2px 4px rgba(0, 0, 0, 0.8);
@@ -2016,7 +2036,7 @@ body {
 .damage-number.critical {
     font-size: 2.5rem;
     color: #fbbf24;
-    text-shadow: 
+    text-shadow:
         0 0 15px rgba(251, 191, 36, 0.9),
         0 0 30px rgba(251, 191, 36, 0.7),
         2px 2px 6px rgba(0, 0, 0, 0.9);
@@ -2027,9 +2047,11 @@ body {
         opacity: 1;
         transform: translateY(0) scale(0.5);
     }
+
     20% {
         transform: translateY(-20px) scale(1.2);
     }
+
     100% {
         opacity: 0;
         transform: translateY(-80px) scale(0.8);
@@ -2041,9 +2063,26 @@ body {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+    }
 }
 
 .hp-bar-hit {
@@ -2051,9 +2090,19 @@ body {
 }
 
 @keyframes hpBarShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    75% { transform: translateX(3px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-3px);
+    }
+
+    75% {
+        transform: translateX(3px);
+    }
 }
 
 .gold-coin-float {
@@ -2069,9 +2118,11 @@ body {
         opacity: 1;
         transform: translateY(0) scale(0.5) rotate(0deg);
     }
+
     50% {
         transform: translateY(-40px) scale(1.1) rotate(180deg);
     }
+
     100% {
         opacity: 0;
         transform: translateY(-60px) scale(0.8) rotate(360deg);
@@ -2089,10 +2140,12 @@ body {
         filter: brightness(1);
         transform: scale(1);
     }
+
     50% {
         filter: brightness(1.5) hue-rotate(45deg);
         transform: scale(1.05);
     }
+
     100% {
         filter: brightness(1);
         transform: scale(1);
@@ -2360,5 +2413,391 @@ body {
 
     .leaderboard-footer .btn {
         width: 100%;
+    }
+}
+
+/* ============ PHASE 5: ENHANCED MOBILE OPTIMIZATION ============ */
+
+/* Mobile Large (480px) - Enhanced mobile experience */
+@media (max-width: 480px) {
+
+    /* Typography scaling */
+    html {
+        font-size: 15px;
+    }
+
+    /* Header improvements */
+    .header {
+        border-radius: var(--radius-md);
+        margin-bottom: 1rem;
+    }
+
+    .logo h1 {
+        font-size: 1.25rem;
+    }
+
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .profile-stats .stat {
+        min-width: 60px;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    /* Fantasy title scaling */
+    .fantasy-title {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .fantasy-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Category cards */
+    .category-card {
+        padding: 1.25rem;
+    }
+
+    .character-portrait,
+    .category-portrait {
+        height: 140px;
+        margin-bottom: 1rem;
+    }
+
+    .hero-identity {
+        font-size: 0.75rem;
+    }
+
+    .category-card h3 {
+        font-size: 1.1rem;
+    }
+
+    .category-card p.hero-desc {
+        font-size: 0.85rem;
+        min-height: auto;
+        margin-bottom: 1rem;
+    }
+
+    /* Game area */
+    .question-card {
+        padding: 1.25rem;
+    }
+
+    #question-text {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    /* Answer options - larger touch targets */
+    .option-btn {
+        padding: 1rem;
+        min-height: 48px;
+        font-size: 0.95rem;
+    }
+
+    /* Code blocks */
+    #code-block pre {
+        font-size: 0.8rem;
+        padding: 0.75rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Timer */
+    .timer-container {
+        width: 50px;
+        height: 50px;
+    }
+
+    #timer {
+        font-size: 1rem;
+    }
+
+    /* Character sheet - collapsed by default handled in JS */
+    .character-sheet {
+        margin-bottom: 1rem;
+    }
+
+    .character-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .char-stat {
+        padding: 0.75rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.25rem;
+    }
+
+    .equipment-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .equipment-slot {
+        padding: 0.75rem;
+    }
+
+    /* Bottom bar - scrollable with hidden labels */
+    .bottom-bar {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .bottom-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .bottom-btn {
+        flex-shrink: 0;
+        min-width: 50px;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .bottom-btn .label {
+        display: none;
+    }
+
+    .bottom-btn .icon {
+        font-size: 1.25rem;
+    }
+
+    /* Modals - full screen on small devices */
+    .modal {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .modal-content {
+        max-width: 100%;
+        width: 100%;
+        max-height: 90vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        padding: 1.5rem;
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .modal-header h2,
+    .modal-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .close-modal {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 1.75rem;
+    }
+
+    /* Shop improvements */
+    .shop-tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .shop-tab {
+        flex: 1 1 45%;
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .shop-item {
+        padding: 1rem;
+    }
+
+    /* Leaderboard mobile tweaks */
+    .leaderboard-tabs {
+        flex-direction: row;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .leaderboard-tab {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 0.8rem;
+        padding: 0.6rem 0.75rem;
+    }
+
+    /* Results screen */
+    .results-card {
+        padding: 1.5rem;
+    }
+
+    .results-icon {
+        font-size: 3rem;
+    }
+
+    .results-card h2 {
+        font-size: 1.5rem;
+    }
+
+    /* Intro cinematic */
+    .intro-title {
+        font-size: 2rem;
+    }
+
+    .intro-subtitle {
+        font-size: 1rem;
+    }
+
+    .intro-text {
+        font-size: 0.95rem;
+        padding: 0 1rem;
+    }
+
+    .intro-btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+
+    .skip-intro {
+        top: auto;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+/* Mobile Small (375px) - Even smaller screens */
+@media (max-width: 375px) {
+    html {
+        font-size: 14px;
+    }
+
+    .app-container {
+        padding: 0.75rem;
+    }
+
+    .header {
+        padding: 0.75rem;
+    }
+
+    .fantasy-title {
+        font-size: 1.5rem;
+    }
+
+    .category-card {
+        padding: 1rem;
+    }
+
+    .character-portrait,
+    .category-portrait {
+        height: 120px;
+    }
+
+    .bottom-btn {
+        min-width: 44px;
+        padding: 0.5rem;
+    }
+
+    .modal-content {
+        padding: 1rem;
+    }
+
+    .character-stats-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .equipment-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+/* Safe area support for notched devices (iPhone X+) */
+@supports (padding: env(safe-area-inset-bottom)) {
+    body {
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
+
+    .bottom-bar {
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    }
+
+    .modal-content {
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    }
+
+    #intro-cinematic {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+}
+
+/* Touch feedback improvements */
+@media (hover: none) and (pointer: coarse) {
+    .category-card:active {
+        transform: scale(0.98);
+    }
+
+    .option-btn:active {
+        transform: scale(0.98);
+    }
+
+    .btn:active {
+        transform: scale(0.97);
+    }
+
+    .bottom-btn:active {
+        background: var(--accent);
+        color: white;
+    }
+
+    /* Disable hover effects on touch devices */
+    .category-card:hover {
+        transform: none;
+        box-shadow: var(--shadow);
+    }
+
+    .option-btn:hover {
+        transform: none;
+    }
+}
+
+/* Landscape mode optimizations */
+@media (max-height: 500px) and (orientation: landscape) {
+    .app-container {
+        padding: 0.5rem;
+    }
+
+    .header {
+        padding: 0.5rem 1rem;
+    }
+
+    body {
+        padding-bottom: 70px;
+    }
+
+    .bottom-bar {
+        padding: 0.5rem;
+    }
+
+    .fantasy-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .fantasy-subtitle {
+        margin-bottom: 1rem;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .modal-content {
+        max-height: 95vh;
     }
 }
