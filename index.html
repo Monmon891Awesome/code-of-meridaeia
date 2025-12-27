@@ -17,6 +17,9 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -349,6 +352,10 @@
             <span class="icon">🎒</span>
             <span class="label">Inventory</span>
         </button>
+        <button class="bottom-btn" onclick="leaderboard.showLeaderboard('xp')">
+            <span class="icon">🏆</span>
+            <span class="label">Leaderboard</span>
+        </button>
         <button class="bottom-btn" onclick="game.showAnalytics()">
             <span class="icon">📊</span>
             <span class="label">Analytics</span>
@@ -454,9 +461,49 @@
         </div>
     </div>
 
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="modal hidden">
+        <div class="modal-content leaderboard-content">
+            <div class="modal-header">
+                <h2>🏆 Global Leaderboard</h2>
+                <button class="close-modal" onclick="leaderboard.closeLeaderboard()">×</button>
+            </div>
+            
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" data-type="xp" onclick="leaderboard.switchTab('xp')">
+                    ⭐ Top XP
+                </button>
+                <button class="leaderboard-tab" data-type="gold" onclick="leaderboard.switchTab('gold')">
+                    💰 Top Gold
+                </button>
+                <button class="leaderboard-tab" data-type="monsters" onclick="leaderboard.switchTab('monsters')">
+                    ⚔️ Monster Slayers
+                </button>
+            </div>
+            
+            <div id="leaderboard-list" class="leaderboard-list">
+                <!-- Leaderboard entries will be rendered here -->
+            </div>
+            
+            <div id="player-rank-display" class="player-rank-display">
+                <!-- Player's rank will be displayed here -->
+            </div>
+            
+            <div class="leaderboard-footer">
+                <button class="btn btn-secondary" onclick="leaderboard.refresh()">
+                    🔄 Refresh
+                </button>
+                <button class="btn" onclick="leaderboard.closeLeaderboard()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts - Load in correct order -->
     <script src="database.js"></script>
     <script src="shop-data.js"></script>
+    <script src="leaderboard.js"></script>
     <script src="questions/java.js"></script>
     <script src="questions/cpp.js"></script>
     <script src="questions/networking.js"></script>
