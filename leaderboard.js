@@ -3,7 +3,7 @@
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://rocvmzuccptzypnensyu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvY3ZtenVjY3B0enlwbmVuc3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUyMDk3MTEsImV4cCI6MjA1MDc4NTcxMX0.ykPjDqJLqWxVNWqIvRqQNzWJZPDqpCIRZNNEQNVMqgE';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvY3ZtenVjY3B0enlwbmVuc3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3NjQ5MTYsImV4cCI6MjA4MjM0MDkxNn0.7StbxpyMHhAeIOp-v9_3813qgjKG4aX20PVMbA_UrBI';
 
 // Initialize Supabase client (using CDN)
 let supabaseClient = null;
