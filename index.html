@@ -96,7 +96,7 @@
                 <!-- Java / Barbarian -->
                 <div class="category-card java" onclick="game.selectCategory('java')">
                     <div class="category-portrait">
-                        <img src="assets/heroes/hero-java.png" alt="Barbarian Warrior" class="hero-portrait">
+                        <img src="assets/heroes/hero-grom-portrait.png" alt="Barbarian Warrior" class="hero-portrait">
                     </div>
                     <div class="character-info">
                         <span class="hero-identity">Grom the Uncompiled</span>
@@ -112,7 +112,7 @@
                 <!-- C++ / Wizard -->
                 <div class="category-card cpp" onclick="game.selectCategory('cpp')">
                     <div class="character-portrait">
-                        <img src="assets/heroes/hero-cpp.png" alt="Dark Wizard" class="hero-portrait">
+                        <img src="assets/heroes/hero-malloc-portrait.png" alt="Dark Wizard" class="hero-portrait">
                     </div>
                     <div class="character-info">
                         <span class="hero-identity">Malloc the Void-Walker</span>
@@ -128,7 +128,7 @@
                 <!-- Networking / Paladin -->
                 <div class="category-card networking" onclick="game.selectCategory('networking')">
                     <div class="character-portrait">
-                        <img src="assets/heroes/hero-networking.png" alt="Knight Paladin" class="hero-portrait">
+                        <img src="assets/heroes/hero-handshake-portrait.png" alt="Knight Paladin" class="hero-portrait">
                     </div>
                     <div class="character-info">
                         <span class="hero-identity">Ser Handshake</span>
@@ -144,7 +144,7 @@
                 <!-- Data Eng / Archer -->
                 <div class="category-card data-engineering" onclick="game.selectCategory('dataEngineering')">
                     <div class="character-portrait">
-                        <img src="assets/heroes/hero-data.png" alt="Knight Archer" class="hero-portrait">
+                        <img src="assets/heroes/hero-artemis-portrait.png" alt="Knight Archer" class="hero-portrait">
                     </div>
                     <div class="character-info">
                         <span class="hero-identity">Artemis the Stream-Caller</span>
@@ -160,7 +160,7 @@
                 <!-- Kernel / Dragonoid -->
                 <div class="category-card kernel" onclick="game.selectCategory('kernel')">
                     <div class="character-portrait">
-                        <img src="assets/heroes/hero-kernel.png" alt="Dragonoid Mercenary" class="hero-portrait">
+                        <img src="assets/heroes/hero-vulkun-portrait.png" alt="Dragonoid Mercenary" class="hero-portrait">
                     </div>
                     <div class="character-info">
                         <span class="hero-identity">Vulkun of Ring Zero</span>
@@ -194,18 +194,23 @@
 
             <!-- Monster Combat HUD -->
             <div id="monster-hud" class="monster-hud">
-                <div class="monster-info">
-                    <span id="monster-name">Shadow Goblin</span>
-                    <span id="monster-type" class="monster-type">EASY</span>
+                <div class="monster-portrait-container">
+                    <img id="monster-portrait" src="assets/monsters/monster-syntax-goblin.png" alt="Monster" class="monster-portrait">
                 </div>
-                <div class="hp-bar-container">
-                    <div id="hp-bar" class="hp-bar" style="width: 100%"></div>
-                    <span id="hp-text">100 / 100 HP</span>
-                </div>
-                <div class="gold-display">
-                    <span>💰</span>
-                    <span id="gold-earned">0</span>
-                    <span class="gold-label">Gold</span>
+                <div class="monster-details">
+                    <div class="monster-info">
+                        <span id="monster-name">Shadow Goblin</span>
+                        <span id="monster-type" class="monster-type">EASY</span>
+                    </div>
+                    <div class="hp-bar-container">
+                        <div id="hp-bar" class="hp-bar" style="width: 100%"></div>
+                        <span id="hp-text">100 / 100 HP</span>
+                    </div>
+                    <div class="gold-display">
+                        <span>💰</span>
+                        <span id="gold-earned">0</span>
+                        <span class="gold-label">Gold</span>
+                    </div>
                 </div>
             </div>
 
@@ -219,7 +224,7 @@
                 </div>
                 <div id="sheet-content" class="sheet-content">
                     <div class="character-portrait-display">
-                        <img id="current-hero-portrait" src="assets/heroes/hero-java.png" alt="Hero" class="current-portrait">
+                        <img id="current-hero-portrait" src="assets/heroes/hero-grom-portrait.png" alt="Hero" class="current-portrait">
                         <div class="character-name-display">
                             <span id="character-class-name">Barbarian Warrior</span>
                             <span id="character-identity-name" class="identity-subtitle">Grom the Uncompiled</span>

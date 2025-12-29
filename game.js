@@ -31,9 +31,19 @@ class CodeOfMeridaeiaGame {
 
         // Monster Bestiary
         this.monsterNames = {
-            easy: ['Shadow Slime', 'Goblin Scout', 'Cave Bat', 'Hollow Wisp'],
-            medium: ['Corrupted Wraith', 'Iron Golem', 'Data Specter', 'Null Phantom'],
-            hard: ['Void Serpent', 'Memory Leviathan', 'Kernel Devourer', 'Segfault Hydra']
+            easy: ['Syntax Goblin', 'Null Pointer Wolf'],
+            medium: ['Memory Leak Demon', 'Segfault Wraith'],
+            hard: ['Corrupted Compiler', 'Marakathalessa']
+        };
+
+        // Monster Portraits (mapped to names)
+        this.monsterPortraits = {
+            'Syntax Goblin': 'assets/monsters/monster-syntax-goblin.png',
+            'Null Pointer Wolf': 'assets/monsters/monster-null-wolf.png',
+            'Memory Leak Demon': 'assets/monsters/monster-memory-demon.png',
+            'Segfault Wraith': 'assets/monsters/monster-segfault-wraith.png',
+            'Corrupted Compiler': 'assets/monsters/monster-corrupted-compiler.png',
+            'Marakathalessa': 'assets/monsters/boss-marakathalessa-alt.png'
         };
     }
 
@@ -119,7 +129,10 @@ class CodeOfMeridaeiaGame {
         document.getElementById('category-select').classList.add('hidden');
         document.getElementById('game-area').classList.remove('hidden');
         document.getElementById('current-category').textContent = this.getCategoryDisplayName(category);
-        
+
+        // Set initial environment based on story progress
+        this.updateEnvironmentByProgress();
+
         // Update character sheet with selected hero
         this.updateCharacterSheet();
     }
@@ -167,7 +180,15 @@ class CodeOfMeridaeiaGame {
 
         // Update Monster HUD
         this.updateMonsterHUD();
-        document.getElementById('monster-name').textContent = this.getRandomMonsterName(this.currentQuestion.difficulty);
+        const monsterName = this.getRandomMonsterName(this.currentQuestion.difficulty);
+        document.getElementById('monster-name').textContent = monsterName;
+
+        // Update monster portrait
+        const monsterPortrait = document.getElementById('monster-portrait');
+        if (monsterPortrait && this.monsterPortraits[monsterName]) {
+            monsterPortrait.src = this.monsterPortraits[monsterName];
+        }
+
         const monsterType = document.getElementById('monster-type');
         monsterType.textContent = this.currentQuestion.difficulty.toUpperCase();
         monsterType.className = `monster-type ${this.currentQuestion.difficulty}`;
@@ -211,15 +232,15 @@ class CodeOfMeridaeiaGame {
 
         // Calculate total timer with bonuses
         let timerDuration = 60; // Base 60 seconds
-        
+
         // Add accessory bonus
         if (this.userProfile.equipped?.accessories?.stats?.timerBonus) {
             timerDuration += this.userProfile.equipped.accessories.stats.timerBonus;
         }
-        
+
         // Add skill bonuses
         timerDuration += this.getSkillBonus('timerBonus');
-        
+
         this.timeLeft = timerDuration;
         this.updateTimerUI();
 
@@ -278,18 +299,18 @@ class CodeOfMeridaeiaGame {
         if (isCorrect) {
             this.correctAnswers++;
             let xpGained = this.calculateXP();
-            
+
             // Apply XP multiplier from accessory
             if (this.userProfile.equipped?.accessories?.stats?.xpMultiplier) {
                 xpGained *= this.userProfile.equipped.accessories.stats.xpMultiplier;
             }
-            
+
             // Apply skill bonuses
             const xpSkillMultiplier = 1 + this.getSkillBonus('xpMultiplier');
             xpGained *= xpSkillMultiplier;
-            
+
             xpGained = Math.floor(xpGained);
-            
+
             this.score += xpGained;
             this.userProfile.xp += xpGained;
             this.userProfile.correctAnswers++;
@@ -297,38 +318,38 @@ class CodeOfMeridaeiaGame {
             // Combat damage (25 HP per correct answer)
             const damage = this.calculateAttackDamage();
             this.currentMonsterHP -= damage;
-            
+
             // Calculate gold with multipliers
             let goldEarned = 5;
-            
+
             // Apply gold multiplier from accessory
             if (this.userProfile.equipped?.accessories?.stats?.goldMultiplier) {
                 goldEarned *= this.userProfile.equipped.accessories.stats.goldMultiplier;
             }
-            
+
             // Apply skill bonuses
             const skillMultiplier = 1 + this.getSkillBonus('goldMultiplier');
             goldEarned *= skillMultiplier;
-            
+
             this.goldEarned += Math.floor(goldEarned);
-            
+
             // Visual feedback: damage number
             this.showDamageNumber(damage);
-            
+
             // Visual feedback: screen shake
             document.querySelector('.app-container').classList.add('screen-shake');
             setTimeout(() => {
                 document.querySelector('.app-container').classList.remove('screen-shake');
             }, 500);
-            
+
             // Visual feedback: HP bar shake
             const hpBar = document.getElementById('hp-bar');
             hpBar.classList.add('hp-bar-hit');
             setTimeout(() => hpBar.classList.remove('hp-bar-hit'), 300);
-            
+
             // Visual feedback: gold coin
             this.showGoldCoin();
-            
+
             this.updateMonsterHUD();
 
             // Monster defeated?
@@ -377,16 +398,16 @@ class CodeOfMeridaeiaGame {
         const baseXP = this.xpMultipliers[this.currentQuestion.difficulty];
         const timeBonus = Math.floor((this.timeLeft / 60) * this.maxTimeBonus);
         let totalXP = baseXP + timeBonus;
-        
+
         // Apply XP multiplier from accessory
         if (this.userProfile.equipped?.accessories?.stats?.xpMultiplier) {
             totalXP *= this.userProfile.equipped.accessories.stats.xpMultiplier;
         }
-        
+
         // Apply skill bonuses
         const skillMultiplier = 1 + this.getSkillBonus('xpMultiplier');
         totalXP *= skillMultiplier;
-        
+
         return Math.floor(totalXP);
     }
 
@@ -435,19 +456,56 @@ class CodeOfMeridaeiaGame {
         // Bonus gold for kill
         this.goldEarned += 20;
         this.userProfile.gold = (this.userProfile.gold || 0) + this.goldEarned;
-        
+
+        // Increment story progress and update environment
+        this.userProfile.storyProgress = (this.userProfile.storyProgress || 0) + 20;
+        this.updateEnvironmentByProgress();
+
         // Reset monster HP for next encounter
         this.currentMonsterHP = this.monsterMaxHP;
-        
+
         // Notification
         this.showNotification(`🗡️ Monster Slain! +${this.goldEarned} Gold`);
-        
+
         // Track event
         codeQuestDB.trackEvent('monster_defeated', { goldEarned: this.goldEarned });
-        
+
         // Save and reset
         codeQuestDB.saveUserProfile(this.userProfile);
         this.goldEarned = 0;
+    }
+
+    // Environment Management
+    setEnvironment(envName) {
+        const gameArea = document.getElementById('game-area');
+        const environments = ['wasteland', 'forest', 'mountains', 'lakes', 'gates'];
+
+        // Remove all environment classes
+        environments.forEach(env => {
+            gameArea.classList.remove(`env-${env}`);
+        });
+
+        // Add new environment class
+        if (envName && environments.includes(envName)) {
+            gameArea.classList.add(`env-${envName}`);
+        }
+    }
+
+    updateEnvironmentByProgress() {
+        const progress = this.userProfile.storyProgress || 0;
+
+        // Environment progression based on story progress
+        if (progress >= 400) {
+            this.setEnvironment('gates');
+        } else if (progress >= 300) {
+            this.setEnvironment('lakes');
+        } else if (progress >= 200) {
+            this.setEnvironment('mountains');
+        } else if (progress >= 100) {
+            this.setEnvironment('forest');
+        } else {
+            this.setEnvironment('wasteland');
+        }
     }
 
     showFeedback(isCorrect, selectedIndex) {
@@ -837,7 +895,7 @@ class CodeOfMeridaeiaGame {
     toggleCharacterSheet() {
         const content = document.getElementById('sheet-content');
         const icon = document.getElementById('sheet-toggle-icon');
-        
+
         if (content.classList.contains('collapsed')) {
             content.classList.remove('collapsed');
             icon.textContent = '▼';
@@ -852,7 +910,7 @@ class CodeOfMeridaeiaGame {
 
         // Get hero data based on category
         const heroData = this.getHeroData(this.currentCategory);
-        
+
         // Update portrait
         const portrait = document.getElementById('current-hero-portrait');
         if (portrait && heroData.image) {
@@ -882,44 +940,44 @@ class CodeOfMeridaeiaGame {
             java: {
                 className: 'Barbarian Warrior',
                 identity: 'Grom the Uncompiled',
-                image: 'assets/heroes/hero-java.png'
+                image: 'assets/heroes/hero-grom-portrait.png'
             },
             cpp: {
                 className: 'Dark Wizard',
                 identity: 'Malloc the Void-Walker',
-                image: 'assets/heroes/hero-cpp.png'
+                image: 'assets/heroes/hero-malloc-portrait.png'
             },
             networking: {
                 className: 'Knight Paladin',
                 identity: 'Ser Handshake',
-                image: 'assets/heroes/hero-networking.png'
+                image: 'assets/heroes/hero-handshake-portrait.png'
             },
             dataEngineering: {
                 className: 'Knight Archer',
                 identity: 'Artemis the Stream-Caller',
-                image: 'assets/heroes/hero-data.png'
+                image: 'assets/heroes/hero-artemis-portrait.png'
             },
             kernel: {
                 className: 'Dragonoid Mercenary',
                 identity: 'Vulkun of Ring Zero',
-                image: 'assets/heroes/hero-kernel.png'
+                image: 'assets/heroes/hero-vulkun-portrait.png'
             }
         };
-        return heroMap[category] || { className: 'Hero', identity: '', image: 'assets/heroes/hero-java.png' };
+        return heroMap[category] || { className: 'Hero', identity: '', image: 'assets/heroes/hero-grom-portrait.png' };
     }
 
     calculateAttackDamage() {
         let baseDamage = 25;
-        
+
         // Add weapon bonus
         if (this.userProfile.equipped?.weapons?.stats?.attackBonus) {
             baseDamage += this.userProfile.equipped.weapons.stats.attackBonus;
         }
-        
+
         // Add skill bonuses
         const skillBonus = this.getSkillBonus('attackBonus');
         baseDamage += skillBonus;
-        
+
         return baseDamage;
     }
 
@@ -932,14 +990,14 @@ class CodeOfMeridaeiaGame {
         const damageEl = document.createElement('div');
         damageEl.className = 'damage-number';
         damageEl.textContent = `-${damage}`;
-        
+
         // Position randomly around the monster HUD
         const rect = monsterHud.getBoundingClientRect();
         damageEl.style.left = `${rect.left + rect.width / 2 + (Math.random() - 0.5) * 100}px`;
         damageEl.style.top = `${rect.top + rect.height / 2}px`;
-        
+
         document.body.appendChild(damageEl);
-        
+
         setTimeout(() => damageEl.remove(), 1500);
     }
 
@@ -950,13 +1008,13 @@ class CodeOfMeridaeiaGame {
         const coinEl = document.createElement('div');
         coinEl.className = 'gold-coin-float';
         coinEl.textContent = '💰 +5';
-        
+
         const rect = goldDisplay.getBoundingClientRect();
         coinEl.style.left = `${rect.left + rect.width / 2}px`;
         coinEl.style.top = `${rect.top}px`;
-        
+
         document.body.appendChild(coinEl);
-        
+
         setTimeout(() => coinEl.remove(), 1200);
     }
 
@@ -993,7 +1051,7 @@ class CodeOfMeridaeiaGame {
     renderShopInventory(category) {
         const container = document.getElementById('shop-inventory');
         const items = shopInventory[category];
-        
+
         container.innerHTML = items.map(item => `
             <div class="shop-item">
                 <div class="shop-item-header">
@@ -1014,7 +1072,7 @@ class CodeOfMeridaeiaGame {
                 </button>
             </div>
         `).join('');
-        
+
         // Update active tab
         document.querySelectorAll('.shop-tab').forEach(tab => {
             tab.classList.toggle('active', tab.dataset.category === category);
@@ -1023,41 +1081,41 @@ class CodeOfMeridaeiaGame {
 
     renderItemStats(item) {
         if (!item.stats) return '';
-        
+
         const stats = [];
         if (item.stats.attackBonus) stats.push(`+${item.stats.attackBonus} Attack`);
         if (item.stats.barrierBonus) stats.push(`+${item.stats.barrierBonus} Max Barrier`);
         if (item.stats.goldMultiplier) stats.push(`+${Math.round((item.stats.goldMultiplier - 1) * 100)}% Gold`);
         if (item.stats.xpMultiplier) stats.push(`+${Math.round((item.stats.xpMultiplier - 1) * 100)}% XP`);
         if (item.stats.timerBonus) stats.push(`+${item.stats.timerBonus}s Timer`);
-        
+
         return `<div class="shop-item-stats">${stats.map(s => `<span>✓ ${s}</span>`).join('')}</div>`;
     }
 
     purchaseItem(itemId, category) {
         const item = shopInventory[category].find(i => i.id === itemId);
-        
+
         if (!item || this.userProfile.gold < item.price) {
             this.showNotification('❌ Not enough gold!');
             return;
         }
-        
+
         // Deduct gold
         this.userProfile.gold -= item.price;
-        
+
         // Add to inventory or equip
         if (category === 'consumables') {
             this.addToInventory(item);
         } else {
             this.equipItem(item, category);
         }
-        
+
         // Save and update UI
         codeQuestDB.saveUserProfile(this.userProfile);
         this.updateShopGold();
         this.updateCharacterSheet();
         this.renderShopInventory(category);
-        
+
         this.showNotification(`✅ Purchased ${item.name}!`);
         codeQuestDB.trackEvent('item_purchased', { itemId, category, price: item.price });
     }
@@ -1067,14 +1125,14 @@ class CodeOfMeridaeiaGame {
         if (this.userProfile.equipped[slot]) {
             this.addToInventory(this.userProfile.equipped[slot]);
         }
-        
+
         // Equip new item
         this.userProfile.equipped[slot] = item;
     }
 
     addToInventory(item) {
         if (!this.userProfile.inventory) this.userProfile.inventory = [];
-        
+
         // Stack consumables
         if (item.stackable) {
             const existing = this.userProfile.inventory.find(i => i.id === item.id);
@@ -1084,7 +1142,7 @@ class CodeOfMeridaeiaGame {
             }
             item.quantity = 1;
         }
-        
+
         this.userProfile.inventory.push(item);
     }
 
@@ -1107,7 +1165,7 @@ class CodeOfMeridaeiaGame {
 
     renderSkillTree() {
         const container = document.getElementById('skill-tree-container');
-        
+
         container.innerHTML = Object.entries(skillTree).map(([categoryKey, category]) => {
             return `
                 <div class="skill-category">
@@ -1127,7 +1185,7 @@ class CodeOfMeridaeiaGame {
         const currentLevel = this.getSkillLevel(skill.id);
         const isMaxed = currentLevel >= skill.maxLevel;
         const canAfford = this.userProfile.xp >= skill.cost;
-        
+
         return `
             <div class="skill-item">
                 <div class="skill-header">
@@ -1140,13 +1198,13 @@ class CodeOfMeridaeiaGame {
                         <span>⭐</span>
                         <span>${skill.cost} XP</span>
                     </div>
-                    ${isMaxed ? 
-                        '<span class="skill-maxed">✓ Maxed</span>' :
-                        `<button class="upgrade-btn" onclick="game.upgradeSkill('${skill.id}')" 
+                    ${isMaxed ?
+                '<span class="skill-maxed">✓ Maxed</span>' :
+                `<button class="upgrade-btn" onclick="game.upgradeSkill('${skill.id}')" 
                             ${!canAfford ? 'disabled' : ''}>
                             ${!canAfford ? 'Not Enough XP' : 'Upgrade'}
                         </button>`
-                    }
+            }
                 </div>
             </div>
         `;
@@ -1164,34 +1222,34 @@ class CodeOfMeridaeiaGame {
             skill = category.skills.find(s => s.id === skillId);
             if (skill) break;
         }
-        
+
         if (!skill) return;
-        
+
         const currentLevel = this.getSkillLevel(skillId);
-        
+
         if (currentLevel >= skill.maxLevel) {
             this.showNotification('❌ Skill already maxed!');
             return;
         }
-        
+
         if (this.userProfile.xp < skill.cost) {
             this.showNotification('❌ Not enough XP!');
             return;
         }
-        
+
         // Deduct XP
         this.userProfile.xp -= skill.cost;
-        
+
         // Upgrade skill
         if (!this.userProfile.skills) this.userProfile.skills = {};
         this.userProfile.skills[skillId] = currentLevel + 1;
-        
+
         // Save and update UI
         codeQuestDB.saveUserProfile(this.userProfile);
         this.updateAvailableXP();
         this.updateProfileUI();
         this.renderSkillTree();
-        
+
         this.showNotification(`✅ Upgraded ${skill.name}!`);
         codeQuestDB.trackEvent('skill_upgraded', { skillId, newLevel: this.userProfile.skills[skillId] });
     }
@@ -1203,7 +1261,7 @@ class CodeOfMeridaeiaGame {
     // Apply skill effects
     getSkillBonus(effectType) {
         if (!this.userProfile.skills) return 0;
-        
+
         let total = 0;
         for (const category of Object.values(skillTree)) {
             for (const skill of category.skills) {
@@ -1219,7 +1277,7 @@ class CodeOfMeridaeiaGame {
                 }
             }
         }
-        
+
         return total;
     }
 
@@ -1238,12 +1296,12 @@ class CodeOfMeridaeiaGame {
     renderInventory() {
         const container = document.getElementById('inventory-items');
         const inventory = this.userProfile.inventory || [];
-        
+
         if (inventory.length === 0) {
             container.innerHTML = '<p class="empty-inventory">Your inventory is empty. Visit the shop to purchase items!</p>';
             return;
         }
-        
+
         container.innerHTML = inventory.map(item => `
             <div class="inventory-item">
                 <div class="inventory-item-header">
@@ -1264,12 +1322,12 @@ class CodeOfMeridaeiaGame {
     useConsumable(itemId) {
         const inventory = this.userProfile.inventory || [];
         const item = inventory.find(i => i.id === itemId);
-        
+
         if (!item) {
             this.showNotification('❌ Item not found!');
             return;
         }
-        
+
         // Apply consumable effect
         switch (itemId) {
             case 'scroll_skip':
@@ -1281,7 +1339,7 @@ class CodeOfMeridaeiaGame {
                 this.showNotification('📜 Question Skipped!');
                 this.nextQuestion();
                 break;
-                
+
             case 'potion_shield':
                 // Restore 1 barrier point
                 const maxBarrier = this.getMaxBarrierPoints();
@@ -1293,7 +1351,7 @@ class CodeOfMeridaeiaGame {
                 this.updateCharacterSheet();
                 this.showNotification('🛡️ Barrier Restored!');
                 break;
-                
+
             case 'time_crystal':
                 // Add 15 seconds to timer
                 if (!this.isGameActive) {
@@ -1304,12 +1362,12 @@ class CodeOfMeridaeiaGame {
                 this.updateTimerUI();
                 this.showNotification('⏰ +15 Seconds!');
                 break;
-                
+
             default:
                 this.showNotification('❌ Unknown item effect!');
                 return;
         }
-        
+
         // Remove or decrement item
         if (item.quantity && item.quantity > 1) {
             item.quantity--;
@@ -1317,7 +1375,7 @@ class CodeOfMeridaeiaGame {
             const index = inventory.indexOf(item);
             inventory.splice(index, 1);
         }
-        
+
         // Save and update UI
         codeQuestDB.saveUserProfile(this.userProfile);
         this.renderInventory();
@@ -1326,16 +1384,16 @@ class CodeOfMeridaeiaGame {
 
     getMaxBarrierPoints() {
         let maxBarrier = 3; // Base barrier
-        
+
         // Add armor bonus
         if (this.userProfile.equipped?.armor?.stats?.barrierBonus) {
             maxBarrier += this.userProfile.equipped.armor.stats.barrierBonus;
         }
-        
+
         // Add skill bonuses
         const skillBonus = this.getSkillBonus('barrierBonus');
         maxBarrier += skillBonus;
-        
+
         return maxBarrier;
     }
 }

@@ -453,7 +453,35 @@ h4 {
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.monster-portrait-container {
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 2px solid var(--error);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.monster-portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.monster-hud:hover .monster-portrait {
+    transform: scale(1.05);
+}
+
+.monster-details {
+    flex: 1;
+    text-align: left;
 }
 
 .monster-info {
@@ -758,6 +786,60 @@ h4 {
 #game-area {
     max-width: 800px;
     margin: 0 auto;
+    position: relative;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    transition: background 0.5s ease;
+}
+
+/* Environment Backgrounds */
+#game-area.env-wasteland {
+    background-image: url('assets/environments/tile-wasteland.png');
+    background-size: 256px 256px;
+    background-repeat: repeat;
+}
+
+#game-area.env-forest {
+    background-image: url('assets/environments/tile-forest.png');
+    background-size: 256px 256px;
+    background-repeat: repeat;
+}
+
+#game-area.env-mountains {
+    background-image: url('assets/environments/tile-mountains.png');
+    background-size: 256px 256px;
+    background-repeat: repeat;
+}
+
+#game-area.env-lakes {
+    background-image: url('assets/environments/tile-lakes.png');
+    background-size: 256px 256px;
+    background-repeat: repeat;
+}
+
+#game-area.env-gates {
+    background-image: url('assets/environments/tile-gates.png');
+    background-size: 256px 256px;
+    background-repeat: repeat;
+}
+
+/* Environment overlay for readability */
+#game-area[class*="env-"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(10, 10, 15, 0.7) 0%, rgba(10, 10, 15, 0.9) 100%);
+    border-radius: var(--radius-lg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+#game-area[class*="env-"]>* {
+    position: relative;
+    z-index: 1;
 }
 
 .game-header {
