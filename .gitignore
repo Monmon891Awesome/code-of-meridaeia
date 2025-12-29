@@ -33,4 +33,11 @@ logs/
 # Temporary files
 *.tmp
 .temp/
-DO NOT PUSH TO GITHUB LMAO/supabase-credentials.txt
+
+# Security and private documentation
+DO NOT PUSH TO GITHUB LMAO/
+
+# Backup files
+*.tar.gz
+*.zip
+*backup*.tar.gz
