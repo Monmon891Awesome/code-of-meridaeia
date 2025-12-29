@@ -660,6 +660,201 @@ h4 {
     border-color: #9333ea !important;
 }
 
+/* ============ CHARACTER STORY MODAL (Phase E) ============ */
+.story-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.story-modal.hidden {
+    display: none;
+}
+
+.story-modal-content {
+    max-width: 700px;
+    width: 90%;
+    background: linear-gradient(135deg, rgba(20, 20, 30, 0.95), rgba(30, 30, 50, 0.95));
+    border: 3px solid var(--primary-color, #6366f1);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3),
+        0 0 100px rgba(99, 102, 241, 0.1);
+    animation: slideUp 0.6s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.story-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+            transparent,
+            var(--primary-color, #6366f1),
+            transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shimmer {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.story-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+}
+
+.story-hero-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color, #6366f1);
+    margin: 0 0 10px 0;
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    letter-spacing: 1px;
+}
+
+.story-hero-title {
+    font-size: 1.1rem;
+    color: #a0a0b0;
+    font-style: italic;
+    margin: 0;
+}
+
+.story-body {
+    margin: 30px 0;
+}
+
+.story-text {
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: #e0e0e0;
+    font-style: italic;
+    text-align: justify;
+    margin: 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 4px solid var(--primary-color, #6366f1);
+    border-radius: 8px;
+}
+
+.story-footer {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.story-continue-btn {
+    background: linear-gradient(135deg, var(--primary-color, #6366f1), #8b5cf6);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.story-continue-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(99, 102, 241, 0.6);
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+.story-continue-btn:active {
+    transform: translateY(0);
+}
+
+/* Hero-specific colors */
+.story-modal[data-hero="java"] .story-modal-content {
+    border-color: #dc2626;
+}
+
+.story-modal[data-hero="java"] .story-hero-name {
+    color: #dc2626;
+    text-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+}
+
+.story-modal[data-hero="cpp"] .story-modal-content {
+    border-color: #2563eb;
+}
+
+.story-modal[data-hero="cpp"] .story-hero-name {
+    color: #2563eb;
+    text-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+}
+
+.story-modal[data-hero="networking"] .story-modal-content {
+    border-color: #16a34a;
+}
+
+.story-modal[data-hero="networking"] .story-hero-name {
+    color: #16a34a;
+    text-shadow: 0 0 20px rgba(22, 163, 74, 0.5);
+}
+
+.story-modal[data-hero="dataEngineering"] .story-modal-content {
+    border-color: #9333ea;
+}
+
+.story-modal[data-hero="dataEngineering"] .story-hero-name {
+    color: #9333ea;
+    text-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+}
+
+.story-modal[data-hero="kernel"] .story-modal-content {
+    border-color: #ea580c;
+}
+
+.story-modal[data-hero="kernel"] .story-hero-name {
+    color: #ea580c;
+    text-shadow: 0 0 20px rgba(234, 88, 12, 0.5);
+}
+
+.story-modal[data-hero="marakathalessa"] .story-modal-content {
+    border-color: #9333ea;
+}
+
+.story-modal[data-hero="marakathalessa"] .story-hero-name {
+    color: #9333ea;
+    text-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+}
+
 /* ============ BOSS FIGHT AREA ============ */
 #boss-fight-area {
     max-width: 900px;

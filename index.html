@@ -396,6 +396,24 @@
             </button>
         </section>
 
+        <!-- Character Story Modal (Phase E) -->
+        <div id="story-modal" class="story-modal hidden">
+            <div class="story-modal-content">
+                <div class="story-header">
+                    <h2 id="story-hero-name" class="story-hero-name"></h2>
+                    <p id="story-hero-title" class="story-hero-title"></p>
+                </div>
+                <div class="story-body">
+                    <p id="story-text" class="story-text"></p>
+                </div>
+                <div class="story-footer">
+                    <button class="story-continue-btn" onclick="game.closeStory()">
+                        Continue Your Journey →
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Boss Fight Area (Phase C) -->
         <section id="boss-fight-area" class="hidden">
             <div class="boss-encounter-header">
@@ -676,6 +694,7 @@
     <script src="questions/kernel.js"></script>
     <script src="questions/boss.js"></script>
     <script src="questions/marakathalessa.js"></script>
+    <script src="character-stories.js"></script>
     <script src="game.js"></script>
 </body>
 

@@ -244,50 +244,12 @@ class CodeOfMeridaeiaGame {
             return;
         }
 
+        // Show character story before starting chapter (Phase E)
+        this.showChapterStory(this.currentCategory, chapterNum);
+
         this.currentChapter = chapterNum;
 
-        // Filter questions for this chapter
-        this.questions = this.selectedHero.allQuestions.filter(q => q.chapter === chapterNum);
-
-        // Shuffle questions
-        this.shuffleArray(this.questions);
-
-        // Set up hero
-        this.userProfile.characterClass = this.selectedHero.heroClass;
-        this.userProfile.currentMonsterHP = 100;
-        this.userProfile.storyProgress += 5;
-        this.userProfile.barrierPoints = this.userProfile.barrierPoints || 3;
-        codeQuestDB.saveUserProfile(this.userProfile);
-
-        // Reset game state
-        this.currentQuestionIndex = 0;
-        this.score = 0;
-        this.correctAnswers = 0;
-        this.totalAnswered = 0;
-        this.isGameActive = true;
-        this.currentMonsterHP = this.monsterMaxHP;
-        this.goldEarned = 0;
-
-        // Track chapter selection
-        codeQuestDB.trackEvent('chapter_selected', {
-            category: this.currentCategory,
-            chapter: chapterNum
-        });
-
-        // Show first question
-        this.showQuestion();
-
-        // Update UI
-        document.getElementById('chapter-select').classList.add('hidden');
-        document.getElementById('game-area').classList.remove('hidden');
-        document.getElementById('current-category').textContent =
-            `${this.getCategoryDisplayName(this.currentCategory)} - Chapter ${chapterNum}`;
-
-        // Set initial environment based on story progress
-        this.updateEnvironmentByProgress();
-
-        // Update character sheet with selected hero
-        this.updateCharacterSheet();
+        // Note: Actual chapter start happens in continueChapterStart() after story closes
     }
 
     backToHeroSelect() {
@@ -615,6 +577,11 @@ class CodeOfMeridaeiaGame {
         // Unlock Marakathalessa as playable character
         this.userProfile.marakathalessaUnlocked = true;
         codeQuestDB.saveUserProfile(this.userProfile);
+
+        // Show Artemis/Vulkun reunion scene after a delay (Phase E)
+        setTimeout(() => {
+            this.showReunionScene();
+        }, 3000);
     }
 
     abandonBossFight() {
@@ -641,6 +608,108 @@ class CodeOfMeridaeiaGame {
             document.getElementById('mara-status').textContent = '✨ Story Unlocked';
             document.getElementById('mara-lock-overlay').style.display = 'none';
         }
+    }
+
+    // ============ CHARACTER STORIES (Phase E) ============
+
+    showChapterStory(category, chapterNum) {
+        // Get story data
+        const story = characterStories[category];
+        if (!story) return;
+
+        // Get the appropriate chapter intro
+        let storyText = '';
+        if (chapterNum === 1) {
+            storyText = story.chapter1Intro;
+        } else if (chapterNum === 2) {
+            storyText = story.chapter2Intro;
+        } else if (chapterNum === 3) {
+            storyText = story.chapter3Intro;
+        }
+
+        if (!storyText) return;
+
+        // Update modal content
+        document.getElementById('story-hero-name').textContent = story.heroName;
+        document.getElementById('story-hero-title').textContent = story.title;
+        document.getElementById('story-text').textContent = storyText;
+
+        // Set hero-specific color
+        const modal = document.getElementById('story-modal');
+        modal.setAttribute('data-hero', category);
+        modal.classList.remove('hidden');
+
+        // Store that we need to continue after story
+        this.pendingChapterStart = true;
+    }
+
+    closeStory() {
+        document.getElementById('story-modal').classList.add('hidden');
+
+        // If we were about to start a chapter, continue with it
+        if (this.pendingChapterStart) {
+            this.pendingChapterStart = false;
+            this.continueChapterStart();
+        }
+    }
+
+    continueChapterStart() {
+        // This continues the chapter selection after story is closed
+        // Filter questions for this chapter
+        this.questions = this.selectedHero.allQuestions.filter(q => q.chapter === this.currentChapter);
+
+        // Shuffle questions
+        this.shuffleArray(this.questions);
+
+        // Set up hero
+        this.userProfile.characterClass = this.selectedHero.heroClass;
+        this.userProfile.currentMonsterHP = 100;
+        this.userProfile.storyProgress += 5;
+        this.userProfile.barrierPoints = this.userProfile.barrierPoints || 3;
+        codeQuestDB.saveUserProfile(this.userProfile);
+
+        // Reset game state
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+        this.correctAnswers = 0;
+        this.totalAnswered = 0;
+        this.isGameActive = true;
+        this.currentMonsterHP = this.monsterMaxHP;
+        this.goldEarned = 0;
+
+        // Track chapter selection
+        codeQuestDB.trackEvent('chapter_selected', {
+            category: this.currentCategory,
+            chapter: this.currentChapter
+        });
+
+        // Show first question
+        this.showQuestion();
+
+        // Update UI
+        document.getElementById('chapter-select').classList.add('hidden');
+        document.getElementById('game-area').classList.remove('hidden');
+        document.getElementById('current-category').textContent =
+            `${this.getCategoryDisplayName(this.currentCategory)} - Chapter ${this.currentChapter}`;
+
+        // Set initial environment based on story progress
+        this.updateEnvironmentByProgress();
+
+        // Update character sheet with selected hero
+        this.updateCharacterSheet();
+    }
+
+    showReunionScene() {
+        // Epic Artemis/Vulkun reunion after true ending
+        const reunionText = storyConnections.reunion;
+
+        document.getElementById('story-hero-name').textContent = "The Twins Reunited";
+        document.getElementById('story-hero-title').textContent = "Elemari & Eke";
+        document.getElementById('story-text').textContent = reunionText;
+
+        const modal = document.getElementById('story-modal');
+        modal.setAttribute('data-hero', 'dataEngineering'); // Purple theme
+        modal.classList.remove('hidden');
     }
 
     skipIntro() {
