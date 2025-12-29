@@ -275,15 +275,6 @@ Please don't:
 
 ---
 
-## 📞 Contact
-
-- **Developer**: [Your Name]
-- **Email**: [your-email@example.com]
-- **Discord**: [Beta Tester Server Link]
-- **GitHub**: [Repository URL]
-
----
-
 ## 🎉 Fun Facts
 
 - **Total Questions**: 150+ (and growing!)
