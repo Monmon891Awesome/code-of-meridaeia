@@ -2,6 +2,7 @@
 const networkingQuestions = [
     {
         id: 'net_1',
+        chapter: 1,
         category: 'networking',
         difficulty: 'easy',
         type: 'concept',
@@ -18,6 +19,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_2',
+        chapter: 1,
         category: 'networking',
         difficulty: 'medium',
         type: 'concept',
@@ -34,6 +36,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_3',
+        chapter: 1,
         category: 'networking',
         difficulty: 'medium',
         type: 'concept',
@@ -50,6 +53,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_4',
+        chapter: 1,
         category: 'networking',
         difficulty: 'hard',
         type: 'concept',
@@ -66,6 +70,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_5',
+        chapter: 2,
         category: 'networking',
         difficulty: 'medium',
         type: 'concept',
@@ -82,6 +87,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_6',
+        chapter: 2,
         category: 'networking',
         difficulty: 'easy',
         type: 'concept',
@@ -98,6 +104,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_7',
+        chapter: 2,
         category: 'networking',
         difficulty: 'medium',
         type: 'output',
@@ -116,6 +123,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_8',
+        chapter: 2,
         category: 'networking',
         difficulty: 'hard',
         type: 'concept',
@@ -132,6 +140,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_9',
+        chapter: 3,
         category: 'networking',
         difficulty: 'medium',
         type: 'concept',
@@ -148,6 +157,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_10',
+        chapter: 3,
         category: 'networking',
         difficulty: 'hard',
         type: 'concept',
@@ -164,6 +174,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_11',
+        chapter: 3,
         category: 'networking',
         difficulty: 'medium',
         type: 'concept',
@@ -180,6 +191,7 @@ const networkingQuestions = [
     },
     {
         id: 'net_12',
+        chapter: 3,
         category: 'networking',
         difficulty: 'hard',
         type: 'concept',

@@ -2,6 +2,8 @@
 class CodeOfMeridaeiaGame {
     constructor() {
         this.currentCategory = null;
+        this.currentChapter = null;  // Phase B: Chapter system
+        this.selectedHero = null;    // Phase B: Selected hero info
         this.currentQuestion = null;
         this.currentQuestionIndex = 0;
         this.questions = [];
@@ -45,6 +47,15 @@ class CodeOfMeridaeiaGame {
             'Corrupted Compiler': 'assets/monsters/monster-corrupted-compiler.png',
             'Marakathalessa': 'assets/monsters/boss-marakathalessa-alt.png'
         };
+
+        // Boss Fight State (Phase C)
+        this.isBossFighting = false;
+        this.bossQuestions = [];
+        this.currentBossQuestionIndex = 0;
+        this.currentBossQuestion = null;
+        this.currentHintIndex = 0;
+        this.bossHP = 1000;
+        this.bossMaxHP = 1000;
     }
 
     async init() {
@@ -64,6 +75,15 @@ class CodeOfMeridaeiaGame {
         // Update UI with profile
         this.updateProfileUI();
 
+        // Initialize nav state (Phase A)
+        this.initNavState();
+
+        // Check if boss should be unlocked (Phase C)
+        this.updateBossCardStatus();
+
+        // Check if Marakathalessa playable is unlocked (Phase D)
+        this.updateMaraCardStatus();
+
         // Track session start
         await codeQuestDB.trackEvent('session_start', {
             username: this.userProfile.username,
@@ -77,40 +97,167 @@ class CodeOfMeridaeiaGame {
 
     selectCategory(category) {
         this.currentCategory = category;
+        this.selectedHero = null;
 
-        // Get questions for category
+        // Get hero info for category
         let heroClass = '';
+        let heroName = '';
+        let heroPortrait = '';
+        let allQuestions = [];
+
         switch (category) {
             case 'java':
-                this.questions = [...javaQuestions];
+                allQuestions = [...javaQuestions];
                 heroClass = 'Barbarian Warrior';
+                heroName = 'Grom the Uncompiled';
+                heroPortrait = 'assets/heroes/hero-grom-portrait.png';
                 break;
             case 'cpp':
-                this.questions = [...cppQuestions];
+                allQuestions = [...cppQuestions];
                 heroClass = 'Dark Wizard';
+                heroName = 'Malloc the Void-Walker';
+                heroPortrait = 'assets/heroes/hero-malloc-portrait.png';
                 break;
             case 'networking':
-                this.questions = [...networkingQuestions];
+                allQuestions = [...networkingQuestions];
                 heroClass = 'Knight Paladin';
+                heroName = 'Ser Handshake';
+                heroPortrait = 'assets/heroes/hero-handshake-portrait.png';
                 break;
             case 'dataEngineering':
-                this.questions = [...dataEngineeringQuestions];
+                allQuestions = [...dataEngineeringQuestions];
                 heroClass = 'Knight Archer';
+                heroName = 'Artemis the Stream-Caller';
+                heroPortrait = 'assets/heroes/hero-artemis-portrait.png';
                 break;
             case 'kernel':
-                this.questions = [...kernelQuestions];
+                allQuestions = [...kernelQuestions];
                 heroClass = 'Dragonoid Mercenary';
+                heroName = 'Vulkun of Ring Zero';
+                heroPortrait = 'assets/heroes/hero-vulkun-portrait.png';
+                break;
+            case 'marakathalessa':
+                // Check if unlocked
+                if (!this.isMarakathalessaUnlocked()) {
+                    this.showNotification('🔒 Defeat the boss to unlock her story!');
+                    return;
+                }
+                allQuestions = [...marakathalessaQuestions];
+                heroClass = 'Corrupted Mage';
+                heroName = 'Marakathalessa Redeemed';
+                heroPortrait = 'assets/monsters/boss-marakathalessa-alt.png';
                 break;
         }
 
-        this.userProfile.characterClass = heroClass;
-        this.userProfile.currentMonsterHP = 100; // New monster for new quest
-        this.userProfile.storyProgress += 5; // Venture deeper into the wasteland
-        this.userProfile.barrierPoints = this.userProfile.barrierPoints || 3; // Initialize barrier points
-        codeQuestDB.saveUserProfile(this.userProfile);
+        // Store hero info for later
+        this.selectedHero = {
+            category,
+            heroClass,
+            heroName,
+            heroPortrait,
+            allQuestions
+        };
+
+        // Show chapter selection UI
+        this.showChapterSelect();
+    }
+
+    // ============ CHAPTER SYSTEM (Phase B) ============
+
+    showChapterSelect() {
+        // Hide hero selection, show chapter selection
+        document.getElementById('category-select').classList.add('hidden');
+        document.getElementById('chapter-select').classList.remove('hidden');
+
+        // Update chapter hero name
+        document.getElementById('chapter-hero-name').textContent =
+            `${this.selectedHero.heroName}'s Journey`;
+
+        // Get chapter progress for this hero
+        const chapterProgress = this.userProfile.chapterProgress?.[this.currentCategory] ||
+            { chapter1: false, chapter2: false, chapter3: false };
+
+        // Count questions per chapter
+        const ch1Count = this.selectedHero.allQuestions.filter(q => q.chapter === 1).length;
+        const ch2Count = this.selectedHero.allQuestions.filter(q => q.chapter === 2).length;
+        const ch3Count = this.selectedHero.allQuestions.filter(q => q.chapter === 3).length;
+
+        // Update chapter counts
+        document.getElementById('ch1-count').textContent = ch1Count;
+        document.getElementById('ch2-count').textContent = ch2Count;
+        document.getElementById('ch3-count').textContent = ch3Count;
+
+        // Update chapter cards based on progress
+        const card1 = document.getElementById('chapter-card-1');
+        const card2 = document.getElementById('chapter-card-2');
+        const card3 = document.getElementById('chapter-card-3');
+
+        // Chapter 1 is always unlocked
+        card1.classList.remove('locked', 'completed');
+        if (chapterProgress.chapter1) {
+            card1.classList.add('completed');
+            document.getElementById('ch1-status').textContent = '✅ Completed';
+        } else {
+            document.getElementById('ch1-status').textContent = '🔓 Unlocked';
+        }
+
+        // Chapter 2 unlocks after Chapter 1
+        card2.classList.remove('locked', 'completed');
+        if (chapterProgress.chapter2) {
+            card2.classList.add('completed');
+            document.getElementById('ch2-status').textContent = '✅ Completed';
+        } else if (chapterProgress.chapter1) {
+            document.getElementById('ch2-status').textContent = '🔓 Unlocked';
+        } else {
+            card2.classList.add('locked');
+            document.getElementById('ch2-status').textContent = '🔒 Complete Chapter I';
+        }
+
+        // Chapter 3 unlocks after Chapter 2
+        card3.classList.remove('locked', 'completed');
+        if (chapterProgress.chapter3) {
+            card3.classList.add('completed');
+            document.getElementById('ch3-status').textContent = '✅ Completed';
+        } else if (chapterProgress.chapter2) {
+            document.getElementById('ch3-status').textContent = '🔓 Unlocked';
+        } else {
+            card3.classList.add('locked');
+            document.getElementById('ch3-status').textContent = '🔒 Complete Chapter II';
+        }
+
+        // Track event
+        codeQuestDB.trackEvent('chapter_select_shown', { category: this.currentCategory });
+    }
+
+    selectChapter(chapterNum) {
+        // Check if chapter is unlocked
+        const chapterProgress = this.userProfile.chapterProgress?.[this.currentCategory] ||
+            { chapter1: false, chapter2: false, chapter3: false };
+
+        const isUnlocked =
+            chapterNum === 1 ||
+            (chapterNum === 2 && chapterProgress.chapter1) ||
+            (chapterNum === 3 && chapterProgress.chapter2);
+
+        if (!isUnlocked) {
+            this.showNotification('🔒 Complete the previous chapter first!');
+            return;
+        }
+
+        this.currentChapter = chapterNum;
+
+        // Filter questions for this chapter
+        this.questions = this.selectedHero.allQuestions.filter(q => q.chapter === chapterNum);
 
         // Shuffle questions
         this.shuffleArray(this.questions);
+
+        // Set up hero
+        this.userProfile.characterClass = this.selectedHero.heroClass;
+        this.userProfile.currentMonsterHP = 100;
+        this.userProfile.storyProgress += 5;
+        this.userProfile.barrierPoints = this.userProfile.barrierPoints || 3;
+        codeQuestDB.saveUserProfile(this.userProfile);
 
         // Reset game state
         this.currentQuestionIndex = 0;
@@ -118,23 +265,65 @@ class CodeOfMeridaeiaGame {
         this.correctAnswers = 0;
         this.totalAnswered = 0;
         this.isGameActive = true;
+        this.currentMonsterHP = this.monsterMaxHP;
+        this.goldEarned = 0;
 
-        // Track category selection
-        codeQuestDB.trackEvent('category_selected', { category });
+        // Track chapter selection
+        codeQuestDB.trackEvent('chapter_selected', {
+            category: this.currentCategory,
+            chapter: chapterNum
+        });
 
         // Show first question
         this.showQuestion();
 
         // Update UI
-        document.getElementById('category-select').classList.add('hidden');
+        document.getElementById('chapter-select').classList.add('hidden');
         document.getElementById('game-area').classList.remove('hidden');
-        document.getElementById('current-category').textContent = this.getCategoryDisplayName(category);
+        document.getElementById('current-category').textContent =
+            `${this.getCategoryDisplayName(this.currentCategory)} - Chapter ${chapterNum}`;
 
         // Set initial environment based on story progress
         this.updateEnvironmentByProgress();
 
         // Update character sheet with selected hero
         this.updateCharacterSheet();
+    }
+
+    backToHeroSelect() {
+        document.getElementById('chapter-select').classList.add('hidden');
+        document.getElementById('category-select').classList.remove('hidden');
+        this.currentCategory = null;
+        this.selectedHero = null;
+    }
+
+    completeChapter() {
+        if (!this.currentCategory || !this.currentChapter) return;
+
+        // Mark chapter as complete
+        if (!this.userProfile.chapterProgress) {
+            this.userProfile.chapterProgress = {
+                java: { chapter1: false, chapter2: false, chapter3: false },
+                cpp: { chapter1: false, chapter2: false, chapter3: false },
+                networking: { chapter1: false, chapter2: false, chapter3: false },
+                dataEngineering: { chapter1: false, chapter2: false, chapter3: false },
+                kernel: { chapter1: false, chapter2: false, chapter3: false }
+            };
+        }
+
+        const chapterKey = `chapter${this.currentChapter}`;
+        this.userProfile.chapterProgress[this.currentCategory][chapterKey] = true;
+        codeQuestDB.saveUserProfile(this.userProfile);
+
+        // Show completion notification
+        const chapterNames = ['The Awakening', 'Rising Storm', 'The Reckoning'];
+        this.showNotification(`📖 Chapter ${this.currentChapter}: ${chapterNames[this.currentChapter - 1]} Complete!`);
+
+        // Track event
+        codeQuestDB.trackEvent('chapter_completed', {
+            category: this.currentCategory,
+            chapter: this.currentChapter
+        });
     }
 
     getCategoryDisplayName(category) {
@@ -146,6 +335,312 @@ class CodeOfMeridaeiaGame {
             kernel: '🐉 Mercenary (Kernel)'
         };
         return names[category] || category;
+    }
+
+    // ============ BOSS FIGHT SYSTEM (Phase C) ============
+
+    isBossUnlocked() {
+        const progress = this.userProfile.chapterProgress;
+        if (!progress) return false;
+
+        // Check if any hero has all 3 chapters complete
+        for (const hero of Object.keys(progress)) {
+            const cp = progress[hero];
+            if (cp.chapter1 && cp.chapter2 && cp.chapter3) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    updateBossCardStatus() {
+        const bossCard = document.getElementById('boss-card');
+        if (!bossCard) return;
+
+        if (this.isBossUnlocked()) {
+            bossCard.classList.remove('locked');
+            document.getElementById('boss-status').textContent = '⚔️ Challenge Available';
+            document.getElementById('boss-lock-overlay').style.display = 'none';
+        }
+    }
+
+    selectBoss() {
+        if (!this.isBossUnlocked()) {
+            this.showNotification('🔒 Complete all 3 chapters of any hero first!');
+            return;
+        }
+
+        // Start boss fight
+        this.isBossFighting = true;
+        this.bossQuestions = [...bossQuestions];
+        this.shuffleArray(this.bossQuestions);
+        this.currentBossQuestionIndex = 0;
+        this.bossHP = this.bossMaxHP;
+
+        // Hide hero select, show boss fight
+        document.getElementById('category-select').classList.add('hidden');
+        document.getElementById('boss-fight-area').classList.remove('hidden');
+
+        // Track event
+        codeQuestDB.trackEvent('boss_fight_started', {});
+
+        // Show first question
+        this.showBossQuestion();
+    }
+
+    showBossQuestion() {
+        if (this.currentBossQuestionIndex >= this.bossQuestions.length) {
+            // All questions answered - boss defeated
+            this.defeatBoss();
+            return;
+        }
+
+        this.currentBossQuestion = this.bossQuestions[this.currentBossQuestionIndex];
+        this.currentHintIndex = 0;
+
+        // Update question number
+        document.getElementById('boss-question-number').textContent =
+            `Challenge ${this.currentBossQuestionIndex + 1} of ${this.bossQuestions.length}`;
+
+        // Update question text
+        document.getElementById('boss-question-text').textContent = this.currentBossQuestion.question;
+
+        // Update code block
+        const codeBlock = document.getElementById('boss-code-block');
+        if (this.currentBossQuestion.code) {
+            codeBlock.classList.remove('hidden');
+            document.getElementById('boss-code').textContent = this.currentBossQuestion.code;
+        } else {
+            codeBlock.classList.add('hidden');
+        }
+
+        // Clear input
+        document.getElementById('code-answer').value = '';
+        document.getElementById('code-answer').disabled = false;
+
+        // Reset hints
+        document.getElementById('current-hint').classList.add('hidden');
+        document.getElementById('current-hint').textContent = '';
+        document.getElementById('hints-remaining').textContent =
+            `${this.currentBossQuestion.hints.length} hints remaining`;
+
+        // Hide feedback and next button
+        document.getElementById('boss-feedback').classList.add('hidden');
+        document.getElementById('boss-next-btn').classList.add('hidden');
+
+        // Update HP bar
+        this.updateBossHPBar();
+    }
+
+    updateBossHPBar() {
+        const hpPercent = Math.max(0, (this.bossHP / this.bossMaxHP) * 100);
+        document.getElementById('boss-hp-bar').style.width = `${hpPercent}%`;
+        document.getElementById('boss-hp-text').textContent = `${Math.max(0, this.bossHP)} / ${this.bossMaxHP}`;
+    }
+
+    submitBossAnswer() {
+        const answer = document.getElementById('code-answer').value.trim().toLowerCase();
+        if (!answer) {
+            this.showNotification('Please enter an answer');
+            return;
+        }
+
+        // Check if answer is correct (case-insensitive, flexible matching)
+        const acceptedAnswers = this.currentBossQuestion.acceptedAnswers.map(a => a.toLowerCase().trim());
+        const isCorrect = acceptedAnswers.includes(answer);
+
+        // Disable input
+        document.getElementById('code-answer').disabled = true;
+
+        // Show feedback
+        const feedback = document.getElementById('boss-feedback');
+        const feedbackIcon = document.getElementById('boss-feedback-icon');
+        const feedbackText = document.getElementById('boss-feedback-text');
+        const explanation = document.getElementById('boss-explanation');
+
+        feedback.classList.remove('hidden', 'correct', 'incorrect');
+
+        if (isCorrect) {
+            feedback.classList.add('correct');
+            feedbackIcon.textContent = '✅';
+            feedbackText.textContent = 'Critical Hit!';
+
+            // Deal damage based on how few hints were used
+            const baseDamage = 100;
+            const damage = baseDamage + (30 * (3 - this.currentHintIndex));
+            this.bossHP -= damage;
+
+            // Show damage notification
+            this.showNotification(`⚔️ ${damage} damage dealt!`);
+
+            // Visual effects
+            this.updateBossHPBar();
+
+            // Track correct answer
+            codeQuestDB.trackEvent('boss_answer_correct', {
+                questionId: this.currentBossQuestion.id,
+                hintsUsed: this.currentHintIndex,
+                damage
+            });
+        } else {
+            feedback.classList.add('incorrect');
+            feedbackIcon.textContent = '❌';
+            feedbackText.textContent = 'Miss!';
+
+            // Boss counterattacks - reduce barrier points
+            if (this.userProfile.barrierPoints > 0) {
+                this.userProfile.barrierPoints--;
+                codeQuestDB.saveUserProfile(this.userProfile);
+            }
+
+            // Track incorrect answer
+            codeQuestDB.trackEvent('boss_answer_incorrect', {
+                questionId: this.currentBossQuestion.id,
+                userAnswer: answer
+            });
+        }
+
+        explanation.textContent = this.currentBossQuestion.explanation;
+        document.getElementById('boss-next-btn').classList.remove('hidden');
+    }
+
+    showBossHint() {
+        const cost = 10;
+
+        if (this.userProfile.gold < cost) {
+            this.showNotification('💰 Not enough gold (need 10)');
+            return;
+        }
+
+        if (this.currentHintIndex >= this.currentBossQuestion.hints.length) {
+            this.showNotification('No more hints available');
+            return;
+        }
+
+        // Deduct gold
+        this.userProfile.gold -= cost;
+        codeQuestDB.saveUserProfile(this.userProfile);
+
+        // Show hint
+        const hint = this.currentBossQuestion.hints[this.currentHintIndex++];
+        const hintElement = document.getElementById('current-hint');
+        hintElement.textContent = hint;
+        hintElement.classList.remove('hidden');
+
+        // Update hints remaining
+        const remaining = this.currentBossQuestion.hints.length - this.currentHintIndex;
+        document.getElementById('hints-remaining').textContent = `${remaining} hints remaining`;
+
+        // Update gold display
+        this.updateProfileUI();
+
+        this.showNotification(`💡 Hint revealed! (-${cost} Gold)`);
+
+        // Track event
+        codeQuestDB.trackEvent('boss_hint_used', {
+            questionId: this.currentBossQuestion.id,
+            hintIndex: this.currentHintIndex
+        });
+    }
+
+    nextBossQuestion() {
+        this.currentBossQuestionIndex++;
+        this.showBossQuestion();
+    }
+
+    defeatBoss() {
+        this.isBossFighting = false;
+
+        // Check if this is first defeat
+        if (!this.userProfile.bossDefeated) {
+            this.userProfile.bossDefeated = 'incomplete';
+            codeQuestDB.saveUserProfile(this.userProfile);
+            this.showIncompleteEnding();
+        } else {
+            // Already defeated once - check for true ending (Phase D)
+            if (this.isAllHeroesComplete()) {
+                this.userProfile.bossDefeated = 'true';
+                codeQuestDB.saveUserProfile(this.userProfile);
+                this.showTrueEnding();
+            } else {
+                this.showIncompleteEnding();
+            }
+        }
+
+        // Track event
+        codeQuestDB.trackEvent('boss_defeated', {
+            type: this.userProfile.bossDefeated
+        });
+    }
+
+    isAllHeroesComplete() {
+        const progress = this.userProfile.chapterProgress;
+        if (!progress) return false;
+
+        const heroes = ['java', 'cpp', 'networking', 'dataEngineering', 'kernel'];
+        return heroes.every(hero => {
+            const cp = progress[hero];
+            return cp && cp.chapter1 && cp.chapter2 && cp.chapter3;
+        });
+    }
+
+    showIncompleteEnding() {
+        document.getElementById('boss-fight-area').classList.add('hidden');
+        document.getElementById('results-screen').classList.remove('hidden');
+
+        // Override results with boss defeat message
+        document.querySelector('.results-icon').textContent = '⚔️';
+        document.querySelector('.results-card h2').textContent = 'Boss Defeated... For Now';
+        document.getElementById('final-score').textContent = 'Escaped';
+        document.getElementById('questions-correct').textContent = '???';
+        document.getElementById('accuracy').textContent = '???';
+
+        // Show lore notification
+        this.showNotification('📜 "I am but a pawn... The Legion of 404 awaits... Complete ALL heroes to find the truth!"');
+    }
+
+    showTrueEnding() {
+        document.getElementById('boss-fight-area').classList.add('hidden');
+        document.getElementById('results-screen').classList.remove('hidden');
+
+        // Override results with true ending message
+        document.querySelector('.results-icon').textContent = '👑';
+        document.querySelector('.results-card h2').textContent = 'TRUE VICTORY!';
+        document.getElementById('final-score').textContent = 'Champion';
+        document.getElementById('questions-correct').textContent = '100%';
+        document.getElementById('accuracy').textContent = 'MASTER';
+
+        this.showNotification('🏆 You have defeated Marakathalessa and saved Meridaeia!');
+
+        // Unlock Marakathalessa as playable character
+        this.userProfile.marakathalessaUnlocked = true;
+        codeQuestDB.saveUserProfile(this.userProfile);
+    }
+
+    abandonBossFight() {
+        if (confirm('Retreat from the boss fight? Your progress will be lost.')) {
+            this.isBossFighting = false;
+            document.getElementById('boss-fight-area').classList.add('hidden');
+            document.getElementById('category-select').classList.remove('hidden');
+            this.showNotification('You retreated from the battle...');
+        }
+    }
+
+    // ============ MARAKATHALESSA PLAYABLE (Phase D) ============
+
+    isMarakathalessaUnlocked() {
+        return this.userProfile.bossDefeated === 'true' || this.userProfile.marakathalessaUnlocked === true;
+    }
+
+    updateMaraCardStatus() {
+        const maraCard = document.getElementById('mara-playable-card');
+        if (!maraCard) return;
+
+        if (this.isMarakathalessaUnlocked()) {
+            maraCard.classList.remove('locked');
+            document.getElementById('mara-status').textContent = '✨ Story Unlocked';
+            document.getElementById('mara-lock-overlay').style.display = 'none';
+        }
     }
 
     skipIntro() {
@@ -564,9 +1059,15 @@ class CodeOfMeridaeiaGame {
         catProgress.correct += this.correctAnswers;
         codeQuestDB.saveUserProfile(this.userProfile);
 
+        // Phase B: Mark chapter as complete if player got at least 50% correct
+        if (accuracy >= 50 && this.currentChapter) {
+            this.completeChapter();
+        }
+
         // Track game completion
         codeQuestDB.trackEvent('game_completed', {
             category: this.currentCategory,
+            chapter: this.currentChapter,
             score: this.score,
             correct: this.correctAnswers,
             total: this.totalAnswered,
@@ -579,7 +1080,12 @@ class CodeOfMeridaeiaGame {
 
     playAgain() {
         document.getElementById('results-screen').classList.add('hidden');
-        document.getElementById('category-select').classList.remove('hidden');
+        // Return to chapter selection for same hero
+        if (this.selectedHero) {
+            this.showChapterSelect();
+        } else {
+            document.getElementById('category-select').classList.remove('hidden');
+        }
     }
 
     backToMenu() {
@@ -587,7 +1093,11 @@ class CodeOfMeridaeiaGame {
         clearInterval(this.timerInterval);
         document.getElementById('game-area').classList.add('hidden');
         document.getElementById('results-screen').classList.add('hidden');
+        document.getElementById('chapter-select').classList.add('hidden');
         document.getElementById('category-select').classList.remove('hidden');
+        this.currentCategory = null;
+        this.currentChapter = null;
+        this.selectedHero = null;
     }
 
     // ============ ACHIEVEMENTS ============
@@ -902,6 +1412,42 @@ class CodeOfMeridaeiaGame {
         } else {
             content.classList.add('collapsed');
             icon.textContent = '▶';
+        }
+    }
+
+    // ============ PHASE A: COLLAPSIBLE NAVIGATION ============
+
+    toggleBottomNav() {
+        const bottomBar = document.querySelector('.bottom-bar');
+        const toggleBtn = document.getElementById('nav-toggle');
+        const toggleIcon = document.getElementById('nav-toggle-icon');
+
+        if (bottomBar.classList.contains('collapsed')) {
+            bottomBar.classList.remove('collapsed');
+            toggleBtn.classList.remove('nav-hidden');
+            toggleIcon.textContent = '☰';
+        } else {
+            bottomBar.classList.add('collapsed');
+            toggleBtn.classList.add('nav-hidden');
+            toggleIcon.textContent = '⚙️';
+        }
+
+        // Save preference
+        localStorage.setItem('navCollapsed', bottomBar.classList.contains('collapsed'));
+    }
+
+    initNavState() {
+        const isCollapsed = localStorage.getItem('navCollapsed') === 'true';
+        if (isCollapsed) {
+            const bottomBar = document.querySelector('.bottom-bar');
+            const toggleBtn = document.getElementById('nav-toggle');
+            const toggleIcon = document.getElementById('nav-toggle-icon');
+
+            if (bottomBar) {
+                bottomBar.classList.add('collapsed');
+                toggleBtn?.classList.add('nav-hidden');
+                if (toggleIcon) toggleIcon.textContent = '⚙️';
+            }
         }
     }
 

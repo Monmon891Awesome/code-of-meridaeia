@@ -99,6 +99,19 @@ class CodeOfMeridaeiaDatabase {
             console.log('📦 User profile migrated to RPG schema');
         }
 
+        // Migration: Add chapterProgress for existing users (Phase B)
+        if (profile && !profile.chapterProgress) {
+            profile.chapterProgress = {
+                java: { chapter1: false, chapter2: false, chapter3: false },
+                cpp: { chapter1: false, chapter2: false, chapter3: false },
+                networking: { chapter1: false, chapter2: false, chapter3: false },
+                dataEngineering: { chapter1: false, chapter2: false, chapter3: false },
+                kernel: { chapter1: false, chapter2: false, chapter3: false }
+            };
+            await this.saveUserProfile(profile);
+            console.log('📖 User profile migrated to Chapter system');
+        }
+
         return profile;
     }
 
@@ -121,6 +134,15 @@ class CodeOfMeridaeiaDatabase {
                 dataEngineering: { completed: 0, correct: 0 },
                 kernel: { completed: 0, correct: 0 }
             },
+            // Chapter Progress - tracks completed chapters per hero
+            chapterProgress: {
+                java: { chapter1: false, chapter2: false, chapter3: false },
+                cpp: { chapter1: false, chapter2: false, chapter3: false },
+                networking: { chapter1: false, chapter2: false, chapter3: false },
+                dataEngineering: { chapter1: false, chapter2: false, chapter3: false },
+                kernel: { chapter1: false, chapter2: false, chapter3: false },
+                marakathalessa: { chapter1: false, chapter2: false, chapter3: false }
+            },
             // RPG Attributes
             characterClass: null,
             gold: 0,
@@ -132,7 +154,9 @@ class CodeOfMeridaeiaDatabase {
             inventory: [],
             storyProgress: 0,
             currentMonsterHP: 100,
-            barrierPoints: 3 // Hints as Shields/Barrier
+            barrierPoints: 3, // Hints as Shields/Barrier
+            bossDefeated: null, // Phase C: 'incomplete' or 'true'
+            marakathalessaUnlocked: false // Phase D: true after true ending
         };
         await this.saveUserProfile(profile);
         return profile;
@@ -240,7 +264,7 @@ class CodeOfMeridaeiaDatabase {
 
     async getAnalyticsSummary() {
         const allEvents = await this.getAnalytics();
-        
+
         // Aggregate data - simulating ETL process
         const summary = {
             totalEvents: allEvents.length,
@@ -252,7 +276,7 @@ class CodeOfMeridaeiaDatabase {
         allEvents.forEach(event => {
             // Count by type
             summary.eventsByType[event.eventType] = (summary.eventsByType[event.eventType] || 0) + 1;
-            
+
             // Count by day
             const day = event.timestamp.split('T')[0];
             summary.eventsPerDay[day] = (summary.eventsPerDay[day] || 0) + 1;
@@ -278,11 +302,11 @@ class CodeOfMeridaeiaDatabase {
 
     async importData(jsonString) {
         const data = JSON.parse(jsonString);
-        
+
         if (data.userProfile) {
             await this.saveUserProfile(data.userProfile);
         }
-        
+
         // Note: Progress, checkpoints, achievements would need more complex merging logic
         console.log('📥 Data imported successfully!');
         return true;

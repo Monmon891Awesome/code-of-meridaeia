@@ -379,7 +379,44 @@ const loreSnippets = [
     }
 ];
 
+// ========================================
+// LEGION OF 404 - SECRET LORE
+// Unlocked after True Ending (Phase D)
+// ========================================
+const legionLore = [
+    {
+        id: 'legion_01',
+        title: 'The Origin of the Legion',
+        text: 'The Legion of 404 was not born from malice. They were programmers who found the void between 403 (Forbidden) and 405 (Method Not Allowed). In that gap, they discovered a truth: "Not Found" is not an error. It is a state of pure potential.',
+        unlockCondition: 'true_ending'
+    },
+    {
+        id: 'legion_02',
+        title: 'The Master of Null',
+        text: 'The Legion\'s true leader is known only as NULL. They are neither presence nor absence. They are the pointer that points to nothing. They found Marakathalessa at her lowest moment and whispered: "Why fix what can be erased?"',
+        unlockCondition: 'true_ending'
+    },
+    {
+        id: 'legion_03',
+        title: 'The Four Horsemen of 404',
+        text: 'The Legion has four commanders: ENOENT (No Such File), ECONNREFUSED (Connection Refused), ETIMEDOUT (Timed Out), and ESRCH (No Such Process). Each one corrupts a different aspect of reality. Together, they are unstoppable.',
+        unlockCondition: 'true_ending'
+    },
+    {
+        id: 'legion_04',
+        title: 'The Purpose',
+        text: 'The Legion does not destroy. They erase. They make things "not found" - histories, memories, even people. Marakathalessa was their first successful conversion. The Great Compiler was their second target. You are their third.',
+        unlockCondition: 'true_ending'
+    },
+    {
+        id: 'legion_05',
+        title: 'The Final Warning',
+        text: '"You think you have won," the void whispers. "But 404 is eternal. We are in every broken link. Every missing page. Every lost file. When you cannot find what you seek... we are there. And we are waiting. See you in the sequel."',
+        unlockCondition: 'true_ending'
+    }
+];
+
 // Export for use in game
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { loreSnippets };
+    module.exports = { loreSnippets, legionLore };
 }

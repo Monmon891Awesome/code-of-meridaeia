@@ -3,6 +3,7 @@ const kernelQuestions = [
     // ============ EASY QUESTIONS (10) ============
     {
         id: 'kernel_1',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -19,6 +20,7 @@ const kernelQuestions = [
     },
     {
         id: 'kernel_2',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -35,6 +37,7 @@ const kernelQuestions = [
     },
     {
         id: 'kernel_3',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -51,6 +54,7 @@ const kernelQuestions = [
     },
     {
         id: 'kernel_4',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'output',
@@ -70,6 +74,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_5',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -86,6 +91,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_6',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -102,6 +108,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_7',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -118,6 +125,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_8',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'output',
@@ -138,6 +146,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_9',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -154,6 +163,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_10',
+        chapter: 1,
         category: 'kernel',
         difficulty: 'easy',
         type: 'concept',
@@ -172,6 +182,7 @@ if (pid == ???) {
     // ============ MEDIUM QUESTIONS (12) ============
     {
         id: 'kernel_11',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -188,6 +199,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_12',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -204,6 +216,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_13',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -220,6 +233,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_14',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -236,6 +250,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_15',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'output',
@@ -260,6 +275,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_16',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -276,6 +292,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_17',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -292,6 +309,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_18',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -308,6 +326,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_19',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -324,6 +343,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_20',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -340,6 +360,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_21',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -356,6 +377,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_22',
+        chapter: 2,
         category: 'kernel',
         difficulty: 'medium',
         type: 'concept',
@@ -374,6 +396,7 @@ if (pid == ???) {
     // ============ HARD QUESTIONS (8) ============
     {
         id: 'kernel_23',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'concept',
@@ -390,6 +413,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_24',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'concept',
@@ -406,6 +430,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_25',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'concept',
@@ -422,6 +447,7 @@ if (pid == ???) {
     },
     {
         id: 'kernel_26',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'bugfix',
@@ -451,6 +477,7 @@ void kernel_thread(void) {
     },
     {
         id: 'kernel_27',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'concept',
@@ -467,6 +494,7 @@ void kernel_thread(void) {
     },
     {
         id: 'kernel_28',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'concept',
@@ -483,6 +511,7 @@ void kernel_thread(void) {
     },
     {
         id: 'kernel_29',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'concept',
@@ -499,6 +528,7 @@ void kernel_thread(void) {
     },
     {
         id: 'kernel_30',
+        chapter: 3,
         category: 'kernel',
         difficulty: 'hard',
         type: 'output',

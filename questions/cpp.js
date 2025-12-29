@@ -2,6 +2,7 @@
 const cppQuestions = [
     {
         id: 'cpp_1',
+        chapter: 1,
         category: 'cpp',
         difficulty: 'medium',
         type: 'output',
@@ -29,6 +30,7 @@ int main() {
     },
     {
         id: 'cpp_2',
+        chapter: 1,
         category: 'cpp',
         difficulty: 'hard',
         type: 'concept',
@@ -45,6 +47,7 @@ int main() {
     },
     {
         id: 'cpp_3',
+        chapter: 1,
         category: 'cpp',
         difficulty: 'medium',
         type: 'output',
@@ -71,6 +74,7 @@ int main() {
     },
     {
         id: 'cpp_4',
+        chapter: 1,
         category: 'cpp',
         difficulty: 'hard',
         type: 'bugfix',
@@ -96,6 +100,7 @@ public:
     },
     {
         id: 'cpp_5',
+        chapter: 2,
         category: 'cpp',
         difficulty: 'medium',
         type: 'concept',
@@ -112,6 +117,7 @@ public:
     },
     {
         id: 'cpp_6',
+        chapter: 2,
         category: 'cpp',
         difficulty: 'medium',
         type: 'output',
@@ -147,6 +153,7 @@ int main() {
     },
     {
         id: 'cpp_7',
+        chapter: 2,
         category: 'cpp',
         difficulty: 'easy',
         type: 'concept',
@@ -163,6 +170,7 @@ int main() {
     },
     {
         id: 'cpp_8',
+        chapter: 2,
         category: 'cpp',
         difficulty: 'hard',
         type: 'output',
@@ -192,6 +200,7 @@ int main() {
     },
     {
         id: 'cpp_9',
+        chapter: 3,
         category: 'cpp',
         difficulty: 'medium',
         type: 'concept',
@@ -208,6 +217,7 @@ int main() {
     },
     {
         id: 'cpp_10',
+        chapter: 3,
         category: 'cpp',
         difficulty: 'medium',
         type: 'output',
@@ -235,6 +245,7 @@ int main() {
     },
     {
         id: 'cpp_11',
+        chapter: 3,
         category: 'cpp',
         difficulty: 'hard',
         type: 'concept',
@@ -251,6 +262,7 @@ int main() {
     },
     {
         id: 'cpp_12',
+        chapter: 3,
         category: 'cpp',
         difficulty: 'medium',
         type: 'output',

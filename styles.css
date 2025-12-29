@@ -446,6 +446,445 @@ h4 {
     color: var(--text-secondary);
 }
 
+/* ============ CHAPTER SELECTION ============ */
+#chapter-select {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem 0;
+}
+
+.chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 900px;
+    width: 100%;
+}
+
+.chapter-card {
+    background: linear-gradient(135deg, rgba(25, 25, 40, 0.9), rgba(20, 20, 35, 0.95));
+    border: 2px solid rgba(99, 102, 241, 0.4);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.chapter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    opacity: 0.7;
+}
+
+.chapter-card:hover:not(.locked) {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.3);
+    border-color: var(--accent-light);
+}
+
+.chapter-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: rgba(100, 100, 120, 0.3);
+    filter: grayscale(50%);
+}
+
+.chapter-card.locked::before {
+    background: linear-gradient(90deg, #555, #666);
+    opacity: 0.5;
+}
+
+.chapter-card.completed {
+    border-color: var(--success);
+}
+
+.chapter-card.completed::before {
+    background: linear-gradient(90deg, var(--success), #10b981);
+}
+
+.chapter-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: var(--radius-sm);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-light);
+}
+
+.chapter-card.completed .chapter-badge {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: var(--success);
+}
+
+.chapter-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.chapter-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.chapter-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    min-height: 3em;
+}
+
+.chapter-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.chapter-questions {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.chapter-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent-light);
+}
+
+.chapter-card.locked .chapter-status {
+    background: rgba(100, 100, 120, 0.2);
+    color: var(--text-muted);
+}
+
+.chapter-card.completed .chapter-status {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--success);
+}
+
+/* ============ BOSS CARD LOCKED STATE ============ */
+.category-card.boss {
+    --category-color: #dc2626;
+    border: 2px solid #dc2626;
+}
+
+.category-card.boss.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(30%);
+}
+
+.category-card.boss.locked:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.boss-portrait {
+    position: relative;
+}
+
+.lock-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    z-index: 10;
+}
+
+.category-card.boss:not(.locked) .lock-overlay {
+    display: none;
+}
+
+.boss-identity {
+    color: #dc2626 !important;
+}
+
+.boss-tag {
+    background: rgba(220, 38, 38, 0.2) !important;
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+/* ============ MARAKATHALESSA PLAYABLE CARD ============ */
+.category-card.marakathalessa {
+    --category-color: #9333ea;
+    border: 2px solid #9333ea;
+}
+
+.category-card.marakathalessa.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(30%);
+}
+
+.category-card.marakathalessa.locked:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.mara-portrait {
+    position: relative;
+}
+
+.mara-identity {
+    color: #9333ea !important;
+}
+
+.mara-tag {
+    background: rgba(147, 51, 234, 0.2) !important;
+    color: #9333ea !important;
+    border-color: #9333ea !important;
+}
+
+/* ============ BOSS FIGHT AREA ============ */
+#boss-fight-area {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.boss-encounter-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.boss-title {
+    font-size: 2.5rem;
+    color: #dc2626;
+    text-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+    margin-bottom: 0.5rem;
+}
+
+.boss-name {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.boss-hud {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(20, 20, 35, 0.95));
+    border: 2px solid #dc2626;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.boss-portrait-container {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 3px solid #dc2626;
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
+}
+
+.boss-portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.boss-hp-section {
+    flex: 1;
+}
+
+.boss-hp-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.boss-hp-label {
+    font-weight: 700;
+    color: #dc2626;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+#boss-hp-text {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.boss-hp-container {
+    height: 24px;
+    background: rgba(220, 38, 38, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.boss-hp-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #dc2626, #ef4444);
+    border-radius: 12px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+}
+
+/* Boss Challenge Card */
+.boss-challenge-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+}
+
+.boss-question-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.boss-question {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Code Input */
+.code-input-container {
+    margin-bottom: 1.5rem;
+}
+
+.code-input-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.code-input-container textarea {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 1.1rem;
+    resize: vertical;
+    transition: var(--transition);
+}
+
+.code-input-container textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+.code-input-container .btn {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+/* Hint Section */
+.hint-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.btn-hint {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid #f59e0b;
+    color: #f59e0b;
+}
+
+.btn-hint:hover {
+    background: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.hint-text {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-md);
+    color: #f59e0b;
+    font-style: italic;
+}
+
+.hints-remaining {
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* Boss Feedback */
+.boss-feedback {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    border-radius: var(--radius-md);
+}
+
+.boss-feedback.correct {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.boss-feedback.incorrect {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+#boss-feedback-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+#boss-feedback-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+#boss-explanation {
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+#boss-next-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+}
+
 /* ============ MONSTER HUD ============ */
 .monster-hud {
     background: var(--bg-card);
@@ -1199,11 +1638,34 @@ h4 {
     right: 0;
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    padding: 1rem;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
     background: var(--bg-glass);
     border-top: 1px solid var(--border-color);
     backdrop-filter: blur(20px);
+    /* PC scrolling support - prevents button cutoff on smaller windows */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.bottom-bar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.bottom-bar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.bottom-bar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.bottom-bar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .bottom-btn {
@@ -1211,13 +1673,15 @@ h4 {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     background: transparent;
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
     border-radius: var(--radius-md);
+    flex-shrink: 0;
+    min-width: max-content;
 }
 
 .bottom-btn:hover {
@@ -2882,4 +3346,193 @@ body {
     .modal-content {
         max-height: 95vh;
     }
+}
+
+/* ============ PHASE A: UI/UX IMPROVEMENTS ============ */
+
+/* A1. Responsive Image Sizing - Uniform aspect ratios */
+.hero-portrait,
+.monster-portrait,
+.current-portrait {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.category-portrait,
+.character-portrait {
+    aspect-ratio: 4 / 3;
+    height: auto;
+    min-height: 150px;
+    max-height: 200px;
+}
+
+/* Uniform card sizing */
+.category-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+}
+
+.character-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.character-info .hero-desc {
+    flex: 1;
+}
+
+/* A2. Collapsible Bottom Navigation */
+.bottom-bar {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.bottom-bar.collapsed {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.nav-toggle-btn {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    transition: var(--transition);
+    display: none;
+    /* Hidden by default, show on small screens */
+}
+
+.nav-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+
+.nav-toggle-btn.nav-hidden {
+    bottom: 1rem;
+}
+
+.bottom-bar.collapsed+.nav-toggle-btn,
+.nav-toggle-btn.nav-hidden {
+    bottom: 1rem;
+}
+
+/* Show toggle button on small screens */
+@media (max-width: 768px) {
+    .nav-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bottom-bar:not(.collapsed)~.nav-toggle-btn {
+        bottom: calc(70px + 1rem);
+    }
+}
+
+/* A3. Landscape Lock Overlay */
+.landscape-prompt {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-primary);
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.landscape-prompt .rotate-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    animation: rotate-hint 2s infinite ease-in-out;
+}
+
+@keyframes rotate-hint {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-15deg);
+    }
+
+    75% {
+        transform: rotate(15deg);
+    }
+}
+
+.landscape-prompt h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent-light);
+}
+
+.landscape-prompt p {
+    color: var(--text-secondary);
+    max-width: 300px;
+}
+
+/* Show landscape prompt on portrait mobile */
+@media (max-width: 768px) and (orientation: portrait) {
+    .landscape-prompt {
+        display: flex;
+    }
+
+    .app-container,
+    .bottom-bar,
+    #intro-cinematic {
+        display: none !important;
+    }
+}
+
+/* A4. Skip Intro Hidden */
+.skip-intro {
+    display: none !important;
+}
+
+/* Additional responsive improvements */
+@media (max-width: 480px) {
+
+    .category-portrait,
+    .character-portrait {
+        min-height: 120px;
+        max-height: 150px;
+    }
+
+    .category-card {
+        min-height: 280px;
+        padding: 1.5rem;
+    }
+
+    .monster-portrait-container {
+        width: 80px;
+        height: 80px;
+    }
+
+    .monster-hud {
+        gap: 1rem;
+        padding: 1rem;
+    }
+}
+
+/* Ensure images don't overflow */
+img {
+    max-width: 100%;
+    height: auto;
 }

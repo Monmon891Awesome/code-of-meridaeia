@@ -27,6 +27,13 @@
 </head>
 
 <body>
+    <!-- Landscape Orientation Prompt (Phase A) -->
+    <div class="landscape-prompt">
+        <span class="rotate-icon">📱</span>
+        <h2>Rotate Your Device</h2>
+        <p>Code of Meridaeia is best experienced in landscape mode. Please rotate your device to continue your quest!</p>
+    </div>
+
     <!-- Cinematic Intro -->
     <div id="intro-cinematic">
         <div class="intro-background">
@@ -172,7 +179,89 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- BOSS: Marakathalessa (Locked by default) -->
+                <div class="category-card boss locked" id="boss-card" onclick="game.selectBoss()">
+                    <div class="character-portrait boss-portrait">
+                        <img src="assets/monsters/boss-marakathalessa-alt.png" alt="Marakathalessa" class="hero-portrait">
+                        <div class="lock-overlay" id="boss-lock-overlay">🔒</div>
+                    </div>
+                    <div class="character-info">
+                        <span class="hero-identity boss-identity">The Witch of Corrupted Code</span>
+                        <h3>Marakathalessa</h3>
+                        <p class="hero-desc">The ancient sorceress who corrupted the realm. Face her if you dare.</p>
+                        <div class="hero-stats">
+                            <span class="stat-tag boss-tag">⚔️ BOSS FIGHT</span>
+                            <span class="chapter-status" id="boss-status">🔒 Master a hero's path</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PLAYABLE: Marakathalessa (Unlocked after True Ending) -->
+                <div class="category-card marakathalessa locked" id="mara-playable-card" onclick="game.selectCategory('marakathalessa')">
+                    <div class="character-portrait mara-portrait">
+                        <img src="assets/monsters/boss-marakathalessa-alt.png" alt="Marakathalessa" class="hero-portrait">
+                        <div class="lock-overlay" id="mara-lock-overlay">🔒</div>
+                    </div>
+                    <div class="character-info">
+                        <span class="hero-identity mara-identity">Marakathalessa Redeemed</span>
+                        <h3>Corrupted Mage</h3>
+                        <p class="hero-desc">Play her story. Learn how she fell to the Legion of 404.</p>
+                        <div class="hero-stats">
+                            <span class="stat-tag mara-tag">🔮 Her Story</span>
+                            <span class="chapter-status" id="mara-status">🔒 Defeat the boss first</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </section>
+
+        <!-- Chapter Selection (Phase B) -->
+        <section id="chapter-select" class="hidden">
+            <h2 class="fantasy-title">Choose Your Quest</h2>
+            <p class="fantasy-subtitle" id="chapter-hero-name">Begin your journey...</p>
+            
+            <div class="chapter-grid">
+                <!-- Chapter 1 -->
+                <div class="chapter-card" id="chapter-card-1" onclick="game.selectChapter(1)">
+                    <div class="chapter-badge">Chapter I</div>
+                    <div class="chapter-icon">📖</div>
+                    <h3>The Awakening</h3>
+                    <p class="chapter-desc">Begin your journey in the wasteland. Learn the fundamentals.</p>
+                    <div class="chapter-meta">
+                        <span class="chapter-questions"><span id="ch1-count">4</span> Challenges</span>
+                        <span class="chapter-status" id="ch1-status">🔓 Unlocked</span>
+                    </div>
+                </div>
+                
+                <!-- Chapter 2 -->
+                <div class="chapter-card locked" id="chapter-card-2" onclick="game.selectChapter(2)">
+                    <div class="chapter-badge">Chapter II</div>
+                    <div class="chapter-icon">📜</div>
+                    <h3>Rising Storm</h3>
+                    <p class="chapter-desc">Venture deeper into the corrupted lands. Face greater challenges.</p>
+                    <div class="chapter-meta">
+                        <span class="chapter-questions"><span id="ch2-count">4</span> Challenges</span>
+                        <span class="chapter-status" id="ch2-status">🔒 Complete Chapter I</span>
+                    </div>
+                </div>
+                
+                <!-- Chapter 3 -->
+                <div class="chapter-card locked" id="chapter-card-3" onclick="game.selectChapter(3)">
+                    <div class="chapter-badge">Chapter III</div>
+                    <div class="chapter-icon">⚔️</div>
+                    <h3>The Reckoning</h3>
+                    <p class="chapter-desc">Face the ultimate trials. Prove your mastery.</p>
+                    <div class="chapter-meta">
+                        <span class="chapter-questions"><span id="ch3-count">4</span> Challenges</span>
+                        <span class="chapter-status" id="ch3-status">🔒 Complete Chapter II</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-secondary" style="margin-top: 1.5rem;" onclick="game.backToHeroSelect()">
+                ← Choose Different Hero
+            </button>
         </section>
 
         <!-- Game Area -->
@@ -307,6 +396,68 @@
             </button>
         </section>
 
+        <!-- Boss Fight Area (Phase C) -->
+        <section id="boss-fight-area" class="hidden">
+            <div class="boss-encounter-header">
+                <h2 class="boss-title">⚔️ BOSS FIGHT</h2>
+                <p class="boss-name">Marakathalessa, Witch of Corrupted Code</p>
+            </div>
+
+            <div class="boss-hud">
+                <div class="boss-portrait-container">
+                    <img src="assets/monsters/boss-marakathalessa-alt.png" alt="Marakathalessa" class="boss-portrait-img">
+                </div>
+                <div class="boss-hp-section">
+                    <div class="boss-hp-info">
+                        <span class="boss-hp-label">BOSS HP</span>
+                        <span id="boss-hp-text">1000 / 1000</span>
+                    </div>
+                    <div class="boss-hp-container">
+                        <div id="boss-hp-bar" class="boss-hp-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="boss-challenge-card">
+                <div class="boss-question-header">
+                    <span id="boss-question-number">Challenge 1 of 10</span>
+                </div>
+                <p id="boss-question-text" class="boss-question">What is the output of this code?</p>
+                
+                <div id="boss-code-block" class="code-block hidden">
+                    <pre><code id="boss-code"></code></pre>
+                </div>
+
+                <div class="code-input-container">
+                    <label for="code-answer">Type your answer:</label>
+                    <textarea id="code-answer" placeholder="Enter your answer..." rows="2"></textarea>
+                    <button class="btn btn-primary" onclick="game.submitBossAnswer()">⚔️ Attack!</button>
+                </div>
+
+                <div class="hint-section">
+                    <button class="btn btn-hint" onclick="game.showBossHint()">
+                        💡 Get Hint (<span id="hint-cost">10</span> Gold)
+                    </button>
+                    <p id="current-hint" class="hint-text hidden"></p>
+                    <p id="hints-remaining" class="hints-remaining">3 hints remaining</p>
+                </div>
+
+                <div id="boss-feedback" class="boss-feedback hidden">
+                    <span id="boss-feedback-icon">✅</span>
+                    <span id="boss-feedback-text">Correct!</span>
+                    <p id="boss-explanation"></p>
+                </div>
+
+                <button id="boss-next-btn" class="btn btn-primary hidden" onclick="game.nextBossQuestion()">
+                    Continue ➝
+                </button>
+            </div>
+
+            <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="game.abandonBossFight()">
+                ← Retreat (Lose Progress)
+            </button>
+        </section>
+
         <!-- Results Screen -->
         <section id="results-screen" class="hidden">
             <div class="results-card">
@@ -382,6 +533,11 @@
             <span class="label">Reset</span>
         </button>
     </nav>
+
+    <!-- Nav Toggle Button (Phase A - Mobile Only) -->
+    <button id="nav-toggle" class="nav-toggle-btn" onclick="game.toggleBottomNav()">
+        <span id="nav-toggle-icon">☰</span>
+    </button>
 
     <!-- Checkpoints Modal -->
     <div id="checkpoints-modal" class="modal hidden">
@@ -518,6 +674,8 @@
     <script src="questions/networking.js"></script>
     <script src="questions/data-engineering.js"></script>
     <script src="questions/kernel.js"></script>
+    <script src="questions/boss.js"></script>
+    <script src="questions/marakathalessa.js"></script>
     <script src="game.js"></script>
 </body>
 
