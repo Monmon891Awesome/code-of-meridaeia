@@ -1,0 +1,55 @@
+/* Code of Meridaeia - CSS Custom Properties */
+
+:root {
+    /* Background Colors */
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-card: rgba(25, 25, 35, 0.8);
+    --bg-glass: rgba(255, 255, 255, 0.05);
+
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0b0;
+    --text-muted: #606070;
+
+    /* Accent Colors */
+    --accent: #6366f1;
+    --accent-light: #818cf8;
+    --accent-dark: #4f46e5;
+
+    /* Status Colors */
+    --success: #22c55e;
+    --error: #ef4444;
+    --warning: #f59e0b;
+
+    /* Category Colors */
+    --java-color: #f89820;
+    --cpp-color: #00599C;
+    --network-color: #10b981;
+    --data-color: #8b5cf6;
+
+    /* Retro 8-bit Color Palette */
+    --retro-bg: #0f0f1e;
+    --retro-text: #f0f0f0;
+    --retro-primary: #ff6b6b;
+    --retro-secondary: #4ecdc4;
+    --retro-accent: #ffe66d;
+    --retro-border: #2d3561;
+    --retro-border-light: #4a5a8f;
+    --retro-health: #95e1d3;
+    --retro-danger: #f38181;
+
+    /* Border & Shadow */
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+
+    /* Transitions */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --float-animation: floating 3s ease-in-out infinite;
+}

@@ -1,0 +1,24 @@
+/* Code of Meridaeia - Main Stylesheet */
+/* This file imports all modular CSS files in the correct order */
+
+/* 1. Base Styles (Foundation) */
+@import url('base/variables.css');
+@import url('base/reset.css');
+@import url('base/typography.css');
+
+/* 2. Themes */
+@import url('themes/retro.css');
+@import url('themes/animations.css');
+
+/* 2.5. Components */
+@import url('components/buttons.css');
+
+/* 3. Core Styles (Original monolithic file) */
+/* Temporarily keeping the original styles.css for components not yet extracted */
+/* TODO: Extract remaining components into modular files */
+
+/* 4. Responsive Overrides */
+@import url('responsive/mobile.css');
+
+/* 5. Utilities (Last to override everything) */
+@import url('utilities/accessibility.css');

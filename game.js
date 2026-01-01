@@ -56,6 +56,45 @@ class CodeOfMeridaeiaGame {
         this.currentHintIndex = 0;
         this.bossHP = 1000;
         this.bossMaxHP = 1000;
+
+        // ============ BIBLICAL VALUES: VIRTUE MESSAGES ============
+        // Subtle integration of wisdom, perseverance, grace themes
+        this.virtueMessages = {
+            correct: [
+                "Wisdom grows with each victory.",
+                "Patience and study bear fruit.",
+                "Your perseverance is rewarded.",
+                "Knowledge is the beginning of wisdom.",
+                "Well done! Keep pressing forward.",
+                "Diligence leads to mastery.",
+                "Every step forward is progress.",
+                "Your dedication shines through.",
+                "The path of understanding unfolds.",
+                "Excellence comes through practice."
+            ],
+            incorrect: [
+                "Grace covers all mistakes. Learn and grow.",
+                "Even heroes stumble. Rise again.",
+                "Every failure plants seeds of wisdom.",
+                "Patience with yourself is strength.",
+                "Mistakes are teachers in disguise.",
+                "The journey matters more than perfection.",
+                "Tomorrow brings new opportunities.",
+                "Growth comes through challenge.",
+                "Persistence overcomes all obstacles.",
+                "Take heart, redemption is always possible."
+            ],
+            streak: [
+                "Your consistency inspires!",
+                "A pattern of excellence emerges.",
+                "Faithfulness in the small things.",
+                "Building momentum through dedication.",
+                "Steadfast and sure!"
+            ]
+        };
+
+        // Track answer streak for virtue bonuses
+        this.currentStreak = 0;
     }
 
     async init() {
@@ -687,10 +726,16 @@ class CodeOfMeridaeiaGame {
         this.showQuestion();
 
         // Update UI
-        document.getElementById('chapter-select').classList.add('hidden');
-        document.getElementById('game-area').classList.remove('hidden');
-        document.getElementById('current-category').textContent =
-            `${this.getCategoryDisplayName(this.currentCategory)} - Chapter ${this.currentChapter}`;
+        const chapterSelect = document.getElementById('chapter-select');
+        const gameArea = document.getElementById('game-area');
+        const currentCategoryEl = document.getElementById('current-category');
+
+        if (chapterSelect) chapterSelect.classList.add('hidden');
+        if (gameArea) gameArea.classList.remove('hidden');
+        if (currentCategoryEl) {
+            currentCategoryEl.textContent =
+                `${this.getCategoryDisplayName(this.currentCategory)} - Chapter ${this.currentChapter}`;
+        }
 
         // Set initial environment based on story progress
         this.updateEnvironmentByProgress();
@@ -733,52 +778,110 @@ class CodeOfMeridaeiaGame {
 
         this.currentQuestion = this.questions[this.currentQuestionIndex];
 
-        // Update question number
-        document.getElementById('question-number').textContent =
-            `Question ${this.currentQuestionIndex + 1} of ${this.questions.length}`;
+        // Update question counter (Bookworm layout)
+        const questionCounter = document.getElementById('question-counter');
+        if (questionCounter) {
+            questionCounter.textContent = `Q${this.currentQuestionIndex + 1}/${this.questions.length}`;
+        }
+        // Legacy fallback
+        const questionNumber = document.getElementById('question-number');
+        if (questionNumber) {
+            questionNumber.textContent = `Q${this.currentQuestionIndex + 1}/${this.questions.length}`;
+        }
 
         // Update difficulty badge
-        const diffBadge = document.getElementById('difficulty-badge');
-        diffBadge.textContent = this.currentQuestion.difficulty.toUpperCase();
-        diffBadge.className = `difficulty-badge ${this.currentQuestion.difficulty}`;
+        const diffBadge = document.getElementById('difficulty-display') || document.getElementById('difficulty-badge');
+        if (diffBadge) {
+            diffBadge.textContent = this.currentQuestion.difficulty.toUpperCase();
+            diffBadge.className = `difficulty-badge ${this.currentQuestion.difficulty}`;
+        }
 
         // Update Monster HUD
         this.updateMonsterHUD();
         const monsterName = this.getRandomMonsterName(this.currentQuestion.difficulty);
-        document.getElementById('monster-name').textContent = monsterName;
 
-        // Update monster portrait
+        // Update monster name display (Bookworm layout)
+        const monsterNameDisplay = document.getElementById('monster-name-display');
+        if (monsterNameDisplay) {
+            monsterNameDisplay.textContent = monsterName.toUpperCase();
+        }
+        // Legacy fallback
+        const monsterNameLegacy = document.getElementById('monster-name');
+        if (monsterNameLegacy) {
+            monsterNameLegacy.textContent = monsterName;
+        }
+
+        // Update monster portrait orb (Bookworm layout)
+        const monsterOrbImg = document.getElementById('monster-orb-img');
+        if (monsterOrbImg && this.monsterPortraits[monsterName]) {
+            monsterOrbImg.src = this.monsterPortraits[monsterName];
+        }
+        // Legacy fallback
         const monsterPortrait = document.getElementById('monster-portrait');
         if (monsterPortrait && this.monsterPortraits[monsterName]) {
             monsterPortrait.src = this.monsterPortraits[monsterName];
         }
 
+        // Store current monster name for lore modal
+        this.currentMonsterName = monsterName;
+
         const monsterType = document.getElementById('monster-type');
-        monsterType.textContent = this.currentQuestion.difficulty.toUpperCase();
-        monsterType.className = `monster-type ${this.currentQuestion.difficulty}`;
+        if (monsterType) {
+            monsterType.textContent = this.currentQuestion.difficulty.toUpperCase();
+            monsterType.className = `monster-type ${this.currentQuestion.difficulty}`;
+        }
 
         // Update question text
         document.getElementById('question-text').textContent = this.currentQuestion.question;
 
-        // Update code block
-        const codeBlock = document.getElementById('code-block');
+        // Update code block (Bookworm uses expandable details element)
+        const codeBlockContainer = document.getElementById('code-block-container');
+        const codeBlockLegacy = document.getElementById('code-block');
+
         if (this.currentQuestion.code) {
-            codeBlock.classList.remove('hidden');
             document.getElementById('code-content').textContent = this.currentQuestion.code;
+            if (codeBlockContainer) {
+                codeBlockContainer.style.display = 'block';
+            }
+            if (codeBlockLegacy) {
+                codeBlockLegacy.classList.remove('hidden');
+            }
         } else {
-            codeBlock.classList.add('hidden');
+            if (codeBlockContainer) {
+                codeBlockContainer.style.display = 'none';
+            }
+            if (codeBlockLegacy) {
+                codeBlockLegacy.classList.add('hidden');
+            }
         }
 
-        // Update options
+        // Generate poker-style card hand answers
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = '';
 
+        // Check if we're using Bookworm layout (card-hand class)
+        const isCardHand = optionsContainer.classList.contains('card-hand');
+
         this.currentQuestion.options.forEach((option, index) => {
-            const button = document.createElement('button');
-            button.className = 'option-btn';
-            button.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span>${option}`;
-            button.onclick = () => this.selectAnswer(index);
-            optionsContainer.appendChild(button);
+            if (isCardHand) {
+                // Create poker-style answer card
+                const card = document.createElement('div');
+                card.className = 'answer-card';
+                card.innerHTML = `
+                <span class="card-letter">${String.fromCharCode(65 + index)}</span>
+                <span class="card-hidden">???</span>
+                <span class="card-answer-text">${option}</span>
+            `;
+                card.onclick = () => this.selectAnswer(index);
+                optionsContainer.appendChild(card);
+            } else {
+                // Legacy button style
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span><span class="option-text">${option}</span>`;
+                button.onclick = () => this.selectAnswer(index);
+                optionsContainer.appendChild(button);
+            }
         });
 
         // Hide feedback
@@ -788,7 +891,6 @@ class CodeOfMeridaeiaGame {
         // Start timer
         this.startTimer();
     }
-
     // ============ TIMER ============
 
     startTimer() {
@@ -829,10 +931,51 @@ class CodeOfMeridaeiaGame {
             timerEl.classList.remove('urgent');
         }
 
-        // Update progress ring
-        const progress = (this.timeLeft / 60) * 100;
-        document.getElementById('timer-progress').style.background =
-            `conic-gradient(var(--accent) ${progress}%, transparent ${progress}%)`;
+        // Update progress ring (if exists in old layout)
+        const timerProgress = document.getElementById('timer-progress');
+        if (timerProgress) {
+            const progress = (this.timeLeft / 60) * 100;
+            timerProgress.style.background =
+                `conic-gradient(var(--accent) ${progress}%, transparent ${progress}%)`;
+        }
+    }
+
+    // Use a hint - costs gold, eliminates one wrong answer
+    useHint() {
+        const hintCost = 10;
+
+        if ((this.userProfile.gold || 0) < hintCost) {
+            this.notify('Not enough gold for a hint!', 'warning');
+            return;
+        }
+
+        // Get all option buttons or answer cards
+        const optionBtns = document.querySelectorAll('.option-btn');
+        const answerCards = document.querySelectorAll('.answer-card');
+        const options = optionBtns.length > 0 ? optionBtns : answerCards;
+
+        if (!options.length || !this.currentQuestion) return;
+
+        // Find wrong answers that haven't been eliminated yet
+        const wrongOptions = [...options].filter((el, idx) =>
+            idx !== this.currentQuestion.correctAnswer && !el.disabled && !el.classList.contains('disabled')
+        );
+
+        if (wrongOptions.length === 0) {
+            this.notify('No more hints available!', 'info');
+            return;
+        }
+
+        // Eliminate one random wrong answer
+        const randomWrong = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+        randomWrong.disabled = true;
+        randomWrong.classList.add('disabled');
+        randomWrong.style.opacity = '0.3';
+
+        // Deduct gold
+        this.userProfile.gold = (this.userProfile.gold || 0) - hintCost;
+        this.updateMonsterHUD();
+        this.notify(`Used hint (-${hintCost}G)`, 'info');
     }
 
     timeUp() {
@@ -848,13 +991,27 @@ class CodeOfMeridaeiaGame {
 
         const isCorrect = index === this.currentQuestion.correctAnswer;
 
-        // Disable all buttons
-        document.querySelectorAll('.option-btn').forEach((btn, i) => {
+        // Handle both legacy buttons and new poker-style cards
+        const optionButtons = document.querySelectorAll('.option-btn');
+        const answerCards = document.querySelectorAll('.answer-card');
+
+        // Disable legacy option buttons
+        optionButtons.forEach((btn, i) => {
             btn.disabled = true;
             if (i === this.currentQuestion.correctAnswer) {
                 btn.classList.add('correct');
             } else if (i === index && !isCorrect) {
                 btn.classList.add('incorrect');
+            }
+        });
+
+        // Disable poker-style answer cards
+        answerCards.forEach((card, i) => {
+            card.classList.add('disabled');
+            if (i === this.currentQuestion.correctAnswer) {
+                card.classList.add('correct');
+            } else if (i === index && !isCorrect) {
+                card.classList.add('incorrect');
             }
         });
 
@@ -907,9 +1064,11 @@ class CodeOfMeridaeiaGame {
             }, 500);
 
             // Visual feedback: HP bar shake
-            const hpBar = document.getElementById('hp-bar');
-            hpBar.classList.add('hp-bar-hit');
-            setTimeout(() => hpBar.classList.remove('hp-bar-hit'), 300);
+            const hpBar = document.getElementById('hp-bar') || document.getElementById('monster-hp-fill');
+            if (hpBar) {
+                hpBar.classList.add('hp-bar-hit');
+                setTimeout(() => hpBar.classList.remove('hp-bar-hit'), 300);
+            }
 
             // Visual feedback: gold coin
             this.showGoldCoin();
@@ -1011,9 +1170,24 @@ class CodeOfMeridaeiaGame {
     updateMonsterHUD() {
         const hp = Math.max(0, this.currentMonsterHP);
         const hpPercent = (hp / this.monsterMaxHP) * 100;
-        document.getElementById('hp-bar').style.width = `${hpPercent}%`;
-        document.getElementById('hp-text').textContent = `${hp} / ${this.monsterMaxHP} HP`;
-        document.getElementById('gold-earned').textContent = this.userProfile.gold || 0;
+
+        // Update monster HP bar - support both legacy and Bookworm layouts
+        const legacyHpBar = document.getElementById('hp-bar');
+        const monsterHpFill = document.getElementById('monster-hp-fill');
+
+        if (legacyHpBar) legacyHpBar.style.width = `${hpPercent}%`;
+        if (monsterHpFill) monsterHpFill.style.width = `${hpPercent}%`;
+
+        // Update hero stats in battle arena
+        const heroGold = document.getElementById('hero-gold');
+        const heroBarrier = document.getElementById('hero-barrier');
+        const charGold = document.getElementById('char-gold');
+        const charBarrier = document.getElementById('char-barrier');
+
+        if (heroGold) heroGold.textContent = this.userProfile.gold || 0;
+        if (heroBarrier) heroBarrier.textContent = this.userProfile.barrierPoints || 3;
+        if (charGold) charGold.textContent = this.userProfile.gold || 0;
+        if (charBarrier) charBarrier.textContent = this.userProfile.barrierPoints || 3;
     }
 
     monsterDefeated() {
@@ -1077,28 +1251,90 @@ class CodeOfMeridaeiaGame {
         const feedbackIcon = document.getElementById('feedback-icon');
         const feedbackText = document.getElementById('feedback-text');
         const explanation = document.getElementById('explanation');
+        const virtueFeedback = document.getElementById('virtue-feedback');
 
         feedbackContainer.classList.remove('hidden');
 
+        // Get virtue message based on result
+        let virtueMsg = '';
         if (selectedIndex === -1) {
             feedbackIcon.textContent = '⏰';
             feedbackText.textContent = 'Time\'s Up!';
+            feedbackText.className = 'feedback-title-big incorrect';
             feedbackContainer.classList.remove('correct');
             feedbackContainer.classList.add('incorrect');
+            this.currentStreak = 0;
+            virtueMsg = this.getRandomVirtueMessage('incorrect');
         } else if (isCorrect) {
             feedbackIcon.textContent = '✅';
             feedbackText.textContent = `Correct! +${this.calculateXP()} XP`;
+            feedbackText.className = 'feedback-title-big correct';
             feedbackContainer.classList.remove('incorrect');
             feedbackContainer.classList.add('correct');
+            this.currentStreak++;
+
+            // Special streak message for 3+ correct in a row
+            if (this.currentStreak >= 3) {
+                virtueMsg = this.getRandomVirtueMessage('streak');
+            } else {
+                virtueMsg = this.getRandomVirtueMessage('correct');
+            }
+
+            // Trigger hero attack animation
+            this.playAttackAnimation('hero');
         } else {
             feedbackIcon.textContent = '❌';
             feedbackText.textContent = 'Incorrect';
+            feedbackText.className = 'feedback-title-big incorrect';
             feedbackContainer.classList.remove('correct');
             feedbackContainer.classList.add('incorrect');
+            this.currentStreak = 0;
+            virtueMsg = this.getRandomVirtueMessage('incorrect');
+
+            // Show hero hurt animation
+            this.playHurtAnimation('hero');
+        }
+
+        // Display virtue message (Biblical values integration)
+        if (virtueFeedback) {
+            virtueFeedback.textContent = virtueMsg;
+            virtueFeedback.style.display = virtueMsg ? 'block' : 'none';
         }
 
         explanation.textContent = this.currentQuestion.explanation;
         document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    // Get random virtue message for biblical values integration
+    getRandomVirtueMessage(type) {
+        const messages = this.virtueMessages[type] || this.virtueMessages.correct;
+        return messages[Math.floor(Math.random() * messages.length)];
+    }
+
+    // Play attack animation (Pokemon-style)
+    playAttackAnimation(who) {
+        const spriteContainer = document.getElementById(
+            who === 'hero' ? 'hero-sprite-container' : 'monster-sprite-container'
+        );
+        if (spriteContainer) {
+            spriteContainer.classList.add('attacking');
+            setTimeout(() => {
+                spriteContainer.classList.remove('attacking');
+            }, 400);
+        }
+    }
+
+    // Play hurt animation
+    playHurtAnimation(who) {
+        const spriteContainer = document.getElementById(
+            who === 'hero' ? 'hero-sprite-container' : 'monster-sprite-container'
+        );
+        if (spriteContainer) {
+            spriteContainer.classList.add('hurt');
+            setTimeout(() => {
+                spriteContainer.classList.remove('hurt');
+            }, 300);
+        }
     }
 
     nextQuestion() {
@@ -1472,16 +1708,122 @@ class CodeOfMeridaeiaGame {
     // ============ CHARACTER SHEET (Phase 2) ============
 
     toggleCharacterSheet() {
-        const content = document.getElementById('sheet-content');
-        const icon = document.getElementById('sheet-toggle-icon');
+        const overlay = document.getElementById('character-sheet-overlay');
 
-        if (content.classList.contains('collapsed')) {
-            content.classList.remove('collapsed');
-            icon.textContent = '▼';
+        if (overlay.classList.contains('hidden')) {
+            overlay.classList.remove('hidden');
+            // Sync data to overlay
+            const overlayPortrait = document.getElementById('overlay-hero-portrait');
+            const heroPortrait = document.getElementById('current-hero-portrait');
+            if (overlayPortrait && heroPortrait) {
+                overlayPortrait.src = heroPortrait.src;
+            }
         } else {
-            content.classList.add('collapsed');
-            icon.textContent = '▶';
+            overlay.classList.add('hidden');
         }
+    }
+
+    // ============ LORE MODALS (Bookworm-Style UI) ============
+
+    openHeroLoreModal() {
+        const modal = document.getElementById('hero-lore-modal');
+        if (!modal || !this.currentCategory) return;
+
+        const story = typeof characterStories !== 'undefined' ? characterStories[this.currentCategory] : null;
+        if (!story) return;
+
+        // Set portrait
+        const portrait = document.getElementById('hero-full-portrait');
+        const heroOrb = document.getElementById('hero-orb-img');
+        if (portrait && heroOrb) {
+            portrait.src = heroOrb.src;
+        }
+
+        // Set title and subtitle
+        document.getElementById('hero-modal-title').textContent = story.heroName;
+        document.getElementById('hero-modal-subtitle').textContent = story.title;
+
+        // Set backstory
+        document.getElementById('hero-backstory').textContent = story.fullBackstory;
+
+        // Set story progress
+        const progressEl = document.getElementById('hero-story-progress');
+        if (progressEl) {
+            const chapterProgress = this.userProfile.chapterProgress?.[this.currentCategory] || {};
+            let progressHTML = '';
+
+            for (let i = 1; i <= 3; i++) {
+                const isComplete = chapterProgress[i] === true;
+                const chapterIntro = story[`chapter${i}Intro`];
+                const preview = chapterIntro ? chapterIntro.substring(0, 80) + '...' : 'Locked';
+
+                progressHTML += `
+                    <div class="${isComplete ? 'chapter-complete' : 'chapter-locked'}">
+                        <strong>Chapter ${i}:</strong> ${isComplete ? '✅ Complete' : '🔒 Locked'}
+                        ${isComplete ? `<br><em>"${preview}"</em>` : ''}
+                    </div>
+                `;
+            }
+            progressEl.innerHTML = progressHTML;
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    closeHeroLoreModal() {
+        const modal = document.getElementById('hero-lore-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    openMonsterLoreModal() {
+        const modal = document.getElementById('monster-lore-modal');
+        if (!modal) return;
+
+        const monsterName = this.currentMonsterName || 'Unknown Creature';
+
+        // Set portrait
+        const portrait = document.getElementById('monster-full-portrait');
+        const monsterOrb = document.getElementById('monster-orb-img');
+        if (portrait && monsterOrb) {
+            portrait.src = monsterOrb.src;
+        }
+
+        // Set title
+        document.getElementById('monster-modal-title').textContent = monsterName;
+
+        // Generate monster lore based on type
+        const loreText = this.getMonsterLore(monsterName);
+        document.getElementById('monster-lore-text').textContent = loreText;
+
+        modal.classList.remove('hidden');
+    }
+
+    closeMonsterLoreModal() {
+        const modal = document.getElementById('monster-lore-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    getMonsterLore(monsterName) {
+        // Monster lore database
+        const monsterLore = {
+            'Syntax Goblin': 'Once a humble data structure, corrupted by Marakathalessa\'s dark magic. It now prowls the wasteland, causing syntax errors in all who cross its path.',
+            'Null Pointer Wolf': 'A spectral beast born from dereferenced memory. It hunts those who forget to initialize their variables, leading them into null dimensions.',
+            'Memory Leak Demon': 'This creature was once a function - clean, pure, purposeful. But when the Great Compiler fell, it lost its return statement and now wanders forever, never completing.',
+            'Segfault Wraith': 'The ghost of a crashed program, forever trapped between memory segments. It seeks to drag others into the void of undefined behavior.',
+            'Array Bounds Golem': 'A massive construct built from overflowed buffers. Each step it takes corrupts the memory around it, leaving chaos in its wake.',
+            'Deadlock Dragon': 'Two threads fought for the same resource. Neither would yield. They fused into this nightmare, forever waiting for what will never come.',
+            'Race Condition Specter': 'It exists in multiple states simultaneously, never quite solid. You can never predict when it will strike or where it will appear.',
+            'Heap Corruption Horror': 'Born from a double-free, this abomination\'s very existence violates the laws of memory management.',
+            'Stack Overflow Titan': 'It grew from infinite recursion - a function calling itself without end. Now it towers over the wasteland, an eternal loop made flesh.',
+            'Garbage Collector Reaper': 'Once the guardian of clean memory, now twisted into a dark harvester. It no longer frees unused memory - it claims souls.'
+        };
+
+        return monsterLore[monsterName] ||
+            `A corrupted creature of the wasteland, twisted by Marakathalessa's dark magic. It attacks all who dare challenge the corruption of Meridaeia.`;
     }
 
     // ============ PHASE A: COLLAPSIBLE NAVIGATION ============
@@ -1599,6 +1941,23 @@ class CodeOfMeridaeiaGame {
     // ============ COMBAT VISUAL FEEDBACK (Phase 2) ============
 
     showDamageNumber(damage) {
+        // Try new Pokemon-style damage element first
+        const monsterDamage = document.getElementById('monster-damage');
+        if (monsterDamage) {
+            monsterDamage.textContent = `-${damage}`;
+            monsterDamage.classList.remove('hidden');
+
+            // Play monster hurt animation
+            this.playHurtAnimation('monster');
+
+            // Hide after animation
+            setTimeout(() => {
+                monsterDamage.classList.add('hidden');
+            }, 1000);
+            return;
+        }
+
+        // Fallback to legacy monster-hud approach
         const monsterHud = document.getElementById('monster-hud');
         if (!monsterHud) return;
 
@@ -1670,7 +2029,9 @@ class CodeOfMeridaeiaGame {
         container.innerHTML = items.map(item => `
             <div class="shop-item">
                 <div class="shop-item-header">
-                    <span class="shop-item-icon">${item.icon}</span>
+                    ${item.icon.startsWith('assets/') ?
+                `<img src="${item.icon}" alt="${item.name}" class="shop-item-icon-img">` :
+                `<span class="shop-item-icon">${item.icon}</span>`}
                     <div class="shop-item-info">
                         <h3>${item.name}</h3>
                         <p class="shop-item-desc">${item.description}</p>

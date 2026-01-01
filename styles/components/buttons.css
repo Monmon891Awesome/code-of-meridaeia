@@ -1,0 +1,43 @@
+/* Code of Meridaeia - Button Component Styles */
+
+/* Make buttons that look like cards maintain their appearance */
+button.category-card,
+button.chapter-card,
+button.portrait-orb {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+/* Ensure button cards maintain hover states */
+button.category-card:hover,
+button.chapter-card:hover {
+    /* Hover styles are already defined in the original CSS */
+}
+
+/* Portrait orb buttons */
+button.portrait-orb {
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+button.portrait-orb:focus-visible {
+    outline: 3px solid var(--accent-light);
+    outline-offset: 4px;
+}
+
+/* Remove default button styles while maintaining accessibility */
+button.category-card::-moz-focus-inner,
+button.chapter-card::-moz-focus-inner,
+button.portrait-orb::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}

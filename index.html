@@ -20,13 +20,37 @@
         rel="stylesheet">
 
     <!-- Styles -->
+    <!-- Retro Pixel Fonts (Phase F) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Styles - Modular CSS Architecture -->
+    <link rel="stylesheet" href="styles/base/variables.css">
+    <link rel="stylesheet" href="styles/base/reset.css">
+    <link rel="stylesheet" href="styles/base/typography.css">
+    <link rel="stylesheet" href="styles/themes/retro.css">
+    <link rel="stylesheet" href="styles/themes/animations.css">
+    <link rel="stylesheet" href="styles/components/buttons.css">
+    <!-- Core legacy styles (to be further modularized) -->
     <link rel="stylesheet" href="styles.css">
+    <!-- Responsive overrides -->
+    <link rel="stylesheet" href="styles/responsive/mobile.css">
+    <!-- Accessibility utilities (loaded last to override) -->
+    <link rel="stylesheet" href="styles/utilities/accessibility.css">
+
     
     <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Retro Scanline Overlay (Phase F) -->
+    <div class="scanlines"></div>
+
     <!-- Landscape Orientation Prompt (Phase A) -->
     <div class="landscape-prompt">
         <span class="rotate-icon">📱</span>
@@ -62,7 +86,7 @@
         <button class="skip-intro" onclick="game.skipIntro()">Skip Intro ⏭</button>
     </div>
 
-    <div class="app-container">
+    <div class="app-container" id="main-content" role="main">
         <!-- Header -->
         <header class="header">
             <div class="logo">
@@ -101,36 +125,42 @@
 
             <div class="category-grid">
                 <!-- Java / Barbarian -->
-                <div class="category-card java" onclick="game.selectCategory('java')">
+                <button class="category-card java" 
+                        onclick="game.selectCategory('java')"
+                        aria-label="Select Java Barbarian Warrior - Grom the Uncompiled. 12 Java programming challenges."
+                        aria-describedby="java-desc">
                     <div class="category-portrait">
-                        <img src="assets/heroes/hero-grom-portrait.png" alt="Barbarian Warrior" class="hero-portrait">
+                        <img src="assets/heroes/hero-grom-portrait.png" alt="Grom the Uncompiled portrait" class="hero-portrait">
                     </div>
                     <div class="character-info">
                         <span class="hero-identity">Grom the Uncompiled</span>
                         <h3>Barbarian Warrior</h3>
-                        <p class="hero-desc">Master of the "Write Once, Crush Everywhere" arts. High resilience and brute force.</p>
+                        <p id="java-desc" class="hero-desc">Master of the "Write Once, Crush Everywhere" arts. High resilience and brute force.</p>
                         <div class="hero-stats">
                             <span class="stat-tag">Java</span>
                             <span class="category-questions">12 Questions</span>
                         </div>
                     </div>
-                </div>
+                </button>
 
                 <!-- C++ / Wizard -->
-                <div class="category-card cpp" onclick="game.selectCategory('cpp')">
+                <button class="category-card cpp" 
+                        onclick="game.selectCategory('cpp')"
+                        aria-label="Select C++ Dark Wizard - Malloc the Void-Walker. 12 C++ programming challenges."
+                        aria-describedby="cpp-desc">
                     <div class="character-portrait">
-                        <img src="assets/heroes/hero-malloc-portrait.png" alt="Dark Wizard" class="hero-portrait">
+                        <img src="assets/heroes/hero-malloc-portrait.png" alt="Malloc the Void-Walker portrait" class="hero-portrait">
                     </div>
                     <div class="character-info">
                         <span class="hero-identity">Malloc the Void-Walker</span>
                         <h3>Dark Wizard</h3>
-                        <p class="hero-desc">Wielder of volatile arcane memory. High power, but one slip leads to a Void Segfault.</p>
+                        <p id="cpp-desc" class="hero-desc">Wielder of volatile arcane memory. High power, but one slip leads to a Void Segfault.</p>
                         <div class="hero-stats">
                             <span class="stat-tag">C++</span>
                             <span class="category-questions">12 Questions</span>
                         </div>
                     </div>
-                </div>
+                </button>
 
                 <!-- Networking / Paladin -->
                 <div class="category-card networking" onclick="game.selectCategory('networking')">
@@ -264,137 +294,180 @@
             </button>
         </section>
 
-        <!-- Game Area -->
-        <section id="game-area" class="hidden">
-            <div class="game-header">
-                <div class="game-info">
-                    <span id="current-category">Category</span>
-                    <span id="question-number">Question 1 of 12</span>
-                    <span id="difficulty-badge" class="difficulty-badge">MEDIUM</span>
+        <!-- Game Area - Bookworm-Style Card Hand Battle Layout -->
+        <section id="game-area" class="bookworm-battle-layout hidden">
+            
+            <!-- Minimal HP Top Bar -->
+            <div class="combat-hp-bar">
+                <div class="hp-section hero-hp-section">
+                    <span class="combatant-name" id="hero-name-display">GROM</span>
+                    <div class="hp-bar-slim">
+                        <div class="hp-fill" id="hero-hp-fill" style="width: 100%"></div>
+                    </div>
+                    <span class="hp-stats">🛡️<span id="hero-barrier">3</span> 💰<span id="hero-gold">0</span></span>
                 </div>
-
-                <div class="timer-container">
-                    <div id="timer-progress"></div>
-                    <div class="timer-inner">
-                        <span id="timer">60</span>
+                <span class="vs-divider">⚔️</span>
+                <div class="hp-section monster-hp-section">
+                    <span class="combatant-name" id="monster-name-display">GOBLIN</span>
+                    <div class="hp-bar-slim">
+                        <div class="hp-fill monster-hp-fill" id="monster-hp-fill" style="width: 100%"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Monster Combat HUD -->
-            <div id="monster-hud" class="monster-hud">
-                <div class="monster-portrait-container">
-                    <img id="monster-portrait" src="assets/monsters/monster-syntax-goblin.png" alt="Monster" class="monster-portrait">
+            <!-- Battle Arena Center: Portraits + Question -->
+            <div class="battle-arena-center">
+                
+                <!-- Hero Portrait Orb (Click to reveal lore) -->
+                <button class="portrait-orb hero-orb" 
+                        id="hero-portrait-orb" 
+                        onclick="game.openHeroLoreModal()"
+                        aria-label="View hero backstory and lore"
+                        aria-haspopup="dialog">
+                    <img src="assets/heroes/hero-grom-portrait.png" alt="Hero portrait" id="hero-orb-img">
+                    <div class="orb-glow hero-glow"></div>
+                </button>
+
+                <!-- Question Card (Center) -->
+                <div class="question-card-bookworm" role="region" aria-label="Current question">
+                    <div class="question-header-bookworm">
+                        <span class="difficulty-badge" id="difficulty-display" aria-label="Difficulty level">MEDIUM</span>
+                        <span class="question-counter" id="question-counter" aria-label="Question progress">Q1/4</span>
+                        <span class="timer-display" id="timer" aria-label="Time remaining">⏱️ 60</span>
+                    </div>
+                    <p class="question-text-bookworm" id="question-text">Loading question...</p>
+                    
+                    <!-- Expandable Code Block -->
+                    <details class="code-expander" id="code-block-container">
+                        <summary>▼ View Code</summary>
+                        <pre class="code-block-inner"><code id="code-content"></code></pre>
+                    </details>
                 </div>
-                <div class="monster-details">
-                    <div class="monster-info">
-                        <span id="monster-name">Shadow Goblin</span>
-                        <span id="monster-type" class="monster-type">EASY</span>
-                    </div>
-                    <div class="hp-bar-container">
-                        <div id="hp-bar" class="hp-bar" style="width: 100%"></div>
-                        <span id="hp-text">100 / 100 HP</span>
-                    </div>
-                    <div class="gold-display">
-                        <span>💰</span>
-                        <span id="gold-earned">0</span>
-                        <span class="gold-label">Gold</span>
-                    </div>
-                </div>
+
+                <!-- Monster Portrait Orb (Click to reveal lore) -->
+                <button class="portrait-orb monster-orb" 
+                        id="monster-portrait-orb" 
+                        onclick="game.openMonsterLoreModal()"
+                        aria-label="View monster lore and information"
+                        aria-haspopup="dialog">
+                    <img src="assets/monsters/monster-syntax-goblin.png" alt="Monster portrait" id="monster-orb-img">
+                    <div class="orb-glow monster-glow"></div>
+                </button>
+                
             </div>
 
-            <!-- Character Sheet Panel -->
-            <div id="character-sheet" class="character-sheet">
-                <div class="sheet-header">
-                    <h3>⚔️ Character</h3>
-                    <button class="toggle-sheet" onclick="game.toggleCharacterSheet()">
-                        <span id="sheet-toggle-icon">▼</span>
+            <!-- Card Hand (Poker-Style Fanned Answer Cards) -->
+            <div class="card-hand" id="options-container">
+                <!-- Answer cards generated dynamically by JS -->
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons-bookworm">
+                <button class="action-btn-bookworm hint-btn" id="hint-button" onclick="game.useHint()">💡 Hint</button>
+                <button class="action-btn-bookworm run-btn" id="run-button" onclick="game.backToMenu()">🏃 Run</button>
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedback-container" class="feedback-overlay-bookworm hidden">
+                <div class="feedback-content-bookworm">
+                    <span id="feedback-icon" class="feedback-icon-big">✅</span>
+                    <span id="feedback-text" class="feedback-title-big">Correct!</span>
+                    <p id="virtue-feedback" class="virtue-feedback-text"></p>
+                    <p id="explanation" class="explanation-text"></p>
+                    <button id="next-btn" class="btn-continue-bookworm" onclick="game.nextQuestion()">
+                        Continue ▶
                     </button>
                 </div>
-                <div id="sheet-content" class="sheet-content">
-                    <div class="character-portrait-display">
-                        <img id="current-hero-portrait" src="assets/heroes/hero-grom-portrait.png" alt="Hero" class="current-portrait">
-                        <div class="character-name-display">
-                            <span id="character-class-name">Barbarian Warrior</span>
-                            <span id="character-identity-name" class="identity-subtitle">Grom the Uncompiled</span>
-                        </div>
-                    </div>
-                    
-                    <div class="character-stats-grid">
-                        <div class="char-stat">
-                            <span class="stat-icon">💰</span>
-                            <div class="stat-info">
-                                <span class="stat-value" id="char-gold">0</span>
-                                <span class="stat-label">Gold</span>
-                            </div>
-                        </div>
-                        <div class="char-stat">
-                            <span class="stat-icon">🛡️</span>
-                            <div class="stat-info">
-                                <span class="stat-value" id="char-barrier">3</span>
-                                <span class="stat-label">Barrier</span>
-                            </div>
-                        </div>
-                        <div class="char-stat">
-                            <span class="stat-icon">⚔️</span>
-                            <div class="stat-info">
-                                <span class="stat-value" id="char-attack">25</span>
-                                <span class="stat-label">Attack</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="equipment-slots">
-                        <h4>Equipment</h4>
-                        <div class="equipment-grid">
-                            <div class="equipment-slot" data-slot="weapon">
-                                <span class="slot-icon">🗡️</span>
-                                <span class="slot-label">Weapon</span>
-                                <span class="slot-item" id="equipped-weapon">None</span>
-                            </div>
-                            <div class="equipment-slot" data-slot="armor">
-                                <span class="slot-icon">🛡️</span>
-                                <span class="slot-label">Armor</span>
-                                <span class="slot-item" id="equipped-armor">None</span>
-                            </div>
-                            <div class="equipment-slot" data-slot="accessory">
-                                <span class="slot-icon">💍</span>
-                                <span class="slot-label">Accessory</span>
-                                <span class="slot-item" id="equipped-accessory">None</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div class="question-card">
-                <p id="question-text">Loading question...</p>
-
-                <div id="code-block" class="hidden">
-                    <pre><code id="code-content"></code></pre>
-                </div>
-
-                <div id="options-container">
-                    <!-- Options rendered dynamically -->
-                </div>
-
-                <div id="feedback-container" class="hidden">
-                    <div class="feedback-header">
-                        <span id="feedback-icon">✅</span>
-                        <span id="feedback-text">Correct!</span>
-                    </div>
-                    <p id="explanation">Explanation here...</p>
-                </div>
-
-                <button id="next-btn" class="btn hidden" onclick="game.nextQuestion()">
-                    Next Question →
-                </button>
-            </div>
-
-            <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="game.backToMenu()">
-                ← Back to Menu
-            </button>
         </section>
+
+        <!-- Hero Lore Modal -->
+        <div class="lore-modal hidden" id="hero-lore-modal">
+            <div class="lore-modal-content hero-theme">
+                <button class="close-modal-btn" onclick="game.closeHeroLoreModal()">✕</button>
+                <img src="" alt="Hero Portrait" id="hero-full-portrait" class="full-portrait">
+                <h2 id="hero-modal-title">Hero Name</h2>
+                <p class="hero-subtitle" id="hero-modal-subtitle">Title</p>
+                <div class="lore-text" id="hero-backstory"></div>
+                <div class="story-progress-section">
+                    <h3>📖 Story So Far</h3>
+                    <div id="hero-story-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monster Lore Modal -->
+        <div class="lore-modal hidden" id="monster-lore-modal">
+            <div class="lore-modal-content monster-theme">
+                <button class="close-modal-btn" onclick="game.closeMonsterLoreModal()">✕</button>
+                <img src="" alt="Monster" id="monster-full-portrait" class="full-portrait monster-portrait-full">
+                <h2 id="monster-modal-title">Monster Name</h2>
+                <div class="lore-text" id="monster-lore-text"></div>
+            </div>
+        </div>
+
+        <!-- Character Sheet Overlay (Accessible during battle) -->
+        <div id="character-sheet-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <div class="overlay-header">
+                    <h3>⚔️ Character Sheet</h3>
+                    <button class="close-overlay" onclick="game.toggleCharacterSheet()">×</button>
+                </div>
+                <div class="character-portrait-display">
+                    <img id="overlay-hero-portrait" src="assets/heroes/hero-grom-portrait.png" alt="Hero" class="current-portrait">
+                    <div class="character-name-display">
+                        <span id="character-class-name">Barbarian Warrior</span>
+                        <span id="character-identity-name" class="identity-subtitle">Grom the Uncompiled</span>
+                    </div>
+                </div>
+                
+                <div class="character-stats-grid">
+                    <div class="char-stat">
+                        <span class="stat-icon">💰</span>
+                        <div class="stat-info">
+                            <span class="stat-value" id="char-gold">0</span>
+                            <span class="stat-label">Gold</span>
+                        </div>
+                    </div>
+                    <div class="char-stat">
+                        <span class="stat-icon">🛡️</span>
+                        <div class="stat-info">
+                            <span class="stat-value" id="char-barrier">3</span>
+                            <span class="stat-label">Barrier</span>
+                        </div>
+                    </div>
+                    <div class="char-stat">
+                        <span class="stat-icon">⚔️</span>
+                        <div class="stat-info">
+                            <span class="stat-value" id="char-attack">25</span>
+                            <span class="stat-label">Attack</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equipment-slots">
+                    <h4>Equipment</h4>
+                    <div class="equipment-grid">
+                        <div class="equipment-slot" data-slot="weapon">
+                            <span class="slot-icon">🗡️</span>
+                            <span class="slot-label">Weapon</span>
+                            <span class="slot-item" id="equipped-weapon">None</span>
+                        </div>
+                        <div class="equipment-slot" data-slot="armor">
+                            <span class="slot-icon">🛡️</span>
+                            <span class="slot-label">Armor</span>
+                            <span class="slot-item" id="equipped-armor">None</span>
+                        </div>
+                        <div class="equipment-slot" data-slot="accessory">
+                            <span class="slot-icon">💍</span>
+                            <span class="slot-label">Accessory</span>
+                            <span class="slot-item" id="equipped-accessory">None</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Character Story Modal (Phase E) -->
         <div id="story-modal" class="story-modal hidden">

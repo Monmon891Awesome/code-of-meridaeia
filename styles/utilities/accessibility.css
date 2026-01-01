@@ -1,0 +1,99 @@
+/* Code of Meridaeia - Accessibility Utilities */
+
+/* ============ FOCUS INDICATORS ============ */
+*:focus {
+    outline: 3px solid var(--accent-light);
+    outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 3px solid var(--accent-light);
+    outline-offset: 2px;
+}
+
+/* ============ SKIP LINK ============ */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--accent);
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 10000;
+    border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ============ SCREEN READER ONLY ============ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    body {
+        animation: none;
+    }
+
+    .scanlines {
+        display: none;
+    }
+}
+
+/* ============ HIGH CONTRAST MODE ============ */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .category-card,
+    .chapter-card,
+    .answer-card {
+        border-width: 2px;
+    }
+
+    button,
+    .btn {
+        border-width: 3px;
+    }
+}
+
+/* ============ KEYBOARD NAVIGATION HELPERS ============ */
+.keyboard-user *:focus {
+    outline: 3px solid var(--accent-light);
+    outline-offset: 2px;
+}
+
+/* ============ ARIA LIVE REGIONS ============ */
+.live-region {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

@@ -1,0 +1,167 @@
+/* Code of Meridaeia - Mobile Responsive Styles */
+
+/* ============ MOBILE OPTIMIZATIONS ============ */
+
+/* Small phones (320px - 375px) */
+@media (max-width: 375px) {
+    .category-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+
+    .chapter-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    .answer-card {
+        min-width: 100% !important;
+        min-height: 60px;
+    }
+
+    .combat-hp-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .fantasy-title {
+        font-size: 2rem;
+    }
+
+    .header {
+        padding: 1rem;
+    }
+}
+
+/* Mobile devices (376px - 768px) */
+@media (max-width: 768px) {
+    .category-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+
+    .chapter-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* Larger touch targets for mobile */
+    .portrait-orb {
+        width: 100px !important;
+        height: 100px !important;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Card hand - prevent overlap */
+    .card-hand {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .answer-card {
+        min-width: calc(50% - 0.5rem);
+        min-height: 60px;
+    }
+
+    /* Question card - scrollable */
+    .question-card-bookworm {
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+
+    /* Bottom nav - scrollable */
+    .bottom-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    /* Header - stack on mobile */
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .profile-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    /* Modals - full screen on mobile */
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* Combat layout adjustments */
+    .battle-arena-center {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .action-buttons-bookworm {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .action-btn-bookworm {
+        width: 100%;
+    }
+
+    /* Character stats grid - 2 columns on mobile */
+    .character-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Equipment grid - 2 columns on mobile */
+    .equipment-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+    .landscape-prompt {
+        display: none;
+    }
+
+    .combat-hp-bar {
+        font-size: 0.85rem;
+    }
+
+    .question-card-bookworm {
+        max-height: 50vh;
+    }
+}
+
+/* Touch-friendly adjustments */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Increase all touch targets */
+    button,
+    .btn,
+    .category-card,
+    .chapter-card,
+    .answer-card {
+        min-height: 44px;
+    }
+
+    /* Remove hover effects on touch devices */
+    .category-card:hover,
+    .chapter-card:hover,
+    .answer-card:hover {
+        transform: none;
+    }
+
+    /* Tap highlight color */
+    * {
+        -webkit-tap-highlight-color: rgba(99, 102, 241, 0.3);
+    }
+}

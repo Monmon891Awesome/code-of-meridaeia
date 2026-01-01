@@ -9,7 +9,7 @@ const shopInventory = {
             description: 'A weathered blade, but still sharp enough to debug.',
             price: 50,
             stats: { attackBonus: 5 },
-            icon: '🗡️'
+            icon: 'assets/items/weapon_icons_sheet.png'
         },
         {
             id: 'iron_axe',
@@ -17,7 +17,7 @@ const shopInventory = {
             description: 'Grom\'s favorite. Cleaves through bugs and monsters alike.',
             price: 100,
             stats: { attackBonus: 10 },
-            icon: '🪓'
+            icon: 'assets/items/weapon_icons_sheet.png'
         },
         {
             id: 'steel_blade',
@@ -25,7 +25,7 @@ const shopInventory = {
             description: 'Forged in the fires of clean code. Cuts deep.',
             price: 150,
             stats: { attackBonus: 15 },
-            icon: '⚔️'
+            icon: 'assets/items/weapon_icons_sheet.png'
         },
         {
             id: 'enchanted_staff',
@@ -33,7 +33,7 @@ const shopInventory = {
             description: 'Channels arcane memory magic. High power, high risk.',
             price: 200,
             stats: { attackBonus: 20 },
-            icon: '🔮'
+            icon: 'assets/items/weapon_icons_sheet.png'
         },
         {
             id: 'legendary_hammer',
@@ -41,10 +41,10 @@ const shopInventory = {
             description: 'Legendary weapon. Crushes technical debt.',
             price: 300,
             stats: { attackBonus: 30 },
-            icon: '🔨'
+            icon: 'assets/items/weapon_icons_sheet.png'
         }
     ],
-    
+
     armor: [
         {
             id: 'leather_vest',
@@ -52,7 +52,7 @@ const shopInventory = {
             description: 'Basic protection against logical errors.',
             price: 75,
             stats: { barrierBonus: 1 },
-            icon: '🦺'
+            icon: 'assets/items/armor_icons_sheet.png'
         },
         {
             id: 'chainmail',
@@ -60,7 +60,7 @@ const shopInventory = {
             description: 'Catches errors before they reach you.',
             price: 125,
             stats: { barrierBonus: 2 },
-            icon: '🛡️'
+            icon: 'assets/items/armor_icons_sheet.png'
         },
         {
             id: 'plate_armor',
@@ -68,7 +68,7 @@ const shopInventory = {
             description: 'Heavy protection. Validates all inputs.',
             price: 200,
             stats: { barrierBonus: 3 },
-            icon: '🛡️'
+            icon: 'assets/items/armor_icons_sheet.png'
         },
         {
             id: 'dragon_scale',
@@ -76,10 +76,10 @@ const shopInventory = {
             description: 'Forged from kernel panic scales. Nearly impenetrable.',
             price: 300,
             stats: { barrierBonus: 5 },
-            icon: '🐉'
+            icon: 'assets/items/armor_icons_sheet.png'
         }
     ],
-    
+
     accessories: [
         {
             id: 'gold_ring',
@@ -87,7 +87,7 @@ const shopInventory = {
             description: 'Increases gold earned from combat by 25%.',
             price: 150,
             stats: { goldMultiplier: 1.25 },
-            icon: '💍'
+            icon: 'assets/items/accessory_icons_sheet.png'
         },
         {
             id: 'xp_amulet',
@@ -95,7 +95,7 @@ const shopInventory = {
             description: 'Absorbs knowledge faster. +20% XP from all sources.',
             price: 150,
             stats: { xpMultiplier: 1.2 },
-            icon: '📿'
+            icon: 'assets/items/accessory_icons_sheet.png'
         },
         {
             id: 'lucky_charm',
@@ -103,7 +103,7 @@ const shopInventory = {
             description: 'The best of both worlds. +15% Gold and +15% XP.',
             price: 250,
             stats: { goldMultiplier: 1.15, xpMultiplier: 1.15 },
-            icon: '🍀'
+            icon: 'assets/items/accessory_icons_sheet.png'
         },
         {
             id: 'speed_boots',
@@ -111,10 +111,10 @@ const shopInventory = {
             description: 'Move faster through problems. +10 seconds per question.',
             price: 200,
             stats: { timerBonus: 10 },
-            icon: '👢'
+            icon: 'assets/items/accessory_icons_sheet.png'
         }
     ],
-    
+
     consumables: [
         {
             id: 'skip_scroll',
@@ -122,7 +122,7 @@ const shopInventory = {
             description: 'Bypass one HARD question. Single use.',
             price: 50,
             stackable: true,
-            icon: '📜'
+            icon: 'assets/items/scroll-ancient.png'
         },
         {
             id: 'barrier_potion',
@@ -138,7 +138,7 @@ const shopInventory = {
             description: 'Add 30 seconds to current question timer. Single use.',
             price: 40,
             stackable: true,
-            icon: '💎'
+            icon: 'assets/items/artifact-cube.png'
         }
     ]
 };
