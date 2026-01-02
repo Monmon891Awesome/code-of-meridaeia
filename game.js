@@ -179,7 +179,13 @@ class CodeOfMeridaeiaGame {
                 };
                 break;
             case 'kernel':
-                allQuestions = typeof kernelQuestions !== 'undefined' ? [...kernelQuestions] : [];
+                // Merge all Kernel tier questions
+                allQuestions = [
+                    ...(typeof kernelTier1Fundamentals !== 'undefined' ? kernelTier1Fundamentals : []),
+                    ...(typeof kernelTier2VirtualMemory !== 'undefined' ? kernelTier2VirtualMemory : []),
+                    ...(typeof kernelTier3Advanced !== 'undefined' ? kernelTier3Advanced : []),
+                    ...(typeof kernelQuestions !== 'undefined' ? kernelQuestions : []) // Legacy questions
+                ];
                 this.selectedHero = {
                     category: category,
                     heroName: 'Vulkun of Ring Zero',
@@ -196,11 +202,17 @@ class CodeOfMeridaeiaGame {
                     this.showNotification('🔒 Defeat the boss to unlock her story!');
                     return;
                 }
-                allQuestions = typeof marakathalessaQuestions !== 'undefined' ? [...marakathalessaQuestions] : [];
+                // Merge all Linux Terminal tier questions (Ubuntu-based)
+                allQuestions = [
+                    ...(typeof linuxTier1Basics !== 'undefined' ? linuxTier1Basics : []),
+                    ...(typeof linuxTier2Intermediate !== 'undefined' ? linuxTier2Intermediate : []),
+                    ...(typeof linuxTier3Advanced !== 'undefined' ? linuxTier3Advanced : []),
+                    ...(typeof marakathalessaQuestions !== 'undefined' ? marakathalessaQuestions : []) // Legacy questions
+                ];
                 this.selectedHero = {
                     category: category,
-                    heroName: 'Marakathalessa Redeemed',
-                    heroClass: 'Corrupted Mage',
+                    heroName: 'Marakathalessa the Terminal Sage',
+                    heroClass: 'Linux Enchantress',
                     heroPortrait: 'assets/monsters/boss-marakathalessa-alt.png',
                     fullImage: 'assets/monsters/boss-marakathalessa-alt.png',
                     allQuestions: allQuestions,

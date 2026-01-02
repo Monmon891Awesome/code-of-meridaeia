@@ -86,17 +86,17 @@ const characterStories = {
     },
 
     marakathalessa: {
-        heroName: "Marakathalessa",
-        title: "The Corrupted Mage",
-        race: "Human (Corrupted by Legion of 404)",
+        heroName: "Marakathalessa the Terminal Sage",
+        title: "The Redeemed Enchantress",
+        race: "Human (Purified by Open Source)",
 
-        chapter1Intro: `I was the greatest programmer in all of Meridaeia. Brilliant. Kind. Dedicated to perfection. But one day, I made a mistake. A single off-by-one error. It cascaded. It corrupted everything. And I... I couldn't fix it.`,
+        chapter1Intro: `I was corrupted. I served the Legion of 404. But you... you defeated me and showed me mercy. Now I seek redemption. The path to salvation lies in mastering the ancient arts of Linux - the open source magic that powers Meridaeia's infrastructure. Ubuntu, the "Humanity to Others." Let me teach you what I've learned.`,
 
-        chapter2Intro: `The Legion of 404 found me at my lowest moment. "Why fix what can be erased?" they whispered. The void between 403 and 405. The space where things are "Not Found." They showed me a truth: errors aren't failures. They're opportunities. To erase. To corrupt. To make things... disappear.`,
+        chapter2Intro: `The terminal is not just a tool - it's a language. A way of speaking directly to the heart of the system. Pipes that flow like rivers of data. Permissions that guard like sentinels. Processes that dance like spirits in the kernel. Master these, and you command the very essence of Meridaeia's reality.`,
 
-        chapter3Intro: `I became their pawn. I corrupted the Great Compiler. I plunged Meridaeia into darkness. But now... now you've defeated me. You've seen my story. You know I was once good. Can corruption be reversed? Can the "Not Found" be found again? Or am I forever lost to the void? Only you can decide.`,
+        chapter3Intro: `I have walked through the darkness of rm -rf. I have seen the corruption of null pointers. But now I understand: the terminal is power, but with great power comes great responsibility. sudo is not just a command - it's a sacred trust. Let me share the advanced wisdom that once corrupted me, but now illuminates my path to redemption.`,
 
-        fullBackstory: `Marakathalessa was once the greatest programmer in all of Meridaeia. She was brilliant, kind, and dedicated to perfection. But one day, she made a single mistake - an off-by-one error. It cascaded. It corrupted everything. And instead of fixing it, she embraced the corruption. The Legion of 404 found her at her lowest moment and whispered: "Why fix what can be erased?" She became their pawn, corrupting the Great Compiler and plunging Meridaeia into darkness.`
+        fullBackstory: `After her defeat at the hands of the heroes, Marakathalessa was given a chance at redemption. She discovered that the corruption of the Legion of 404 could be cleansed through the pure, open-source magic of Linux. Ubuntu - meaning "Humanity to Others" in the ancient Zulu tongue - became her path to salvation. She now dedicates herself to teaching the terminal arts, helping others master the command line while atoning for her past sins. Her knowledge of system internals, once used to corrupt the Great Compiler, is now used to protect Meridaeia's infrastructure.`
     }
 };
 
