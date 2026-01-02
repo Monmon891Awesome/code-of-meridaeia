@@ -1,0 +1,173 @@
+/* Accessibility Utilities for Code of Meridaeia */
+
+/* ============================================
+   SCREEN READER ONLY - Visually hidden content
+   ============================================ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* ============================================
+   FOCUS STYLES - Enhanced visibility for keyboard users
+   ============================================ */
+:focus {
+    outline: 2px solid var(--primary, #8b5cf6);
+    outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 2px solid var(--primary, #8b5cf6);
+    outline-offset: 2px;
+}
+
+/* High contrast focus for buttons */
+.btn:focus-visible,
+button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.5);
+}
+
+/* ============================================
+   REDUCED MOTION - Respect user preferences
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================
+   SKIP LINKS - Navigation accessibility
+   ============================================ */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary, #8b5cf6);
+    color: white;
+    padding: 8px 16px;
+    z-index: 10000;
+    text-decoration: none;
+    font-weight: 600;
+    transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ============================================
+   HIGH CONTRAST MODE - Enhanced visibility
+   ============================================ */
+@media (prefers-contrast: high) {
+
+    .btn,
+    button {
+        border: 2px solid currentColor;
+    }
+
+    .category-card,
+    .chapter-card,
+    .modal-content {
+        border: 2px solid #fff;
+    }
+
+    .hp-bar,
+    .xp-bar {
+        border: 1px solid #fff;
+    }
+}
+
+/* ============================================
+   INTERACTIVE ELEMENT MINIMUM SIZE
+   ============================================ */
+.btn,
+button,
+.category-card,
+.chapter-card,
+.option-btn,
+.shop-tab,
+.bottom-btn {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* ============================================
+   TEXT ACCESSIBILITY
+   ============================================ */
+/* Ensure sufficient line height for readability */
+body {
+    line-height: 1.5;
+}
+
+/* Ensure links are distinguishable */
+a:not(.btn) {
+    text-decoration: underline;
+}
+
+a:hover:not(.btn) {
+    text-decoration: none;
+}
+
+/* ============================================
+   FORM ACCESSIBILITY
+   ============================================ */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid var(--primary, #8b5cf6);
+    outline-offset: 2px;
+}
+
+/* Error state */
+.error,
+.has-error {
+    border-color: #ef4444 !important;
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Success state */
+.success,
+.has-success {
+    border-color: #10b981 !important;
+}
+
+.success-message {
+    color: #10b981;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}

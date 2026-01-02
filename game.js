@@ -56,6 +56,10 @@ class CodeOfMeridaeiaGame {
         this.currentHintIndex = 0;
         this.bossHP = 1000;
         this.bossMaxHP = 1000;
+
+        // Combat Hint State (Regular Questions)
+        this.combatHintIndex = 0;
+        this.hintsUsedThisQuestion = 0;
     }
 
     async init() {
@@ -90,51 +94,83 @@ class CodeOfMeridaeiaGame {
             level: this.userProfile.level
         });
 
-        console.log('🎮 Code of Meridaeia initialized!', this.userProfile);
     }
 
     // ============ CATEGORY MANAGEMENT ============
 
     selectCategory(category) {
         this.currentCategory = category;
-        this.selectedHero = null;
-
-        // Get hero info for category
-        let heroClass = '';
-        let heroName = '';
-        let heroPortrait = '';
         let allQuestions = [];
 
+        // Set hero information based on category
         switch (category) {
             case 'java':
-                allQuestions = [...javaQuestions];
-                heroClass = 'Barbarian Warrior';
-                heroName = 'Grom the Uncompiled';
-                heroPortrait = 'assets/heroes/hero-grom-portrait.png';
+                // Merge all Java tier questions
+                allQuestions = [
+                    ...(typeof javaTier1Interactive !== 'undefined' ? javaTier1Interactive : []),
+                    ...(typeof javaTier2Fundamentals !== 'undefined' ? javaTier2Fundamentals : []),
+                    ...(typeof javaTier3Intermediate !== 'undefined' ? javaTier3Intermediate : []),
+                    ...(typeof javaTier4Advanced !== 'undefined' ? javaTier4Advanced : []),
+                    ...(typeof javaTier5Mastery !== 'undefined' ? javaTier5Mastery : []),
+                    ...(typeof javaQuestions !== 'undefined' ? javaQuestions : []) // Legacy questions
+                ];
+                this.selectedHero = {
+                    category: category,
+                    heroName: 'Grom the Uncompiled',
+                    heroClass: 'Barbarian Warrior',
+                    heroPortrait: 'assets/heroes/hero-grom-portrait.png',
+                    fullImage: 'assets/heroes/hero-grom-full.png',
+                    allQuestions: allQuestions,
+                    color: '#f89820'
+                };
                 break;
             case 'cpp':
-                allQuestions = [...cppQuestions];
-                heroClass = 'Dark Wizard';
-                heroName = 'Malloc the Void-Walker';
-                heroPortrait = 'assets/heroes/hero-malloc-portrait.png';
+                allQuestions = typeof cppQuestions !== 'undefined' ? [...cppQuestions] : [];
+                this.selectedHero = {
+                    category: category,
+                    heroName: 'Malloc the Void-Walker',
+                    heroClass: 'Dark Wizard',
+                    heroPortrait: 'assets/heroes/hero-malloc-portrait.png',
+                    fullImage: 'assets/heroes/hero-malloc-full.png',
+                    allQuestions: allQuestions,
+                    color: '#00599C'
+                };
                 break;
             case 'networking':
-                allQuestions = [...networkingQuestions];
-                heroClass = 'Knight Paladin';
-                heroName = 'Ser Handshake';
-                heroPortrait = 'assets/heroes/hero-handshake-portrait.png';
+                allQuestions = typeof networkingQuestions !== 'undefined' ? [...networkingQuestions] : [];
+                this.selectedHero = {
+                    category: category,
+                    heroName: 'Ser Handshake',
+                    heroClass: 'Knight Paladin',
+                    heroPortrait: 'assets/heroes/hero-handshake-portrait.png',
+                    fullImage: 'assets/heroes/hero-handshake-full.png',
+                    allQuestions: allQuestions,
+                    color: '#10b981'
+                };
                 break;
             case 'dataEngineering':
-                allQuestions = [...dataEngineeringQuestions];
-                heroClass = 'Knight Archer';
-                heroName = 'Artemis the Stream-Caller';
-                heroPortrait = 'assets/heroes/hero-artemis-portrait.png';
+                allQuestions = typeof dataEngineeringQuestions !== 'undefined' ? [...dataEngineeringQuestions] : [];
+                this.selectedHero = {
+                    category: category,
+                    heroName: 'Artemis the Stream-Caller',
+                    heroClass: 'Knight Archer',
+                    heroPortrait: 'assets/heroes/hero-artemis-portrait.png',
+                    fullImage: 'assets/heroes/hero-artemis-full.png',
+                    allQuestions: allQuestions,
+                    color: '#8b5cf6'
+                };
                 break;
             case 'kernel':
-                allQuestions = [...kernelQuestions];
-                heroClass = 'Dragonoid Mercenary';
-                heroName = 'Vulkun of Ring Zero';
-                heroPortrait = 'assets/heroes/hero-vulkun-portrait.png';
+                allQuestions = typeof kernelQuestions !== 'undefined' ? [...kernelQuestions] : [];
+                this.selectedHero = {
+                    category: category,
+                    heroName: 'Vulkun of Ring Zero',
+                    heroClass: 'Dragonoid Mercenary',
+                    heroPortrait: 'assets/heroes/hero-vulkun-portrait.png',
+                    fullImage: 'assets/heroes/hero-vulkun-full.png',
+                    allQuestions: allQuestions,
+                    color: '#ef4444'
+                };
                 break;
             case 'marakathalessa':
                 // Check if unlocked
@@ -142,21 +178,21 @@ class CodeOfMeridaeiaGame {
                     this.showNotification('🔒 Defeat the boss to unlock her story!');
                     return;
                 }
-                allQuestions = [...marakathalessaQuestions];
-                heroClass = 'Corrupted Mage';
-                heroName = 'Marakathalessa Redeemed';
-                heroPortrait = 'assets/monsters/boss-marakathalessa-alt.png';
+                allQuestions = typeof marakathalessaQuestions !== 'undefined' ? [...marakathalessaQuestions] : [];
+                this.selectedHero = {
+                    category: category,
+                    heroName: 'Marakathalessa Redeemed',
+                    heroClass: 'Corrupted Mage',
+                    heroPortrait: 'assets/monsters/boss-marakathalessa-alt.png',
+                    fullImage: 'assets/monsters/boss-marakathalessa-alt.png',
+                    allQuestions: allQuestions,
+                    color: '#a855f7'
+                };
                 break;
+            default:
+                console.error('Unknown category:', category);
+                return;
         }
-
-        // Store hero info for later
-        this.selectedHero = {
-            category,
-            heroClass,
-            heroName,
-            heroPortrait,
-            allQuestions
-        };
 
         // Show chapter selection UI
         this.showChapterSelect();
@@ -175,17 +211,39 @@ class CodeOfMeridaeiaGame {
 
         // Get chapter progress for this hero
         const chapterProgress = this.userProfile.chapterProgress?.[this.currentCategory] ||
-            { chapter1: false, chapter2: false, chapter3: false };
+            { chapter1: false, chapter2: false, chapter3: false, chapter4: false, chapter5: false };
+
+        // Check if this hero has extended chapters (Java has 5)
+        const hasExtendedChapters = this.currentCategory === 'java';
+        const card4 = document.getElementById('chapter-card-4');
+        const card5 = document.getElementById('chapter-card-5');
+
+        // Show/hide extended chapter cards
+        if (hasExtendedChapters) {
+            card4?.classList.remove('hidden');
+            card5?.classList.remove('hidden');
+        } else {
+            card4?.classList.add('hidden');
+            card5?.classList.add('hidden');
+        }
 
         // Count questions per chapter
         const ch1Count = this.selectedHero.allQuestions.filter(q => q.chapter === 1).length;
         const ch2Count = this.selectedHero.allQuestions.filter(q => q.chapter === 2).length;
         const ch3Count = this.selectedHero.allQuestions.filter(q => q.chapter === 3).length;
+        const ch4Count = this.selectedHero.allQuestions.filter(q => q.chapter === 4).length;
+        const ch5Count = this.selectedHero.allQuestions.filter(q => q.chapter === 5).length;
 
         // Update chapter counts
         document.getElementById('ch1-count').textContent = ch1Count;
         document.getElementById('ch2-count').textContent = ch2Count;
         document.getElementById('ch3-count').textContent = ch3Count;
+        if (document.getElementById('ch4-count')) {
+            document.getElementById('ch4-count').textContent = ch4Count;
+        }
+        if (document.getElementById('ch5-count')) {
+            document.getElementById('ch5-count').textContent = ch5Count;
+        }
 
         // Update chapter cards based on progress
         const card1 = document.getElementById('chapter-card-1');
@@ -225,19 +283,50 @@ class CodeOfMeridaeiaGame {
             document.getElementById('ch3-status').textContent = '🔒 Complete Chapter II';
         }
 
+        // Chapter 4 (Java extended) - unlocks after Chapter 3
+        if (hasExtendedChapters && card4) {
+            card4.classList.remove('locked', 'completed');
+            if (chapterProgress.chapter4) {
+                card4.classList.add('completed');
+                document.getElementById('ch4-status').textContent = '✅ Completed';
+            } else if (chapterProgress.chapter3) {
+                document.getElementById('ch4-status').textContent = '🔓 Unlocked';
+            } else {
+                card4.classList.add('locked');
+                document.getElementById('ch4-status').textContent = '🔒 Complete Chapter III';
+            }
+        }
+
+        // Chapter 5 (Java extended) - unlocks after Chapter 4
+        if (hasExtendedChapters && card5) {
+            card5.classList.remove('locked', 'completed');
+            if (chapterProgress.chapter5) {
+                card5.classList.add('completed');
+                document.getElementById('ch5-status').textContent = '✅ Completed';
+            } else if (chapterProgress.chapter4) {
+                document.getElementById('ch5-status').textContent = '🔓 Unlocked';
+            } else {
+                card5.classList.add('locked');
+                document.getElementById('ch5-status').textContent = '🔒 Complete Chapter IV';
+            }
+        }
+
         // Track event
         codeQuestDB.trackEvent('chapter_select_shown', { category: this.currentCategory });
     }
 
+
     selectChapter(chapterNum) {
         // Check if chapter is unlocked
         const chapterProgress = this.userProfile.chapterProgress?.[this.currentCategory] ||
-            { chapter1: false, chapter2: false, chapter3: false };
+            { chapter1: false, chapter2: false, chapter3: false, chapter4: false, chapter5: false };
 
         const isUnlocked =
             chapterNum === 1 ||
             (chapterNum === 2 && chapterProgress.chapter1) ||
-            (chapterNum === 3 && chapterProgress.chapter2);
+            (chapterNum === 3 && chapterProgress.chapter2) ||
+            (chapterNum === 4 && chapterProgress.chapter3) ||
+            (chapterNum === 5 && chapterProgress.chapter4);
 
         if (!isUnlocked) {
             this.showNotification('🔒 Complete the previous chapter first!');
@@ -265,7 +354,7 @@ class CodeOfMeridaeiaGame {
         // Mark chapter as complete
         if (!this.userProfile.chapterProgress) {
             this.userProfile.chapterProgress = {
-                java: { chapter1: false, chapter2: false, chapter3: false },
+                java: { chapter1: false, chapter2: false, chapter3: false, chapter4: false, chapter5: false },
                 cpp: { chapter1: false, chapter2: false, chapter3: false },
                 networking: { chapter1: false, chapter2: false, chapter3: false },
                 dataEngineering: { chapter1: false, chapter2: false, chapter3: false },
@@ -273,13 +362,20 @@ class CodeOfMeridaeiaGame {
             };
         }
 
+        // Ensure Java has extended chapter fields
+        if (this.currentCategory === 'java' && !this.userProfile.chapterProgress.java.hasOwnProperty('chapter4')) {
+            this.userProfile.chapterProgress.java.chapter4 = false;
+            this.userProfile.chapterProgress.java.chapter5 = false;
+        }
+
         const chapterKey = `chapter${this.currentChapter}`;
         this.userProfile.chapterProgress[this.currentCategory][chapterKey] = true;
         codeQuestDB.saveUserProfile(this.userProfile);
 
         // Show completion notification
-        const chapterNames = ['The Awakening', 'Rising Storm', 'The Reckoning'];
-        this.showNotification(`📖 Chapter ${this.currentChapter}: ${chapterNames[this.currentChapter - 1]} Complete!`);
+        const chapterNames = ['The Awakening', 'Rising Storm', 'The Reckoning', 'Advanced Trials', 'Mastery Path'];
+        const chapterName = chapterNames[this.currentChapter - 1] || `Chapter ${this.currentChapter}`;
+        this.showNotification(`📖 Chapter ${this.currentChapter}: ${chapterName} Complete!`);
 
         // Track event
         codeQuestDB.trackEvent('chapter_completed', {
@@ -625,6 +721,10 @@ class CodeOfMeridaeiaGame {
             storyText = story.chapter2Intro;
         } else if (chapterNum === 3) {
             storyText = story.chapter3Intro;
+        } else if (chapterNum === 4) {
+            storyText = story.chapter4Intro;
+        } else if (chapterNum === 5) {
+            storyText = story.chapter5Intro;
         }
 
         if (!storyText) return;
@@ -757,36 +857,138 @@ class CodeOfMeridaeiaGame {
         monsterType.textContent = this.currentQuestion.difficulty.toUpperCase();
         monsterType.className = `monster-type ${this.currentQuestion.difficulty}`;
 
-        // Update question text
-        document.getElementById('question-text').textContent = this.currentQuestion.question;
+        // Check if this is an interactive code exercise
+        const isCodeExercise = ['code-typing', 'code-completion', 'fix-bug', 'build-from-scratch', 'project'].includes(this.currentQuestion.type);
 
-        // Update code block
-        const codeBlock = document.getElementById('code-block');
-        if (this.currentQuestion.code) {
-            codeBlock.classList.remove('hidden');
-            document.getElementById('code-content').textContent = this.currentQuestion.code;
+        if (isCodeExercise && typeof codeExercise !== 'undefined') {
+            // Render interactive code exercise
+            const questionContainer = document.getElementById('question-text');
+            questionContainer.innerHTML = codeExercise.renderQuestion(this.currentQuestion);
+
+            // Hide traditional options
+            document.getElementById('options-container').innerHTML = '';
+            document.getElementById('code-block').classList.add('hidden');
         } else {
-            codeBlock.classList.add('hidden');
+            // Traditional multiple choice question
+            // Update question text
+            document.getElementById('question-text').textContent = this.currentQuestion.question;
+
+            // Update code block
+            const codeBlock = document.getElementById('code-block');
+            if (this.currentQuestion.code) {
+                codeBlock.classList.remove('hidden');
+                document.getElementById('code-content').textContent = this.currentQuestion.code;
+            } else {
+                codeBlock.classList.add('hidden');
+            }
+
+            // Update options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            this.currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span>${option}`;
+                button.onclick = () => this.selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
         }
-
-        // Update options
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = '';
-
-        this.currentQuestion.options.forEach((option, index) => {
-            const button = document.createElement('button');
-            button.className = 'option-btn';
-            button.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span>${option}`;
-            button.onclick = () => this.selectAnswer(index);
-            optionsContainer.appendChild(button);
-        });
 
         // Hide feedback
         document.getElementById('feedback-container').classList.add('hidden');
         document.getElementById('next-btn').classList.add('hidden');
 
+        // Reset and setup combat hints
+        this.combatHintIndex = 0;
+        this.hintsUsedThisQuestion = 0;
+        this.resetCombatHints();
+
         // Start timer
         this.startTimer();
+    }
+
+    // ============ COMBAT HINTS (Regular Questions) ============
+
+    resetCombatHints() {
+        const hintSection = document.getElementById('combat-hint-section');
+        const currentHint = document.getElementById('combat-current-hint');
+        const hintsRemaining = document.getElementById('combat-hints-remaining');
+
+        if (!hintSection || !this.currentQuestion) return;
+
+        // Check if this question has hints
+        const hints = this.currentQuestion.hints || [];
+
+        if (hints.length === 0) {
+            // No hints available for this question
+            hintSection.classList.add('hidden');
+        } else {
+            // Show hint section
+            hintSection.classList.remove('hidden');
+            currentHint.classList.add('hidden');
+            currentHint.textContent = '';
+            hintsRemaining.textContent = `${hints.length} hints remaining`;
+        }
+    }
+
+    showCombatHint() {
+        const cost = 5; // Gold cost per hint
+
+        if (!this.currentQuestion || !this.currentQuestion.hints) {
+            this.showNotification('No hints available for this question');
+            return;
+        }
+
+        const hints = this.currentQuestion.hints;
+
+        // Check if we have gold
+        if (this.userProfile.gold < cost) {
+            this.showNotification('💰 Not enough gold! (need 5)');
+            return;
+        }
+
+        // Check if we have hints left
+        if (this.combatHintIndex >= hints.length) {
+            this.showNotification('No more hints available');
+            return;
+        }
+
+        // Deduct gold
+        this.userProfile.gold -= cost;
+        codeQuestDB.saveUserProfile(this.userProfile);
+        this.updateProfileUI();
+
+        // Get and display hint
+        const hint = hints[this.combatHintIndex];
+        const currentHintEl = document.getElementById('combat-current-hint');
+        const hintsRemainingEl = document.getElementById('combat-hints-remaining');
+
+        // Show hint with animation
+        currentHintEl.textContent = hint;
+        currentHintEl.classList.remove('hidden');
+        currentHintEl.style.animation = 'none';
+        currentHintEl.offsetHeight; // Trigger reflow
+        currentHintEl.style.animation = 'fadeIn 0.3s ease-out';
+
+        // Update counters
+        this.combatHintIndex++;
+        this.hintsUsedThisQuestion++;
+
+        // Update remaining display
+        const remaining = hints.length - this.combatHintIndex;
+        hintsRemainingEl.textContent = `${remaining} hints remaining`;
+
+        // Show notification
+        this.showNotification(`💡 Hint revealed! (-${cost} Gold)`);
+
+        // Track event for analytics
+        codeQuestDB.trackEvent('combat_hint_used', {
+            questionId: this.currentQuestion.id,
+            category: this.currentCategory,
+            hintIndex: this.combatHintIndex,
+            hintsUsedThisQuestion: this.hintsUsedThisQuestion
+        });
     }
 
     // ============ TIMER ============
@@ -837,6 +1039,11 @@ class CodeOfMeridaeiaGame {
 
     timeUp() {
         clearInterval(this.timerInterval);
+
+        // Hide hint section when time is up
+        const hintSection = document.getElementById('combat-hint-section');
+        if (hintSection) hintSection.classList.add('hidden');
+
         this.showFeedback(false, -1);
         this.totalAnswered++;
     }
@@ -857,6 +1064,10 @@ class CodeOfMeridaeiaGame {
                 btn.classList.add('incorrect');
             }
         });
+
+        // Hide hint section after answering
+        const hintSection = document.getElementById('combat-hint-section');
+        if (hintSection) hintSection.classList.add('hidden');
 
         this.totalAnswered++;
 
@@ -1576,6 +1787,11 @@ class CodeOfMeridaeiaGame {
                 className: 'Dragonoid Mercenary',
                 identity: 'Vulkun of Ring Zero',
                 image: 'assets/heroes/hero-vulkun-portrait.png'
+            },
+            marakathalessa: {
+                className: 'Corrupted Mage',
+                identity: 'Marakathalessa Redeemed',
+                image: 'assets/monsters/boss-marakathalessa-alt.png'
             }
         };
         return heroMap[category] || { className: 'Hero', identity: '', image: 'assets/heroes/hero-grom-portrait.png' };
@@ -2006,13 +2222,22 @@ class CodeOfMeridaeiaGame {
         }
 
         // Add skill bonuses
-        const skillBonus = this.getSkillBonus('barrierBonus');
+        const skillBonus = this.getSkillBonus('barrierPoints');
         maxBarrier += skillBonus;
 
         return maxBarrier;
     }
+
+    // Helper method for code exercises to call when answer is correct
+    handleCorrectAnswer() {
+        // Simulate clicking the correct answer
+        this.selectAnswer(this.currentQuestion.correctAnswer || 0);
+    }
 }
 
-// Initialize game
-const game = new CodeOfMeridaeiaGame();
-document.addEventListener('DOMContentLoaded', () => game.init());
+// Initialize game when DOM is ready
+let game;
+document.addEventListener('DOMContentLoaded', () => {
+    game = new CodeOfMeridaeiaGame();
+    game.init();
+});

@@ -16,9 +16,16 @@ const characterStories = {
         // Chapter 3 Intro (Full story - 6-8 sentences)
         chapter3Intro: `I've walked this path alone for so long. But in Valerion, I found others like me - the outcast archer who rejected her people's pride, the wizard who was bullied for being different, the knight who lost everything. We are all broken in our own ways. But the Great Compiler doesn't judge us by our past. It judges us by our code. And my code is clean, optimized, and ready for battle. This is my redemption.`,
 
+        // Chapter 4 Intro (Advanced Trials)
+        chapter4Intro: `The path grows darker. The challenges ahead require more than basic principles - they demand mastery of concurrency, the discipline to manage multiple threads without deadlock. My clan feared complexity, but I embrace it. Every pattern I learn, every framework I master, brings me closer to the truth. The Witch's corruption runs deep. But so does my determination.`,
+
+        // Chapter 5 Intro (Mastery Path)
+        chapter5Intro: `This is the final trial. The ancient warriors spoke of a state beyond strength - a place where mind and blade become one. I have reached that place. Collections stream through my consciousness like rivers of data. Design patterns flow naturally as breathing. I am no longer the outcast they banished. I am the Master of Java. And today, I take back everything they said I could never achieve.`,
+
         // Full backstory (for character profile)
         fullBackstory: `Grom was born into the proud Barbarian clans of the Northern Wastes, where strength and honor were everything. But Grom was different - he questioned the old ways, sought knowledge over brute force, and believed in optimization rather than raw power. His clan called him weak. They mocked his interest in "the ancient syntax" - the programming languages of the old world. When Grom suggested using Object-Oriented principles to organize their battle formations, the elders banished him. Cast out and alone, Grom wandered until he found Valerion. There, he discovered his true calling: combining the warrior's discipline with the coder's precision. He became the Java Barbarian - a fighter who believes every problem has an elegant solution.`
     },
+
 
     cpp: {
         heroName: "Malloc the Wizard",
