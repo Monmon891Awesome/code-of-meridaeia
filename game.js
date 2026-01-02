@@ -125,7 +125,13 @@ class CodeOfMeridaeiaGame {
                 };
                 break;
             case 'cpp':
-                allQuestions = typeof cppQuestions !== 'undefined' ? [...cppQuestions] : [];
+                // Merge all C++ tier questions
+                allQuestions = [
+                    ...(typeof cppTier1Foundations !== 'undefined' ? cppTier1Foundations : []),
+                    ...(typeof cppTier2OOP !== 'undefined' ? cppTier2OOP : []),
+                    ...(typeof cppTier3Modern !== 'undefined' ? cppTier3Modern : []),
+                    ...(typeof cppQuestions !== 'undefined' ? cppQuestions : []) // Legacy questions
+                ];
                 this.selectedHero = {
                     category: category,
                     heroName: 'Malloc the Void-Walker',
@@ -137,7 +143,13 @@ class CodeOfMeridaeiaGame {
                 };
                 break;
             case 'networking':
-                allQuestions = typeof networkingQuestions !== 'undefined' ? [...networkingQuestions] : [];
+                // Merge all Networking tier questions
+                allQuestions = [
+                    ...(typeof networkingTier1Foundations !== 'undefined' ? networkingTier1Foundations : []),
+                    ...(typeof networkingTier2APIs !== 'undefined' ? networkingTier2APIs : []),
+                    ...(typeof networkingTier3Security !== 'undefined' ? networkingTier3Security : []),
+                    ...(typeof networkingQuestions !== 'undefined' ? networkingQuestions : []) // Legacy questions
+                ];
                 this.selectedHero = {
                     category: category,
                     heroName: 'Ser Handshake',
@@ -149,7 +161,13 @@ class CodeOfMeridaeiaGame {
                 };
                 break;
             case 'dataEngineering':
-                allQuestions = typeof dataEngineeringQuestions !== 'undefined' ? [...dataEngineeringQuestions] : [];
+                // Merge all Data Engineering tier questions
+                allQuestions = [
+                    ...(typeof dataEngineeringTier1SQL !== 'undefined' ? dataEngineeringTier1SQL : []),
+                    ...(typeof dataEngineeringTier2Pipelines !== 'undefined' ? dataEngineeringTier2Pipelines : []),
+                    ...(typeof dataEngineeringTier3Advanced !== 'undefined' ? dataEngineeringTier3Advanced : []),
+                    ...(typeof dataEngineeringQuestions !== 'undefined' ? dataEngineeringQuestions : []) // Legacy questions
+                ];
                 this.selectedHero = {
                     category: category,
                     heroName: 'Artemis the Stream-Caller',
@@ -2230,8 +2248,74 @@ class CodeOfMeridaeiaGame {
 
     // Helper method for code exercises to call when answer is correct
     handleCorrectAnswer() {
-        // Simulate clicking the correct answer
-        this.selectAnswer(this.currentQuestion.correctAnswer || 0);
+        // For code exercises, don't use selectAnswer which shows duplicate feedback
+        // Instead, directly handle the correct answer logic
+        clearInterval(this.timerInterval);
+
+        this.totalAnswered++;
+        this.correctAnswers++;
+
+        let xpGained = this.calculateXP();
+
+        // Apply XP multiplier from accessory
+        if (this.userProfile.equipped?.accessories?.stats?.xpMultiplier) {
+            xpGained *= this.userProfile.equipped.accessories.stats.xpMultiplier;
+        }
+
+        // Apply skill bonuses
+        const xpSkillMultiplier = 1 + this.getSkillBonus('xpMultiplier');
+        xpGained *= xpSkillMultiplier;
+        xpGained = Math.floor(xpGained);
+
+        this.score += xpGained;
+        this.userProfile.xp += xpGained;
+        this.userProfile.correctAnswers++;
+        this.userProfile.totalQuestionsAnswered++;
+
+        // Combat damage
+        const damage = this.calculateAttackDamage();
+        this.currentMonsterHP -= damage;
+
+        // Calculate gold with multipliers
+        let goldEarned = 5;
+        if (this.userProfile.equipped?.accessories?.stats?.goldMultiplier) {
+            goldEarned *= this.userProfile.equipped.accessories.stats.goldMultiplier;
+        }
+        const skillMultiplier = 1 + this.getSkillBonus('goldMultiplier');
+        goldEarned *= skillMultiplier;
+        this.goldEarned += Math.floor(goldEarned);
+
+        // Visual feedback
+        this.showDamageNumber(damage);
+        document.querySelector('.app-container')?.classList.add('screen-shake');
+        setTimeout(() => {
+            document.querySelector('.app-container')?.classList.remove('screen-shake');
+        }, 500);
+        this.showGoldCoin();
+        this.updateMonsterHUD();
+
+        // Monster defeated?
+        if (this.currentMonsterHP <= 0) {
+            this.monsterDefeated();
+            return;
+        }
+
+        // Check for level up
+        this.checkLevelUp();
+
+        // Save progress
+        codeQuestDB.saveProgress({
+            category: this.currentCategory,
+            questionId: this.currentQuestion.id,
+            isCorrect: true,
+            timeRemaining: this.timeLeft,
+            xpGained: xpGained
+        });
+        codeQuestDB.saveUserProfile(this.userProfile);
+        this.updateProfileUI();
+
+        // Show next button (don't show duplicate feedback)
+        document.getElementById('next-btn')?.classList.remove('hidden');
     }
 }
 
