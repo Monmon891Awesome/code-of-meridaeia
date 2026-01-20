@@ -2,6 +2,10 @@
 // Phase 4: Global Leaderboard with Supabase Integration
 
 // Supabase Configuration
+// SECURITY WARNING: These keys are exposed in the client-side code.
+// The security of the data relies entirely on Row Level Security (RLS) policies in Supabase.
+// If RLS is not configured correctly, anyone can access or modify the data.
+// See SECURITY_AUDIT.md for more details.
 const SUPABASE_URL = 'https://rocvmzuccptzypnensyu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvY3ZtenVjY3B0enlwbmVuc3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3NjQ5MTYsImV4cCI6MjA4MjM0MDkxNn0.7StbxpyMHhAeIOp-v9_3813qgjKG4aX20PVMbA_UrBI';
 
@@ -11,13 +15,18 @@ let supabaseClient = null;
 // Initialize Supabase when script loads
 async function initSupabase() {
     if (typeof window.supabase === 'undefined') {
-        console.warn('Supabase library not loaded yet, will retry...');
+        console.error('❌ Supabase library failed to load. Check your internet connection or ad blocker.');
         return false;
     }
     
     if (!supabaseClient) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase client initialized for leaderboard');
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase client initialized for leaderboard');
+        } catch (error) {
+            console.error('❌ Failed to initialize Supabase client:', error);
+            return false;
+        }
     }
     return true;
 }
@@ -145,6 +154,8 @@ class LeaderboardManager {
         if (type === 'monsters') orderColumn = 'total_monsters_defeated';
 
         // Fetch top 100 players
+        // Note: Ideally this should query 'leaderboard_cache' view, but we query 'player_profiles'
+        // This requires RLS to allow reading public profiles. If RLS is strict (owner only), this will fail.
         const { data, error } = await supabaseClient
             .from('player_profiles')
             .select('username, total_xp, total_gold, total_monsters_defeated, created_at')
@@ -154,6 +165,10 @@ class LeaderboardManager {
 
         if (error) {
             console.error('Supabase error:', error);
+            // If error is permission denied (401/403), it means RLS is preventing access.
+            if (error.code === '42501' || error.code === 'PGRST301') {
+                console.warn('⚠️ Access denied by RLS policies. Leaderboard may be restricted.');
+            }
             throw error;
         }
 
