@@ -99,7 +99,12 @@ class CodeOfMeridaeiaGame {
 
     async init() {
         // Initialize database
-        await codeQuestDB.init();
+        try {
+            await codeQuestDB.init();
+        } catch (error) {
+            console.error('Failed to initialize database:', error);
+            this.showNotification('⚠️ Database error: Progress may not be saved.');
+        }
 
         // Load or create user profile
         this.userProfile = await codeQuestDB.getUserProfile();
@@ -1565,6 +1570,10 @@ class CodeOfMeridaeiaGame {
     // ============ DATA EXPORT/IMPORT ============
 
     async exportData() {
+        if (!confirm('This will export your game data including your profile. Do you want to continue?')) {
+            return;
+        }
+
         const data = await codeQuestDB.exportAllData();
 
         const blob = new Blob([data], { type: 'application/json' });
