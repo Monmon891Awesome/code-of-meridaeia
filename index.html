@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
@@ -11,6 +11,7 @@
     <meta name="description"
         content="Code of Meridaeia - Master Java, C++, Networking, and Data Engineering through interactive challenges">
     <title>Code of Meridaeia - Learn Java & C++ Programming</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icons/logo.svg">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,8 +41,8 @@
     <link rel="stylesheet" href="styles/utilities/accessibility.css">
 
     
-    <!-- Supabase Client Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client Library (deferred so it never blocks first paint) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -51,11 +52,15 @@
     <!-- Retro Scanline Overlay (Phase F) -->
     <div class="scanlines"></div>
 
-    <!-- Landscape Orientation Prompt (Phase A) -->
+    <!-- Landscape Orientation Prompt (Phase A) - dismissible, portrait play is supported -->
     <div class="landscape-prompt">
         <span class="rotate-icon">📱</span>
         <h2>Rotate Your Device</h2>
         <p>Code of Meridaeia is best experienced in landscape mode. Please rotate your device to continue your quest!</p>
+        <button class="btn btn-secondary" style="margin-top: 1.5rem;"
+            onclick="document.body.classList.add('portrait-ok'); localStorage.setItem('portraitOk', '1');">
+            Continue in Portrait ▶
+        </button>
     </div>
 
     <!-- Cinematic Intro -->
@@ -163,7 +168,8 @@
                 </button>
 
                 <!-- Networking / Paladin -->
-                <div class="category-card networking" onclick="game.selectCategory('networking')">
+                <button class="category-card networking" onclick="game.selectCategory('networking')"
+                        aria-label="Select Networking Knight Paladin - Ser Handshake. 12 networking challenges.">
                     <div class="character-portrait">
                         <img src="assets/heroes/hero-handshake-portrait.png" alt="Knight Paladin" class="hero-portrait">
                     </div>
@@ -176,10 +182,11 @@
                             <span class="category-questions">12 Questions</span>
                         </div>
                     </div>
-                </div>
+                </button>
 
                 <!-- Data Eng / Archer -->
-                <div class="category-card data-engineering" onclick="game.selectCategory('dataEngineering')">
+                <button class="category-card data-engineering" onclick="game.selectCategory('dataEngineering')"
+                        aria-label="Select Data Engineering Knight Archer - Artemis the Stream-Caller. 12 data engineering challenges.">
                     <div class="character-portrait">
                         <img src="assets/heroes/hero-artemis-portrait.png" alt="Knight Archer" class="hero-portrait">
                     </div>
@@ -192,10 +199,11 @@
                             <span class="category-questions">12 Questions</span>
                         </div>
                     </div>
-                </div>
+                </button>
 
                 <!-- Kernel / Dragonoid -->
-                <div class="category-card kernel" onclick="game.selectCategory('kernel')">
+                <button class="category-card kernel" onclick="game.selectCategory('kernel')"
+                        aria-label="Select Kernel Development Dragonoid Mercenary - Vulkun of Ring Zero. 30 kernel challenges.">
                     <div class="character-portrait">
                         <img src="assets/heroes/hero-vulkun-portrait.png" alt="Dragonoid Mercenary" class="hero-portrait">
                     </div>
@@ -208,10 +216,11 @@
                             <span class="category-questions">30 Questions</span>
                         </div>
                     </div>
-                </div>
+                </button>
 
                 <!-- BOSS: Marakathalessa (Locked by default) -->
-                <div class="category-card boss locked" id="boss-card" onclick="game.selectBoss()">
+                <button class="category-card boss locked" id="boss-card" onclick="game.selectBoss()"
+                        aria-label="Boss fight: Marakathalessa, Witch of Corrupted Code. Unlocks after completing all 3 chapters of any hero.">
                     <div class="character-portrait boss-portrait">
                         <img src="assets/monsters/boss-marakathalessa-alt.png" alt="Marakathalessa" class="hero-portrait">
                         <div class="lock-overlay" id="boss-lock-overlay">🔒</div>
@@ -225,10 +234,11 @@
                             <span class="chapter-status" id="boss-status">🔒 Master a hero's path</span>
                         </div>
                     </div>
-                </div>
+                </button>
 
                 <!-- PLAYABLE: Marakathalessa (Unlocked after True Ending) -->
-                <div class="category-card marakathalessa locked" id="mara-playable-card" onclick="game.selectCategory('marakathalessa')">
+                <button class="category-card marakathalessa locked" id="mara-playable-card" onclick="game.selectCategory('marakathalessa')"
+                        aria-label="Play Marakathalessa Redeemed's story. Unlocks after achieving the true ending.">
                     <div class="character-portrait mara-portrait">
                         <img src="assets/monsters/boss-marakathalessa-alt.png" alt="Marakathalessa" class="hero-portrait">
                         <div class="lock-overlay" id="mara-lock-overlay">🔒</div>
@@ -242,7 +252,7 @@
                             <span class="chapter-status" id="mara-status">🔒 Defeat the boss first</span>
                         </div>
                     </div>
-                </div>
+                </button>
             </div>
         </section>
 
@@ -253,7 +263,8 @@
             
             <div class="chapter-grid">
                 <!-- Chapter 1 -->
-                <div class="chapter-card" id="chapter-card-1" onclick="game.selectChapter(1)">
+                <button class="chapter-card" id="chapter-card-1" onclick="game.selectChapter(1)"
+                        aria-label="Chapter 1: The Awakening. Begin your journey in the wasteland.">
                     <div class="chapter-badge">Chapter I</div>
                     <div class="chapter-icon">📖</div>
                     <h3>The Awakening</h3>
@@ -262,10 +273,11 @@
                         <span class="chapter-questions"><span id="ch1-count">4</span> Challenges</span>
                         <span class="chapter-status" id="ch1-status">🔓 Unlocked</span>
                     </div>
-                </div>
-                
+                </button>
+
                 <!-- Chapter 2 -->
-                <div class="chapter-card locked" id="chapter-card-2" onclick="game.selectChapter(2)">
+                <button class="chapter-card locked" id="chapter-card-2" onclick="game.selectChapter(2)"
+                        aria-label="Chapter 2: Rising Storm. Unlocks after completing Chapter 1.">
                     <div class="chapter-badge">Chapter II</div>
                     <div class="chapter-icon">📜</div>
                     <h3>Rising Storm</h3>
@@ -274,10 +286,11 @@
                         <span class="chapter-questions"><span id="ch2-count">4</span> Challenges</span>
                         <span class="chapter-status" id="ch2-status">🔒 Complete Chapter I</span>
                     </div>
-                </div>
-                
+                </button>
+
                 <!-- Chapter 3 -->
-                <div class="chapter-card locked" id="chapter-card-3" onclick="game.selectChapter(3)">
+                <button class="chapter-card locked" id="chapter-card-3" onclick="game.selectChapter(3)"
+                        aria-label="Chapter 3: The Reckoning. Unlocks after completing Chapter 2.">
                     <div class="chapter-badge">Chapter III</div>
                     <div class="chapter-icon">⚔️</div>
                     <h3>The Reckoning</h3>
@@ -286,7 +299,7 @@
                         <span class="chapter-questions"><span id="ch3-count">4</span> Challenges</span>
                         <span class="chapter-status" id="ch3-status">🔒 Complete Chapter II</span>
                     </div>
-                </div>
+                </button>
             </div>
             
             <button class="btn btn-secondary" style="margin-top: 1.5rem;" onclick="game.backToHeroSelect()">
@@ -363,12 +376,13 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons-bookworm">
-                <button class="action-btn-bookworm hint-btn" id="hint-button" onclick="game.useHint()">💡 Hint</button>
+                <button class="action-btn-bookworm hint-btn" id="hint-button" onclick="game.useHint()">💡 Hint (10G)</button>
                 <button class="action-btn-bookworm run-btn" id="run-button" onclick="game.backToMenu()">🏃 Run</button>
             </div>
+            <p class="keyboard-tip" aria-hidden="true">⌨️ Press 1-4 or A-D to answer · H for hint · Enter to continue</p>
 
             <!-- Feedback Overlay -->
-            <div id="feedback-container" class="feedback-overlay-bookworm hidden">
+            <div id="feedback-container" class="feedback-overlay-bookworm hidden" role="alert" aria-live="assertive">
                 <div class="feedback-content-bookworm">
                     <span id="feedback-icon" class="feedback-icon-big">✅</span>
                     <span id="feedback-text" class="feedback-title-big">Correct!</span>
@@ -533,7 +547,7 @@
                     <p id="hints-remaining" class="hints-remaining">3 hints remaining</p>
                 </div>
 
-                <div id="boss-feedback" class="boss-feedback hidden">
+                <div id="boss-feedback" class="boss-feedback hidden" role="alert" aria-live="assertive">
                     <span id="boss-feedback-icon">✅</span>
                     <span id="boss-feedback-text">Correct!</span>
                     <p id="boss-explanation"></p>
@@ -622,6 +636,10 @@
         <button class="bottom-btn" onclick="game.resetProgress()">
             <span class="icon">🔄</span>
             <span class="label">Reset</span>
+        </button>
+        <button class="bottom-btn" id="sound-toggle" onclick="gameSFX.toggleMute()" aria-label="Toggle sound effects">
+            <span class="icon" id="sound-toggle-icon">🔊</span>
+            <span class="label">Sound</span>
         </button>
     </nav>
 
@@ -757,6 +775,7 @@
     </div>
 
     <!-- Scripts - Load in correct order -->
+    <script src="audio.js"></script>
     <script src="database.js"></script>
     <script src="shop-data.js"></script>
     <script src="leaderboard.js"></script>

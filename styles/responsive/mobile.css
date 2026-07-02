@@ -16,8 +16,9 @@
     }
 
     .answer-card {
-        min-width: 100% !important;
-        min-height: 60px;
+        width: 100% !important;
+        min-height: 72px;
+        transform: none !important;
     }
 
     .combat-hp-bar {
@@ -51,20 +52,30 @@
     .portrait-orb {
         width: 100px !important;
         height: 100px !important;
-        min-width: 44px;
+        flex-basis: 100px !important;
+        max-width: 100px !important;
         min-height: 44px;
     }
 
-    /* Card hand - prevent overlap */
+    /* Card hand - flat 2-column grid, no fanning or overlap */
     .card-hand {
         flex-wrap: wrap;
         gap: 0.5rem;
         justify-content: center;
+        height: auto;
+        min-height: 0;
+        align-items: stretch;
     }
 
     .answer-card {
-        min-width: calc(50% - 0.5rem);
-        min-height: 60px;
+        width: calc(50% - 0.5rem);
+        min-height: 90px;
+        transform: none !important;
+    }
+
+    .answer-card:hover,
+    .answer-card:focus-visible {
+        transform: none !important;
     }
 
     /* Question card - scrollable */
@@ -100,10 +111,36 @@
         overflow-y: auto;
     }
 
-    /* Combat layout adjustments */
+    /* Battle layout: natural height, page scrolls instead of clipping */
+    .bookworm-battle-layout {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+
+    /* Combat layout: hero and monster orbs face off on one row,
+       question card gets the full width below them */
     .battle-arena-center {
-        flex-direction: column;
-        gap: 1rem;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .battle-arena-center .hero-orb {
+        order: 1;
+    }
+
+    .battle-arena-center .monster-orb {
+        order: 2;
+    }
+
+    .battle-arena-center .question-card-bookworm {
+        order: 3;
+        flex: 1 1 100%;
+        max-width: 100%;
     }
 
     .action-buttons-bookworm {

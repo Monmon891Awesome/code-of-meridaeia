@@ -98,6 +98,11 @@ class CodeOfMeridaeiaGame {
     }
 
     async init() {
+        // Restore "play in portrait" choice before anything renders
+        if (localStorage.getItem('portraitOk') === '1') {
+            document.body.classList.add('portrait-ok');
+        }
+
         // Initialize database
         await codeQuestDB.init();
 
@@ -123,6 +128,9 @@ class CodeOfMeridaeiaGame {
         // Check if Marakathalessa playable is unlocked (Phase D)
         this.updateMaraCardStatus();
 
+        // Keyboard controls: 1-4 / A-D pick an answer, Enter/Space continues
+        this.initKeyboardControls();
+
         // Track session start
         await codeQuestDB.trackEvent('session_start', {
             username: this.userProfile.username,
@@ -130,6 +138,43 @@ class CodeOfMeridaeiaGame {
         });
 
         console.log('🎮 Code of Meridaeia initialized!', this.userProfile);
+    }
+
+    initKeyboardControls() {
+        document.addEventListener('keydown', (e) => {
+            // Never hijack typing (boss fight answer box, prompts, etc.)
+            const tag = document.activeElement?.tagName;
+            if (tag === 'TEXTAREA' || tag === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
+
+            const gameArea = document.getElementById('game-area');
+            if (!gameArea || gameArea.classList.contains('hidden')) return;
+
+            const feedbackVisible = !document.getElementById('feedback-container')
+                .classList.contains('hidden');
+
+            if (feedbackVisible) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    document.getElementById('next-btn')?.click();
+                }
+                return;
+            }
+
+            // Map 1-4 and A-D to answer cards
+            const key = e.key.toLowerCase();
+            let index = -1;
+            if (key >= '1' && key <= '4') index = parseInt(key, 10) - 1;
+            else if (key >= 'a' && key <= 'd') index = key.charCodeAt(0) - 97;
+            else if (key === 'h') { this.useHint(); return; }
+
+            if (index >= 0) {
+                const cards = document.querySelectorAll('#options-container .answer-card, #options-container .option-btn');
+                const card = cards[index];
+                if (card && !card.disabled && !card.classList.contains('disabled')) {
+                    card.click();
+                }
+            }
+        });
     }
 
     // ============ CATEGORY MANAGEMENT ============
@@ -303,13 +348,12 @@ class CodeOfMeridaeiaGame {
 
         // Mark chapter as complete
         if (!this.userProfile.chapterProgress) {
-            this.userProfile.chapterProgress = {
-                java: { chapter1: false, chapter2: false, chapter3: false },
-                cpp: { chapter1: false, chapter2: false, chapter3: false },
-                networking: { chapter1: false, chapter2: false, chapter3: false },
-                dataEngineering: { chapter1: false, chapter2: false, chapter3: false },
-                kernel: { chapter1: false, chapter2: false, chapter3: false }
-            };
+            this.userProfile.chapterProgress = {};
+        }
+        // Older profiles may be missing newer heroes (e.g. marakathalessa)
+        if (!this.userProfile.chapterProgress[this.currentCategory]) {
+            this.userProfile.chapterProgress[this.currentCategory] =
+                { chapter1: false, chapter2: false, chapter3: false };
         }
 
         const chapterKey = `chapter${this.currentChapter}`;
@@ -378,6 +422,10 @@ class CodeOfMeridaeiaGame {
         this.currentBossQuestionIndex = 0;
         this.bossHP = this.bossMaxHP;
 
+        // Enter the fight with a full barrier - it is your health in this battle
+        this.userProfile.barrierPoints = this.getMaxBarrierPoints();
+        codeQuestDB.saveUserProfile(this.userProfile);
+
         // Hide hero select, show boss fight
         document.getElementById('category-select').classList.add('hidden');
         document.getElementById('boss-fight-area').classList.remove('hidden');
@@ -390,9 +438,21 @@ class CodeOfMeridaeiaGame {
     }
 
     showBossQuestion() {
-        if (this.currentBossQuestionIndex >= this.bossQuestions.length) {
-            // All questions answered - boss defeated
+        // Victory: boss HP depleted
+        if (this.bossHP <= 0) {
             this.defeatBoss();
+            return;
+        }
+
+        // Out of barrier: Marakathalessa wins this round
+        if ((this.userProfile.barrierPoints || 0) <= 0) {
+            this.bossFightLost('barrier');
+            return;
+        }
+
+        if (this.currentBossQuestionIndex >= this.bossQuestions.length) {
+            // Ran out of challenges before breaking her HP - she escapes
+            this.bossFightLost('survived');
             return;
         }
 
@@ -439,16 +499,26 @@ class CodeOfMeridaeiaGame {
         document.getElementById('boss-hp-text').textContent = `${Math.max(0, this.bossHP)} / ${this.bossMaxHP}`;
     }
 
+    // Normalize a typed answer for forgiving comparison:
+    // lowercase, trimmed, collapsed whitespace (and a no-space variant)
+    normalizeBossAnswer(text) {
+        const collapsed = text.toLowerCase().trim().replace(/\s+/g, ' ');
+        return [collapsed, collapsed.replace(/\s+/g, '')];
+    }
+
     submitBossAnswer() {
-        const answer = document.getElementById('code-answer').value.trim().toLowerCase();
-        if (!answer) {
+        const rawAnswer = document.getElementById('code-answer').value;
+        if (!rawAnswer.trim()) {
             this.showNotification('Please enter an answer');
             return;
         }
 
-        // Check if answer is correct (case-insensitive, flexible matching)
-        const acceptedAnswers = this.currentBossQuestion.acceptedAnswers.map(a => a.toLowerCase().trim());
-        const isCorrect = acceptedAnswers.includes(answer);
+        // Check if answer is correct (case-insensitive, whitespace-tolerant)
+        const [answer, answerNoSpaces] = this.normalizeBossAnswer(rawAnswer);
+        const isCorrect = this.currentBossQuestion.acceptedAnswers.some(a => {
+            const [accepted, acceptedNoSpaces] = this.normalizeBossAnswer(a);
+            return accepted === answer || acceptedNoSpaces === answerNoSpaces;
+        });
 
         // Disable input
         document.getElementById('code-answer').disabled = true;
@@ -464,15 +534,16 @@ class CodeOfMeridaeiaGame {
         if (isCorrect) {
             feedback.classList.add('correct');
             feedbackIcon.textContent = '✅';
-            feedbackText.textContent = 'Critical Hit!';
 
             // Deal damage based on how few hints were used
             const baseDamage = 100;
-            const damage = baseDamage + (30 * (3 - this.currentHintIndex));
+            const damage = baseDamage + (30 * Math.max(0, 3 - this.currentHintIndex));
             this.bossHP -= damage;
+            feedbackText.textContent = this.bossHP <= 0 ? 'FINAL BLOW!' : 'Critical Hit!';
 
             // Show damage notification
             this.showNotification(`⚔️ ${damage} damage dealt!`);
+            this.playSound('correct');
 
             // Visual effects
             this.updateBossHPBar();
@@ -486,13 +557,18 @@ class CodeOfMeridaeiaGame {
         } else {
             feedback.classList.add('incorrect');
             feedbackIcon.textContent = '❌';
-            feedbackText.textContent = 'Miss!';
 
             // Boss counterattacks - reduce barrier points
             if (this.userProfile.barrierPoints > 0) {
                 this.userProfile.barrierPoints--;
                 codeQuestDB.saveUserProfile(this.userProfile);
             }
+
+            const barrierLeft = this.userProfile.barrierPoints || 0;
+            feedbackText.textContent = barrierLeft > 0
+                ? `Miss! Marakathalessa counterattacks! 🛡️ ${barrierLeft} barrier left`
+                : 'Miss! Your barrier is destroyed!';
+            this.playSound('wrong');
 
             // Track incorrect answer
             codeQuestDB.trackEvent('boss_answer_incorrect', {
@@ -551,26 +627,47 @@ class CodeOfMeridaeiaGame {
 
     defeatBoss() {
         this.isBossFighting = false;
+        this.playSound('fanfare');
 
-        // Check if this is first defeat
-        if (!this.userProfile.bossDefeated) {
-            this.userProfile.bossDefeated = 'incomplete';
+        // True ending requires every hero's story to be complete (Phase D)
+        if (this.isAllHeroesComplete()) {
+            this.userProfile.bossDefeated = 'true';
+            codeQuestDB.saveUserProfile(this.userProfile);
+            this.showTrueEnding();
+        } else {
+            this.userProfile.bossDefeated = this.userProfile.bossDefeated || 'incomplete';
             codeQuestDB.saveUserProfile(this.userProfile);
             this.showIncompleteEnding();
-        } else {
-            // Already defeated once - check for true ending (Phase D)
-            if (this.isAllHeroesComplete()) {
-                this.userProfile.bossDefeated = 'true';
-                codeQuestDB.saveUserProfile(this.userProfile);
-                this.showTrueEnding();
-            } else {
-                this.showIncompleteEnding();
-            }
         }
 
         // Track event
         codeQuestDB.trackEvent('boss_defeated', {
             type: this.userProfile.bossDefeated
+        });
+    }
+
+    bossFightLost(reason) {
+        this.isBossFighting = false;
+        this.playSound('defeat');
+
+        document.getElementById('boss-fight-area').classList.add('hidden');
+        document.getElementById('results-screen').classList.remove('hidden');
+
+        document.querySelector('.results-icon').textContent = '💀';
+        document.querySelector('.results-card h2').textContent =
+            reason === 'barrier' ? 'Your Barrier Shattered!' : 'Marakathalessa Endures...';
+        document.getElementById('final-score').textContent = 'Defeated';
+        document.getElementById('questions-correct').textContent =
+            `${this.bossMaxHP - Math.max(0, this.bossHP)} dmg`;
+        document.getElementById('accuracy').textContent = 'Retry';
+
+        this.showNotification(reason === 'barrier'
+            ? '💀 Her counterattacks broke through! Train, stock up on gold for hints, and challenge her again.'
+            : '🌩️ You survived her trials but her power remains. Strike harder — fewer hints deal more damage!');
+
+        codeQuestDB.trackEvent('boss_fight_lost', {
+            reason,
+            damageDealt: this.bossMaxHP - Math.max(0, this.bossHP)
         });
     }
 
@@ -652,21 +749,16 @@ class CodeOfMeridaeiaGame {
     // ============ CHARACTER STORIES (Phase E) ============
 
     showChapterStory(category, chapterNum) {
-        // Get story data
-        const story = characterStories[category];
-        if (!story) return;
+        // Get story data - if none exists, start the chapter directly
+        const story = typeof characterStories !== 'undefined' ? characterStories[category] : null;
+        const storyText = story ? story[`chapter${chapterNum}Intro`] : null;
 
-        // Get the appropriate chapter intro
-        let storyText = '';
-        if (chapterNum === 1) {
-            storyText = story.chapter1Intro;
-        } else if (chapterNum === 2) {
-            storyText = story.chapter2Intro;
-        } else if (chapterNum === 3) {
-            storyText = story.chapter3Intro;
+        if (!story || !storyText) {
+            this.pendingChapterStart = false;
+            this.currentChapter = chapterNum;
+            this.continueChapterStart();
+            return;
         }
-
-        if (!storyText) return;
 
         // Update modal content
         document.getElementById('story-hero-name').textContent = story.heroName;
@@ -703,8 +795,9 @@ class CodeOfMeridaeiaGame {
         // Set up hero
         this.userProfile.characterClass = this.selectedHero.heroClass;
         this.userProfile.currentMonsterHP = 100;
-        this.userProfile.storyProgress += 5;
-        this.userProfile.barrierPoints = this.userProfile.barrierPoints || 3;
+        this.userProfile.storyProgress = (this.userProfile.storyProgress || 0) + 5;
+        // Restore barrier to full at the start of every quest
+        this.userProfile.barrierPoints = this.getMaxBarrierPoints();
         codeQuestDB.saveUserProfile(this.userProfile);
 
         // Reset game state
@@ -714,7 +807,22 @@ class CodeOfMeridaeiaGame {
         this.totalAnswered = 0;
         this.isGameActive = true;
         this.currentMonsterHP = this.monsterMaxHP;
+        this.currentMonsterName = null;
         this.goldEarned = 0;
+        this.currentStreak = 0;
+        this.playerDefeated = false;
+
+        // Update hero name and portrait in the battle HUD
+        const heroNameDisplay = document.getElementById('hero-name-display');
+        if (heroNameDisplay) {
+            const firstName = this.selectedHero.heroName.split(' ')[0];
+            heroNameDisplay.textContent = firstName.toUpperCase();
+        }
+        const heroOrbImg = document.getElementById('hero-orb-img');
+        if (heroOrbImg && this.selectedHero.heroPortrait) {
+            heroOrbImg.src = this.selectedHero.heroPortrait;
+        }
+        this.updateHeroHPBar();
 
         // Track chapter selection
         codeQuestDB.trackEvent('chapter_selected', {
@@ -798,7 +906,12 @@ class CodeOfMeridaeiaGame {
 
         // Update Monster HUD
         this.updateMonsterHUD();
-        const monsterName = this.getRandomMonsterName(this.currentQuestion.difficulty);
+
+        // Keep the same monster until it is defeated (identity persists across questions)
+        if (!this.currentMonsterName) {
+            this.currentMonsterName = this.getRandomMonsterName(this.currentQuestion.difficulty);
+        }
+        const monsterName = this.currentMonsterName;
 
         // Update monster name display (Bookworm layout)
         const monsterNameDisplay = document.getElementById('monster-name-display');
@@ -821,9 +934,6 @@ class CodeOfMeridaeiaGame {
         if (monsterPortrait && this.monsterPortraits[monsterName]) {
             monsterPortrait.src = this.monsterPortraits[monsterName];
         }
-
-        // Store current monster name for lore modal
-        this.currentMonsterName = monsterName;
 
         const monsterType = document.getElementById('monster-type');
         if (monsterType) {
@@ -855,6 +965,14 @@ class CodeOfMeridaeiaGame {
             }
         }
 
+        // Shuffle answer options each time so replays can't be memorized by letter
+        const shuffledOptions = this.currentQuestion.options.map((text, originalIndex) => ({
+            text,
+            isCorrect: originalIndex === this.currentQuestion.correctAnswer
+        }));
+        this.shuffleArray(shuffledOptions);
+        this.currentCorrectIndex = shuffledOptions.findIndex(o => o.isCorrect);
+
         // Generate poker-style card hand answers
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = '';
@@ -862,26 +980,26 @@ class CodeOfMeridaeiaGame {
         // Check if we're using Bookworm layout (card-hand class)
         const isCardHand = optionsContainer.classList.contains('card-hand');
 
-        this.currentQuestion.options.forEach((option, index) => {
+        shuffledOptions.forEach((option, index) => {
+            const letter = String.fromCharCode(65 + index);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.setAttribute('aria-label', `Answer ${letter}: ${option.text}`);
+
             if (isCardHand) {
-                // Create poker-style answer card
-                const card = document.createElement('div');
-                card.className = 'answer-card';
-                card.innerHTML = `
-                <span class="card-letter">${String.fromCharCode(65 + index)}</span>
-                <span class="card-hidden">???</span>
-                <span class="card-answer-text">${option}</span>
+                // Poker-style answer card (text always visible for touch/screen-reader users)
+                button.className = 'answer-card';
+                button.innerHTML = `
+                <span class="card-letter">${letter}</span>
+                <span class="card-answer-text">${this.escapeHtml(option.text)}</span>
             `;
-                card.onclick = () => this.selectAnswer(index);
-                optionsContainer.appendChild(card);
             } else {
                 // Legacy button style
-                const button = document.createElement('button');
                 button.className = 'option-btn';
-                button.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span><span class="option-text">${option}</span>`;
-                button.onclick = () => this.selectAnswer(index);
-                optionsContainer.appendChild(button);
+                button.innerHTML = `<span class="option-letter">${letter}</span><span class="option-text">${this.escapeHtml(option.text)}</span>`;
             }
+            button.onclick = () => this.selectAnswer(index);
+            optionsContainer.appendChild(button);
         });
 
         // Hide feedback
@@ -908,6 +1026,7 @@ class CodeOfMeridaeiaGame {
         timerDuration += this.getSkillBonus('timerBonus');
 
         this.timeLeft = timerDuration;
+        this.timerDuration = timerDuration;
         this.updateTimerUI();
 
         this.timerInterval = setInterval(() => {
@@ -922,7 +1041,7 @@ class CodeOfMeridaeiaGame {
 
     updateTimerUI() {
         const timerEl = document.getElementById('timer');
-        timerEl.textContent = this.timeLeft;
+        timerEl.textContent = `⏱️ ${this.timeLeft}`;
 
         // Change color based on time
         if (this.timeLeft <= 10) {
@@ -934,7 +1053,7 @@ class CodeOfMeridaeiaGame {
         // Update progress ring (if exists in old layout)
         const timerProgress = document.getElementById('timer-progress');
         if (timerProgress) {
-            const progress = (this.timeLeft / 60) * 100;
+            const progress = (this.timeLeft / (this.timerDuration || 60)) * 100;
             timerProgress.style.background =
                 `conic-gradient(var(--accent) ${progress}%, transparent ${progress}%)`;
         }
@@ -945,7 +1064,7 @@ class CodeOfMeridaeiaGame {
         const hintCost = 10;
 
         if ((this.userProfile.gold || 0) < hintCost) {
-            this.notify('Not enough gold for a hint!', 'warning');
+            this.showNotification('💰 Not enough gold for a hint! (need 10)');
             return;
         }
 
@@ -958,11 +1077,12 @@ class CodeOfMeridaeiaGame {
 
         // Find wrong answers that haven't been eliminated yet
         const wrongOptions = [...options].filter((el, idx) =>
-            idx !== this.currentQuestion.correctAnswer && !el.disabled && !el.classList.contains('disabled')
+            idx !== this.currentCorrectIndex && !el.disabled && !el.classList.contains('disabled')
         );
 
-        if (wrongOptions.length === 0) {
-            this.notify('No more hints available!', 'info');
+        // Always leave at least one wrong answer so hints can't fully solve it
+        if (wrongOptions.length <= 1) {
+            this.showNotification('No more hints available for this question!');
             return;
         }
 
@@ -974,22 +1094,47 @@ class CodeOfMeridaeiaGame {
 
         // Deduct gold
         this.userProfile.gold = (this.userProfile.gold || 0) - hintCost;
+        codeQuestDB.saveUserProfile(this.userProfile);
         this.updateMonsterHUD();
-        this.notify(`Used hint (-${hintCost}G)`, 'info');
+        this.showNotification(`💡 Used hint (-${hintCost} Gold)`);
     }
 
     timeUp() {
         clearInterval(this.timerInterval);
-        this.showFeedback(false, -1);
+
+        // Disable remaining options and reveal the correct answer
+        document.querySelectorAll('.option-btn, .answer-card').forEach((el, i) => {
+            el.disabled = true;
+            el.classList.add('disabled');
+            if (i === this.currentCorrectIndex) el.classList.add('correct');
+        });
+
         this.totalAnswered++;
+
+        // Running out of time hurts like a wrong answer
+        if (this.userProfile.barrierPoints > 0) {
+            this.userProfile.barrierPoints--;
+            this.showBarrierDamage();
+            this.updateCharacterSheet();
+        }
+        if (this.userProfile.barrierPoints <= 0) {
+            this.playerDefeated = true;
+        }
+
+        this.userProfile.totalQuestionsAnswered++;
+        this.updateHeroHPBar();
+        codeQuestDB.saveUserProfile(this.userProfile);
+
+        this.showFeedback(false, -1);
     }
 
     // ============ ANSWER HANDLING ============
 
     selectAnswer(index) {
+        if (!this.isGameActive || !this.currentQuestion) return;
         clearInterval(this.timerInterval);
 
-        const isCorrect = index === this.currentQuestion.correctAnswer;
+        const isCorrect = index === this.currentCorrectIndex;
 
         // Handle both legacy buttons and new poker-style cards
         const optionButtons = document.querySelectorAll('.option-btn');
@@ -998,7 +1143,7 @@ class CodeOfMeridaeiaGame {
         // Disable legacy option buttons
         optionButtons.forEach((btn, i) => {
             btn.disabled = true;
-            if (i === this.currentQuestion.correctAnswer) {
+            if (i === this.currentCorrectIndex) {
                 btn.classList.add('correct');
             } else if (i === index && !isCorrect) {
                 btn.classList.add('incorrect');
@@ -1007,8 +1152,9 @@ class CodeOfMeridaeiaGame {
 
         // Disable poker-style answer cards
         answerCards.forEach((card, i) => {
+            card.disabled = true;
             card.classList.add('disabled');
-            if (i === this.currentQuestion.correctAnswer) {
+            if (i === this.currentCorrectIndex) {
                 card.classList.add('correct');
             } else if (i === index && !isCorrect) {
                 card.classList.add('incorrect');
@@ -1017,20 +1163,16 @@ class CodeOfMeridaeiaGame {
 
         this.totalAnswered++;
 
+        let xpGained = 0;
         if (isCorrect) {
             this.correctAnswers++;
-            let xpGained = this.calculateXP();
 
-            // Apply XP multiplier from accessory
-            if (this.userProfile.equipped?.accessories?.stats?.xpMultiplier) {
-                xpGained *= this.userProfile.equipped.accessories.stats.xpMultiplier;
-            }
+            // calculateXP() already applies accessory and skill multipliers
+            xpGained = this.calculateXP();
 
-            // Apply skill bonuses
-            const xpSkillMultiplier = 1 + this.getSkillBonus('xpMultiplier');
-            xpGained *= xpSkillMultiplier;
-
-            xpGained = Math.floor(xpGained);
+            // Streak bonus: +10% XP per consecutive correct answer beyond the first (max +50%)
+            const streakBonus = Math.min(this.currentStreak, 5) * 0.1;
+            xpGained = Math.floor(xpGained * (1 + streakBonus));
 
             this.score += xpGained;
             this.userProfile.xp += xpGained;
@@ -1083,15 +1225,22 @@ class CodeOfMeridaeiaGame {
             // Check for level up
             this.checkLevelUp();
         } else {
-            // Wrong answer: reduce barrier points
+            // Wrong answer: the monster strikes back at your barrier
             if (this.userProfile.barrierPoints > 0) {
                 this.userProfile.barrierPoints--;
                 this.showBarrierDamage();
                 this.updateCharacterSheet();
+                this.playAttackAnimation('monster');
+            }
+
+            // Out of barrier points - the hero falls
+            if (this.userProfile.barrierPoints <= 0) {
+                this.playerDefeated = true;
             }
         }
 
         this.userProfile.totalQuestionsAnswered++;
+        this.updateHeroHPBar();
 
         // Save progress
         codeQuestDB.saveProgress({
@@ -1099,7 +1248,7 @@ class CodeOfMeridaeiaGame {
             questionId: this.currentQuestion.id,
             isCorrect: isCorrect,
             timeRemaining: this.timeLeft,
-            xpGained: isCorrect ? this.calculateXP() : 0
+            xpGained
         });
 
         // Update profile in DB
@@ -1113,13 +1262,13 @@ class CodeOfMeridaeiaGame {
             timeRemaining: this.timeLeft
         });
 
-        this.showFeedback(isCorrect, index);
+        this.showFeedback(isCorrect, index, xpGained);
         this.updateProfileUI();
     }
 
     calculateXP() {
-        const baseXP = this.xpMultipliers[this.currentQuestion.difficulty];
-        const timeBonus = Math.floor((this.timeLeft / 60) * this.maxTimeBonus);
+        const baseXP = this.xpMultipliers[this.currentQuestion.difficulty] || this.xpMultipliers.medium;
+        const timeBonus = Math.floor((this.timeLeft / (this.timerDuration || 60)) * this.maxTimeBonus);
         let totalXP = baseXP + timeBonus;
 
         // Apply XP multiplier from accessory
@@ -1135,10 +1284,15 @@ class CodeOfMeridaeiaGame {
     }
 
     checkLevelUp() {
-        const xpForNextLevel = this.userProfile.level * 100;
-        if (this.userProfile.xp >= xpForNextLevel) {
+        let leveledUp = false;
+        while (this.userProfile.xp >= this.userProfile.level * 100) {
             this.userProfile.level++;
+            leveledUp = true;
+        }
+
+        if (leveledUp) {
             this.showLevelUpNotification();
+            this.playSound('levelup');
 
             // Track level up
             codeQuestDB.trackEvent('level_up', { newLevel: this.userProfile.level });
@@ -1199,11 +1353,13 @@ class CodeOfMeridaeiaGame {
         this.userProfile.storyProgress = (this.userProfile.storyProgress || 0) + 20;
         this.updateEnvironmentByProgress();
 
-        // Reset monster HP for next encounter
+        // Reset monster HP and spawn a new monster on the next question
         this.currentMonsterHP = this.monsterMaxHP;
+        this.currentMonsterName = null;
 
         // Notification
         this.showNotification(`🗡️ Monster Slain! +${this.goldEarned} Gold`);
+        this.playSound('victory');
 
         // Track event
         codeQuestDB.trackEvent('monster_defeated', { goldEarned: this.goldEarned });
@@ -1246,7 +1402,7 @@ class CodeOfMeridaeiaGame {
         }
     }
 
-    showFeedback(isCorrect, selectedIndex) {
+    showFeedback(isCorrect, selectedIndex, xpGained = 0) {
         const feedbackContainer = document.getElementById('feedback-container');
         const feedbackIcon = document.getElementById('feedback-icon');
         const feedbackText = document.getElementById('feedback-text');
@@ -1265,13 +1421,15 @@ class CodeOfMeridaeiaGame {
             feedbackContainer.classList.add('incorrect');
             this.currentStreak = 0;
             virtueMsg = this.getRandomVirtueMessage('incorrect');
+            this.playSound('wrong');
         } else if (isCorrect) {
             feedbackIcon.textContent = '✅';
-            feedbackText.textContent = `Correct! +${this.calculateXP()} XP`;
+            this.currentStreak++;
+            const streakLabel = this.currentStreak >= 2 ? ` 🔥x${this.currentStreak}` : '';
+            feedbackText.textContent = `Correct! +${xpGained} XP${streakLabel}`;
             feedbackText.className = 'feedback-title-big correct';
             feedbackContainer.classList.remove('incorrect');
             feedbackContainer.classList.add('correct');
-            this.currentStreak++;
 
             // Special streak message for 3+ correct in a row
             if (this.currentStreak >= 3) {
@@ -1282,9 +1440,10 @@ class CodeOfMeridaeiaGame {
 
             // Trigger hero attack animation
             this.playAttackAnimation('hero');
+            this.playSound('correct');
         } else {
-            feedbackIcon.textContent = '❌';
-            feedbackText.textContent = 'Incorrect';
+            feedbackIcon.textContent = this.playerDefeated ? '💀' : '❌';
+            feedbackText.textContent = this.playerDefeated ? 'Your barrier has shattered!' : 'Incorrect';
             feedbackText.className = 'feedback-title-big incorrect';
             feedbackContainer.classList.remove('correct');
             feedbackContainer.classList.add('incorrect');
@@ -1293,6 +1452,7 @@ class CodeOfMeridaeiaGame {
 
             // Show hero hurt animation
             this.playHurtAnimation('hero');
+            this.playSound('wrong');
         }
 
         // Display virtue message (Biblical values integration)
@@ -1338,35 +1498,67 @@ class CodeOfMeridaeiaGame {
     }
 
     nextQuestion() {
+        if (this.playerDefeated) {
+            this.endGame(true);
+            return;
+        }
         this.currentQuestionIndex++;
         this.showQuestion();
     }
 
     // ============ GAME STATE ============
 
-    endGame() {
+    endGame(defeated = false) {
         this.isGameActive = false;
         clearInterval(this.timerInterval);
 
         document.getElementById('game-area').classList.add('hidden');
         document.getElementById('results-screen').classList.remove('hidden');
 
-        const accuracy = Math.round((this.correctAnswers / this.totalAnswered) * 100);
+        const accuracy = this.totalAnswered > 0
+            ? Math.round((this.correctAnswers / this.totalAnswered) * 100)
+            : 0;
+
+        // Results header changes based on victory or defeat
+        const resultsIcon = document.querySelector('.results-icon');
+        const resultsTitle = document.querySelector('.results-card h2');
+        if (defeated) {
+            if (resultsIcon) resultsIcon.textContent = '💀';
+            if (resultsTitle) resultsTitle.textContent = 'Your Barrier Shattered...';
+            this.playSound('defeat');
+        } else {
+            if (resultsIcon) resultsIcon.textContent = '🏆';
+            if (resultsTitle) resultsTitle.textContent = 'Quest Complete!';
+            this.playSound('fanfare');
+        }
 
         document.getElementById('final-score').textContent = this.score;
         document.getElementById('questions-correct').textContent =
             `${this.correctAnswers} / ${this.totalAnswered}`;
         document.getElementById('accuracy').textContent = `${accuracy}%`;
 
-        // Update category progress
+        // Credit any gold earned that wasn't banked by a monster kill
+        if (this.goldEarned > 0) {
+            this.userProfile.gold = (this.userProfile.gold || 0) + this.goldEarned;
+            this.goldEarned = 0;
+        }
+
+        // Update category progress (create the entry if this category is new, e.g. marakathalessa)
+        if (!this.userProfile.categoryProgress[this.currentCategory]) {
+            this.userProfile.categoryProgress[this.currentCategory] = { completed: 0, correct: 0 };
+        }
         const catProgress = this.userProfile.categoryProgress[this.currentCategory];
         catProgress.completed += this.totalAnswered;
         catProgress.correct += this.correctAnswers;
         codeQuestDB.saveUserProfile(this.userProfile);
 
-        // Phase B: Mark chapter as complete if player got at least 50% correct
-        if (accuracy >= 50 && this.currentChapter) {
+        // Phase B: Mark chapter as complete if the player survived with at least 50% accuracy
+        if (!defeated && accuracy >= 50 && this.currentChapter) {
             this.completeChapter();
+        } else if (defeated) {
+            this.showNotification('💀 Defeated! Regroup and try the chapter again.');
+        } else if (this.currentChapter) {
+            this.showNotification('📖 You need at least 50% accuracy to complete the chapter. Try again!');
         }
 
         // Track game completion
@@ -1376,7 +1568,8 @@ class CodeOfMeridaeiaGame {
             score: this.score,
             correct: this.correctAnswers,
             total: this.totalAnswered,
-            accuracy
+            accuracy,
+            defeated
         });
 
         // Check achievements
@@ -1670,15 +1863,40 @@ class CodeOfMeridaeiaGame {
         document.getElementById('level').textContent = this.userProfile.level;
         document.getElementById('total-xp').textContent = this.userProfile.xp;
 
-        // XP progress to next level
-        const xpForNextLevel = this.userProfile.level * 100;
-        const progress = (this.userProfile.xp % 100) / xpForNextLevel * 100;
+        // XP progress within the current level
+        // (level N is reached at (N-1)*100 XP, next level at N*100 XP)
+        const prevThreshold = (this.userProfile.level - 1) * 100;
+        const nextThreshold = this.userProfile.level * 100;
+        const progress = Math.max(0, Math.min(100,
+            ((this.userProfile.xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100
+        ));
         document.getElementById('xp-progress').style.width = `${progress}%`;
+    }
+
+    // Hero HP bar reflects barrier points (visible defeat pressure)
+    updateHeroHPBar() {
+        const heroHpFill = document.getElementById('hero-hp-fill');
+        if (!heroHpFill) return;
+        const max = this.getMaxBarrierPoints();
+        const current = Math.max(0, this.userProfile.barrierPoints || 0);
+        heroHpFill.style.width = `${Math.min(100, (current / max) * 100)}%`;
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Retro sound effects (delegated to gameSFX, no-op if audio unavailable)
+    playSound(name) {
+        if (window.gameSFX) window.gameSFX.play(name);
     }
 
     showNotification(message) {
         const notification = document.createElement('div');
         notification.className = 'toast-notification';
+        notification.setAttribute('role', 'status');
         notification.textContent = message;
         document.body.appendChild(notification);
 
@@ -1753,7 +1971,7 @@ class CodeOfMeridaeiaGame {
             let progressHTML = '';
 
             for (let i = 1; i <= 3; i++) {
-                const isComplete = chapterProgress[i] === true;
+                const isComplete = chapterProgress[`chapter${i}`] === true;
                 const chapterIntro = story[`chapter${i}Intro`];
                 const preview = chapterIntro ? chapterIntro.substring(0, 80) + '...' : 'Locked';
 
@@ -1976,6 +2194,7 @@ class CodeOfMeridaeiaGame {
     }
 
     showGoldCoin() {
+        this.playSound('coin');
         const goldDisplay = document.querySelector('.gold-display');
         if (!goldDisplay) return;
 
