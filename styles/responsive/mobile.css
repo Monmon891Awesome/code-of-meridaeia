@@ -78,10 +78,11 @@
         transform: none !important;
     }
 
-    /* Question card - scrollable */
+    /* Question card - grows with its content (page scrolls),
+       so code problems are fully visible on phones */
     .question-card-bookworm {
-        max-height: 40vh;
-        overflow-y: auto;
+        max-height: none;
+        overflow-y: visible;
     }
 
     /* Bottom nav - scrollable */
