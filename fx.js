@@ -76,6 +76,29 @@
     document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
 })();
 
+// Cinematic intro video: if assets/video/intro.mp4 exists it becomes the
+// intro background (Fallout-style footage under the narration), replacing
+// the still image. Muted autoplay is allowed by all browsers. If the file
+// is absent or unsupported, the Ken Burns still remains - zero breakage.
+(function () {
+    const video = document.getElementById('intro-video');
+    const intro = document.getElementById('intro-cinematic');
+    if (!video || !intro) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    video.addEventListener('canplay', () => {
+        intro.classList.add('has-video');
+        video.play().catch(() => { /* stay on the still image */ });
+    }, { once: true });
+
+    video.addEventListener('error', () => {
+        // No video shipped yet - the still-image intro carries on
+        video.remove();
+    }, { once: true });
+
+    video.src = 'assets/video/intro.mp4';
+})();
+
 // 3D mouse-tracking tilt on the hero selection cards.
 // Desktop pointers only; touch devices and reduced-motion get none.
 (function () {

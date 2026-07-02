@@ -84,6 +84,25 @@ function check(label, ok, detail = '') {
         check('username saved from modal',
             await page.evaluate(() => game.userProfile.username) === 'SmokeTester');
 
+        console.log('1.5 Hero wheel');
+        check('wheel renders 7 medallions',
+            (await page.$$('#hero-wheel .wheel-medallion')).length === 7);
+        check('locked heroes are sealed silhouettes',
+            (await page.$$('#hero-wheel .wheel-medallion.locked')).length === 2);
+        const idxBefore = await page.evaluate(() => game.wheelIndex);
+        await page.keyboard.press('ArrowRight');
+        await page.waitForTimeout(300);
+        check('arrow key spins the wheel',
+            await page.evaluate(() => game.wheelIndex) === (idxBefore + 1) % 7);
+        await page.evaluate(() => { game.wheelIndex = 0; game.renderHeroWheel(); });
+        await page.waitForTimeout(300);
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(400);
+        check('Enter confirms wheel selection (chapter select opens)',
+            await page.isVisible('#chapter-select'));
+        await page.evaluate(() => game.backToHeroSelect());
+        await page.waitForTimeout(300);
+
         console.log('2. Chapter flow');
         await page.evaluate(() => { game.selectCategory('java'); game.selectChapter(1); game.closeStory(); });
         await page.waitForTimeout(400);

@@ -89,6 +89,10 @@
 
         <div class="intro-background">
             <img src="assets/environments/landscape-wasteland.png" alt="Wasteland" class="intro-bg-image">
+            <!-- Optional cinematic video: drop a generated clip at
+                 assets/video/intro.mp4 and it replaces the still image
+                 automatically (see VIDEO_PROMPT_GRIMOIRE.md) -->
+            <video id="intro-video" class="intro-video" muted playsinline loop preload="metadata"></video>
             <div class="intro-overlay"></div>
         </div>
 
@@ -169,132 +173,20 @@
             <h2 class="fantasy-title">Assemble Your Fellowship</h2>
             <p class="fantasy-subtitle">Choose your hero to reclaim Valerion from the Witch Marakathalessa</p>
 
-            <div class="category-grid">
-                <!-- Java / Barbarian -->
-                <button class="category-card java" 
-                        onclick="game.selectCategory('java')"
-                        aria-label="Select Java Barbarian Warrior - Grom the Uncompiled. 12 Java programming challenges."
-                        aria-describedby="java-desc">
-                    <div class="category-portrait">
-                        <img src="assets/heroes/hero-grom-portrait.png" alt="Grom the Uncompiled portrait" class="hero-portrait">
+            <div class="antechamber-layout">
+                <div class="hero-wheel-stage">
+                    <button class="wheel-arrow wheel-arrow-left" onclick="game.spinWheel(-1)" aria-label="Spin wheel counter-clockwise">◀</button>
+                    <div class="hero-wheel" id="hero-wheel" role="group" aria-label="Hero selection wheel">
+                        <!-- Medallions rendered by JS -->
                     </div>
-                    <div class="character-info">
-                        <span class="hero-identity">Grom the Uncompiled</span>
-                        <h3>Barbarian Warrior</h3>
-                        <p id="java-desc" class="hero-desc">Master of the "Write Once, Crush Everywhere" arts. High resilience and brute force.</p>
-                        <div class="hero-stats">
-                            <span class="stat-tag">Java</span>
-                            <span class="category-questions">12 Questions</span>
-                        </div>
-                    </div>
-                </button>
+                    <button class="wheel-arrow wheel-arrow-right" onclick="game.spinWheel(1)" aria-label="Spin wheel clockwise">▶</button>
+                </div>
 
-                <!-- C++ / Wizard -->
-                <button class="category-card cpp" 
-                        onclick="game.selectCategory('cpp')"
-                        aria-label="Select C++ Dark Wizard - Malloc the Void-Walker. 12 C++ programming challenges."
-                        aria-describedby="cpp-desc">
-                    <div class="character-portrait">
-                        <img src="assets/heroes/hero-malloc-portrait.png" alt="Malloc the Void-Walker portrait" class="hero-portrait">
-                    </div>
-                    <div class="character-info">
-                        <span class="hero-identity">Malloc the Void-Walker</span>
-                        <h3>Dark Wizard</h3>
-                        <p id="cpp-desc" class="hero-desc">Wielder of volatile arcane memory. High power, but one slip leads to a Void Segfault.</p>
-                        <div class="hero-stats">
-                            <span class="stat-tag">C++</span>
-                            <span class="category-questions">12 Questions</span>
-                        </div>
-                    </div>
-                </button>
-
-                <!-- Networking / Paladin -->
-                <button class="category-card networking" onclick="game.selectCategory('networking')"
-                        aria-label="Select Networking Knight Paladin - Ser Handshake. 12 networking challenges.">
-                    <div class="character-portrait">
-                        <img src="assets/heroes/hero-handshake-portrait.png" alt="Knight Paladin" class="hero-portrait">
-                    </div>
-                    <div class="character-info">
-                        <span class="hero-identity">Ser Handshake</span>
-                        <h3>Knight Paladin</h3>
-                        <p class="hero-desc">Guardian of the Great Gateway. Restoring the Three-Way Handshake of light.</p>
-                        <div class="hero-stats">
-                            <span class="stat-tag">Networking</span>
-                            <span class="category-questions">12 Questions</span>
-                        </div>
-                    </div>
-                </button>
-
-                <!-- Data Eng / Archer -->
-                <button class="category-card data-engineering" onclick="game.selectCategory('dataEngineering')"
-                        aria-label="Select Data Engineering Knight Archer - Artemis the Stream-Caller. 12 data engineering challenges.">
-                    <div class="character-portrait">
-                        <img src="assets/heroes/hero-artemis-portrait.png" alt="Knight Archer" class="hero-portrait">
-                    </div>
-                    <div class="character-info">
-                        <span class="hero-identity">Artemis the Stream-Caller</span>
-                        <h3>Knight Archer</h3>
-                        <p class="hero-desc">Purifier of the Corrupted Lakes. Her Pipeline of Arrows never misses the mark.</p>
-                        <div class="hero-stats">
-                            <span class="stat-tag">Data Eng</span>
-                            <span class="category-questions">12 Questions</span>
-                        </div>
-                    </div>
-                </button>
-
-                <!-- Kernel / Dragonoid -->
-                <button class="category-card kernel" onclick="game.selectCategory('kernel')"
-                        aria-label="Select Kernel Development Dragonoid Mercenary - Vulkun of Ring Zero. 30 kernel challenges.">
-                    <div class="character-portrait">
-                        <img src="assets/heroes/hero-vulkun-portrait.png" alt="Dragonoid Mercenary" class="hero-portrait">
-                    </div>
-                    <div class="character-info">
-                        <span class="hero-identity">Vulkun of Ring Zero</span>
-                        <h3>Dragonoid Mercenary</h3>
-                        <p class="hero-desc">Born from Silicon fires. Master of the Low-Level Ring Zero magic.</p>
-                        <div class="hero-stats">
-                            <span class="stat-tag">Kernel Dev</span>
-                            <span class="category-questions">30 Questions</span>
-                        </div>
-                    </div>
-                </button>
-
-                <!-- BOSS: Marakathalessa (Locked by default) -->
-                <button class="category-card boss locked" id="boss-card" onclick="game.selectBoss()"
-                        aria-label="Boss fight: Marakathalessa, Witch of Corrupted Code. Unlocks after completing all 3 chapters of any hero.">
-                    <div class="character-portrait boss-portrait">
-                        <img src="assets/monsters/boss-marakathalessa-alt.png" alt="Marakathalessa" class="hero-portrait">
-                        <div class="lock-overlay" id="boss-lock-overlay">🔒</div>
-                    </div>
-                    <div class="character-info">
-                        <span class="hero-identity boss-identity">The Witch of Corrupted Code</span>
-                        <h3>Marakathalessa</h3>
-                        <p class="hero-desc">The ancient sorceress who corrupted the realm. Face her if you dare.</p>
-                        <div class="hero-stats">
-                            <span class="stat-tag boss-tag">⚔️ BOSS FIGHT</span>
-                            <span class="chapter-status" id="boss-status">🔒 Master a hero's path</span>
-                        </div>
-                    </div>
-                </button>
-
-                <!-- PLAYABLE: Marakathalessa (Unlocked after True Ending) -->
-                <button class="category-card marakathalessa locked" id="mara-playable-card" onclick="game.selectCategory('marakathalessa')"
-                        aria-label="Play Marakathalessa Redeemed's story. Unlocks after achieving the true ending.">
-                    <div class="character-portrait mara-portrait">
-                        <img src="assets/monsters/boss-marakathalessa-alt.png" alt="Marakathalessa" class="hero-portrait">
-                        <div class="lock-overlay" id="mara-lock-overlay">🔒</div>
-                    </div>
-                    <div class="character-info">
-                        <span class="hero-identity mara-identity">Marakathalessa Redeemed</span>
-                        <h3>Corrupted Mage</h3>
-                        <p class="hero-desc">Play her story. Learn how she fell to the Legion of 404.</p>
-                        <div class="hero-stats">
-                            <span class="stat-tag mara-tag">🔮 Her Story</span>
-                            <span class="chapter-status" id="mara-status">🔒 Defeat the boss first</span>
-                        </div>
-                    </div>
-                </button>
+                <div class="wheel-detail" id="wheel-detail" aria-live="polite">
+                    <!-- Focused hero details rendered by JS -->
+                </div>
             </div>
+            <p class="keyboard-tip" aria-hidden="true">⌨️ ← → to spin the wheel · Enter to choose</p>
         </section>
 
         <!-- Chapter Selection (Phase B) -->
@@ -349,8 +241,11 @@
         </section>
 
         <!-- Game Area - Bookworm-Style Card Hand Battle Layout -->
-        <section id="game-area" class="bookworm-battle-layout hidden">
-            
+        <section id="game-area" class="bookworm-battle-layout hidden" data-danger="0">
+
+            <!-- Dungeon pressure: darkness closes in as barrier drops -->
+            <div class="dungeon-vignette" aria-hidden="true"></div>
+
             <!-- Minimal HP Top Bar -->
             <div class="combat-hp-bar">
                 <div class="hp-section hero-hp-section">

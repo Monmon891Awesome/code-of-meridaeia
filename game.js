@@ -196,6 +196,9 @@ class CodeOfMeridaeiaGame {
         // Check if Marakathalessa playable is unlocked (Phase D)
         this.updateMaraCardStatus();
 
+        // Build the hero selection wheel
+        this.initHeroWheel();
+
         // Keyboard controls: 1-4 / A-D pick an answer, Enter/Space continues
         this.initKeyboardControls();
 
@@ -213,6 +216,18 @@ class CodeOfMeridaeiaGame {
             // Never hijack typing (boss fight answer box, prompts, etc.)
             const tag = document.activeElement?.tagName;
             if (tag === 'TEXTAREA' || tag === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
+
+            // Never act underneath an open modal
+            if (document.querySelector('.modal:not(.hidden), .lore-modal:not(.hidden), .story-modal:not(.hidden), .welcome-modal:not(.hidden), .overlay:not(.hidden)')) return;
+
+            // Hero wheel controls when the antechamber is visible
+            const categorySelect = document.getElementById('category-select');
+            if (categorySelect && !categorySelect.classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft') { e.preventDefault(); this.spinWheel(-1); }
+                else if (e.key === 'ArrowRight') { e.preventDefault(); this.spinWheel(1); }
+                else if (e.key === 'Enter') { e.preventDefault(); this.confirmWheelSelection(); }
+                return;
+            }
 
             const gameArea = document.getElementById('game-area');
             if (!gameArea || gameArea.classList.contains('hidden')) return;
@@ -243,6 +258,164 @@ class CodeOfMeridaeiaGame {
                 }
             }
         });
+    }
+
+    // ============ HERO WHEEL (StarCraft-style reveal) ============
+    // Heroes sit on a spinnable wheel. Locked ones appear only as dark
+    // silhouettes - you know something is there, not what it is.
+
+    getWheelEntries() {
+        return [
+            {
+                key: 'java', name: 'Grom the Uncompiled', cls: 'Barbarian Warrior',
+                tag: 'Java', count: '12 Questions', img: 'assets/heroes/hero-grom-portrait.png',
+                desc: 'Master of the "Write Once, Crush Everywhere" arts. High resilience and brute force.',
+                locked: () => false
+            },
+            {
+                key: 'cpp', name: 'Malloc the Void-Walker', cls: 'Dark Wizard',
+                tag: 'C++', count: '12 Questions', img: 'assets/heroes/hero-malloc-portrait.png',
+                desc: 'Wielder of volatile arcane memory. High power, but one slip leads to a Void Segfault.',
+                locked: () => false
+            },
+            {
+                key: 'networking', name: 'Ser Handshake', cls: 'Knight Paladin',
+                tag: 'Networking', count: '12 Questions', img: 'assets/heroes/hero-handshake-portrait.png',
+                desc: 'Guardian of the Great Gateway. Restoring the Three-Way Handshake of light.',
+                locked: () => false
+            },
+            {
+                key: 'dataEngineering', name: 'Artemis the Stream-Caller', cls: 'Knight Archer',
+                tag: 'Data Eng', count: '12 Questions', img: 'assets/heroes/hero-artemis-portrait.png',
+                desc: 'Purifier of the Corrupted Lakes. Her Pipeline of Arrows never misses the mark.',
+                locked: () => false
+            },
+            {
+                key: 'kernel', name: 'Vulkun of Ring Zero', cls: 'Dragonoid Mercenary',
+                tag: 'Kernel Dev', count: '30 Questions', img: 'assets/heroes/hero-vulkun-portrait.png',
+                desc: 'Born from Silicon fires. Master of the Low-Level Ring Zero magic.',
+                locked: () => false
+            },
+            {
+                key: 'boss', name: 'Marakathalessa', cls: 'The Witch of Corrupted Code',
+                tag: '⚔️ BOSS FIGHT', count: '10 Trials', img: 'assets/monsters/boss-marakathalessa-alt.png',
+                desc: 'The ancient sorceress who corrupted the realm. Face her if you dare.',
+                locked: () => !this.isBossUnlocked(),
+                lockHint: 'A great evil stirs... Complete all 3 chapters of any hero to face her.'
+            },
+            {
+                key: 'marakathalessa', name: 'Marakathalessa Redeemed', cls: 'Corrupted Mage',
+                tag: '🔮 Her Story', count: '12 Questions', img: 'assets/monsters/boss-marakathalessa-alt.png',
+                desc: 'Play her story. Learn how she fell to the Legion of 404.',
+                locked: () => !this.isMarakathalessaUnlocked(),
+                lockHint: 'A soul awaits redemption... Defeat the boss and complete every hero to hear her story.'
+            }
+        ];
+    }
+
+    initHeroWheel() {
+        this.wheelIndex = this.wheelIndex || 0;
+        this.renderHeroWheel();
+    }
+
+    renderHeroWheel() {
+        const wheel = document.getElementById('hero-wheel');
+        if (!wheel) return;
+
+        const entries = this.getWheelEntries();
+        const step = 360 / entries.length;
+
+        // Build medallions once, then only update transforms/state
+        if (wheel.children.length !== entries.length) {
+            wheel.innerHTML = '';
+            entries.forEach((entry, i) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'wheel-medallion';
+                btn.innerHTML = `
+                    <img src="${entry.img}" alt="" draggable="false">
+                    <span class="medallion-lock" aria-hidden="true">🔒</span>`;
+                btn.onclick = () => {
+                    if (i === this.wheelIndex) {
+                        this.confirmWheelSelection();
+                    } else {
+                        this.spinWheelTo(i);
+                    }
+                };
+                wheel.appendChild(btn);
+            });
+        }
+
+        [...wheel.children].forEach((btn, i) => {
+            const entry = entries[i];
+            const isLocked = entry.locked();
+            const angle = ((i - this.wheelIndex) * step + 540) % 360 - 180; // normalized -180..180
+            btn.style.transform =
+                `rotate(${angle}deg) translateY(calc(var(--wheel-radius, 150px) * -1)) rotate(${-angle}deg)`;
+            btn.classList.toggle('focused', i === this.wheelIndex);
+            btn.classList.toggle('locked', isLocked);
+            btn.setAttribute('aria-label', isLocked
+                ? 'A locked, shadowed figure'
+                : `${entry.name}, ${entry.cls}`);
+        });
+
+        this.updateWheelDetail(entries[this.wheelIndex]);
+    }
+
+    updateWheelDetail(entry) {
+        const detail = document.getElementById('wheel-detail');
+        if (!detail || !entry) return;
+
+        const isLocked = entry.locked();
+        if (isLocked) {
+            detail.innerHTML = `
+                <span class="wheel-tag wheel-tag-locked">🔒 SEALED</span>
+                <h3 class="wheel-name">???</h3>
+                <p class="wheel-class">Unknown</p>
+                <p class="wheel-desc">${this.escapeHtml(entry.lockHint || 'This figure is shrouded in darkness.')}</p>
+                <button class="wheel-begin locked" disabled>Sealed by Dark Magic</button>`;
+        } else {
+            detail.innerHTML = `
+                <span class="wheel-tag">${this.escapeHtml(entry.tag)} · ${this.escapeHtml(entry.count)}</span>
+                <h3 class="wheel-name">${this.escapeHtml(entry.name)}</h3>
+                <p class="wheel-class">${this.escapeHtml(entry.cls)}</p>
+                <p class="wheel-desc">${this.escapeHtml(entry.desc)}</p>
+                <button class="wheel-begin" onclick="game.confirmWheelSelection()">⚔️ Choose ${this.escapeHtml(entry.name.split(' ')[0])}</button>`;
+        }
+    }
+
+    spinWheel(direction) {
+        const n = this.getWheelEntries().length;
+        this.wheelIndex = (this.wheelIndex + direction + n) % n;
+        this.renderHeroWheel();
+        this.playSound('click');
+    }
+
+    spinWheelTo(index) {
+        const n = this.getWheelEntries().length;
+        // Take the shortest rotation direction
+        const diff = ((index - this.wheelIndex) % n + n) % n;
+        this.wheelIndex = index;
+        this.renderHeroWheel();
+        this.playSound('click');
+        return diff;
+    }
+
+    confirmWheelSelection() {
+        const entry = this.getWheelEntries()[this.wheelIndex];
+        if (!entry) return;
+
+        if (entry.locked()) {
+            this.showNotification(`🔒 ${entry.lockHint || 'This path is sealed.'}`);
+            this.playSound('wrong');
+            return;
+        }
+
+        if (entry.key === 'boss') {
+            this.selectBoss();
+        } else {
+            this.selectCategory(entry.key);
+        }
     }
 
     // ============ CATEGORY MANAGEMENT ============
@@ -409,6 +582,7 @@ class CodeOfMeridaeiaGame {
         document.getElementById('category-select').classList.remove('hidden');
         this.currentCategory = null;
         this.selectedHero = null;
+        this.renderHeroWheel(); // refresh lock states
     }
 
     completeChapter() {
@@ -1723,6 +1897,7 @@ class CodeOfMeridaeiaGame {
         this.currentCategory = null;
         this.currentChapter = null;
         this.selectedHero = null;
+        this.renderHeroWheel(); // refresh lock states
     }
 
     // ============ ACHIEVEMENTS ============
@@ -2009,11 +2184,21 @@ class CodeOfMeridaeiaGame {
 
     // Hero HP bar reflects barrier points (visible defeat pressure)
     updateHeroHPBar() {
-        const heroHpFill = document.getElementById('hero-hp-fill');
-        if (!heroHpFill) return;
         const max = this.getMaxBarrierPoints();
         const current = Math.max(0, this.userProfile.barrierPoints || 0);
-        heroHpFill.style.width = `${Math.min(100, (current / max) * 100)}%`;
+
+        const heroHpFill = document.getElementById('hero-hp-fill');
+        if (heroHpFill) {
+            heroHpFill.style.width = `${Math.min(100, (current / max) * 100)}%`;
+        }
+
+        // Dungeon pressure: darkness closes in as the barrier fails.
+        // danger 0 = safe, 1 = wounded, 2 = one hit from death
+        const gameArea = document.getElementById('game-area');
+        if (gameArea) {
+            const danger = current <= 0 ? 2 : (current === 1 ? 2 : (current / max <= 0.5 ? 1 : 0));
+            gameArea.setAttribute('data-danger', danger);
+        }
     }
 
     escapeHtml(text) {
