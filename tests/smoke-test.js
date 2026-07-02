@@ -169,7 +169,16 @@ function check(label, ok, detail = '') {
         check('boss defeats player at 0 barrier',
             (await page.textContent('.results-card h2')).includes('Barrier'));
 
-        console.log('8. Page errors');
+        console.log('8. Music radio and FX wiring');
+        check('wasteland radio loaded with 4 tracks',
+            await page.evaluate(() => typeof gameMusic !== 'undefined' && gameMusic.tracks.length === 4));
+        check('music toggle button present', await page.$('#music-toggle') !== null);
+        check('combat animations target existing orbs',
+            await page.evaluate(() =>
+                !!document.getElementById('hero-portrait-orb') &&
+                !!document.getElementById('monster-portrait-orb')));
+
+        console.log('9. Page errors');
         check('no uncaught page errors', pageErrors.length === 0, pageErrors.join(' | '));
     } catch (err) {
         failures++;

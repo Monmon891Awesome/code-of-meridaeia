@@ -765,6 +765,18 @@ class CodeOfMeridaeiaGame {
         document.getElementById('story-hero-title').textContent = story.title;
         document.getElementById('story-text').textContent = storyText;
 
+        // Portrait and chapter badge (modern story popup)
+        const portrait = document.getElementById('story-hero-portrait');
+        if (portrait) {
+            const heroData = this.getHeroData(category);
+            portrait.src = heroData.image;
+            portrait.alt = story.heroName;
+        }
+        const badge = document.getElementById('story-chapter-badge');
+        if (badge) {
+            badge.textContent = ['Chapter I', 'Chapter II', 'Chapter III'][chapterNum - 1] || 'Chapter';
+        }
+
         // Set hero-specific color
         const modal = document.getElementById('story-modal');
         modal.setAttribute('data-hero', category);
@@ -859,6 +871,14 @@ class CodeOfMeridaeiaGame {
         document.getElementById('story-hero-name').textContent = "The Twins Reunited";
         document.getElementById('story-hero-title').textContent = "Elemari & Eke";
         document.getElementById('story-text').textContent = reunionText;
+
+        const portrait = document.getElementById('story-hero-portrait');
+        if (portrait) {
+            portrait.src = 'assets/heroes/hero-artemis-portrait.png';
+            portrait.alt = 'The Twins Reunited';
+        }
+        const badge = document.getElementById('story-chapter-badge');
+        if (badge) badge.textContent = 'Finale';
 
         const modal = document.getElementById('story-modal');
         modal.setAttribute('data-hero', 'dataEngineering'); // Purple theme
@@ -1344,6 +1364,10 @@ class CodeOfMeridaeiaGame {
         if (heroBarrier) heroBarrier.textContent = this.userProfile.barrierPoints || 3;
         if (charGold) charGold.textContent = this.userProfile.gold || 0;
         if (charBarrier) charBarrier.textContent = this.userProfile.barrierPoints || 3;
+
+        // Keep the dashboard gold chip in sync during battle
+        const headerGold = document.getElementById('header-gold');
+        if (headerGold) headerGold.textContent = this.userProfile.gold || 0;
     }
 
     monsterDefeated() {
@@ -1452,8 +1476,8 @@ class CodeOfMeridaeiaGame {
             this.currentStreak = 0;
             virtueMsg = this.getRandomVirtueMessage('incorrect');
 
-            // Show hero hurt animation
-            this.playHurtAnimation('hero');
+            // Hero takes the hit at the monster's moment of impact
+            setTimeout(() => this.playHurtAnimation('hero'), 180);
             this.playSound('wrong');
         }
 
@@ -1477,29 +1501,49 @@ class CodeOfMeridaeiaGame {
         return messages[Math.floor(Math.random() * messages.length)];
     }
 
-    // Play attack animation (Pokemon-style)
+    // Play attack animation: 3D lunge on the battle portrait orb.
+    // Hero (left side) lunges right; monster (right side) mirrors.
     playAttackAnimation(who) {
+        const orb = document.getElementById(
+            who === 'hero' ? 'hero-portrait-orb' : 'monster-portrait-orb'
+        );
+        if (orb) {
+            const lungeClass = who === 'hero' ? 'orb-attack-right' : 'orb-attack-left';
+            orb.classList.remove('orb-attack-right', 'orb-attack-left', 'orb-hurt');
+            void orb.offsetWidth; // restart animation if re-triggered quickly
+            orb.classList.add(lungeClass);
+            setTimeout(() => orb.classList.remove(lungeClass), 550);
+        }
+
+        // Legacy sprite layout fallback
         const spriteContainer = document.getElementById(
             who === 'hero' ? 'hero-sprite-container' : 'monster-sprite-container'
         );
         if (spriteContainer) {
             spriteContainer.classList.add('attacking');
-            setTimeout(() => {
-                spriteContainer.classList.remove('attacking');
-            }, 400);
+            setTimeout(() => spriteContainer.classList.remove('attacking'), 400);
         }
     }
 
-    // Play hurt animation
+    // Play hurt animation: recoil shake + impact flash on the orb
     playHurtAnimation(who) {
+        const orb = document.getElementById(
+            who === 'hero' ? 'hero-portrait-orb' : 'monster-portrait-orb'
+        );
+        if (orb) {
+            orb.classList.remove('orb-attack-right', 'orb-attack-left', 'orb-hurt');
+            void orb.offsetWidth;
+            orb.classList.add('orb-hurt');
+            setTimeout(() => orb.classList.remove('orb-hurt'), 500);
+        }
+
+        // Legacy sprite layout fallback
         const spriteContainer = document.getElementById(
             who === 'hero' ? 'hero-sprite-container' : 'monster-sprite-container'
         );
         if (spriteContainer) {
             spriteContainer.classList.add('hurt');
-            setTimeout(() => {
-                spriteContainer.classList.remove('hurt');
-            }, 300);
+            setTimeout(() => spriteContainer.classList.remove('hurt'), 300);
         }
     }
 
@@ -1869,6 +1913,9 @@ class CodeOfMeridaeiaGame {
         document.getElementById('level').textContent = this.userProfile.level;
         document.getElementById('total-xp').textContent = this.userProfile.xp;
 
+        const headerGold = document.getElementById('header-gold');
+        if (headerGold) headerGold.textContent = this.userProfile.gold || 0;
+
         // XP progress within the current level
         // (level N is reached at (N-1)*100 XP, next level at N*100 XP)
         const prevThreshold = (this.userProfile.level - 1) * 100;
@@ -1877,6 +1924,10 @@ class CodeOfMeridaeiaGame {
             ((this.userProfile.xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100
         ));
         document.getElementById('xp-progress').style.width = `${progress}%`;
+
+        // XP ring around the dashboard avatar
+        const avatar = document.getElementById('profile-avatar');
+        if (avatar) avatar.style.setProperty('--xp-ring', `${progress}%`);
     }
 
     // Hero HP bar reflects barrier points (visible defeat pressure)
@@ -2151,6 +2202,15 @@ class CodeOfMeridaeiaGame {
             portrait.src = heroData.image;
         }
 
+        // Dashboard avatar shows the active hero
+        const avatarImg = document.getElementById('avatar-img');
+        const avatarEmoji = document.getElementById('avatar-emoji');
+        if (avatarImg && heroData.image && this.currentCategory) {
+            avatarImg.src = heroData.image;
+            avatarImg.classList.remove('hidden');
+            if (avatarEmoji) avatarEmoji.classList.add('hidden');
+        }
+
         // Update class name and identity
         const className = document.getElementById('character-class-name');
         const identityName = document.getElementById('character-identity-name');
@@ -2195,6 +2255,11 @@ class CodeOfMeridaeiaGame {
                 className: 'Dragonoid Mercenary',
                 identity: 'Vulkun of Ring Zero',
                 image: 'assets/heroes/hero-vulkun-portrait.png'
+            },
+            marakathalessa: {
+                className: 'Corrupted Mage',
+                identity: 'Marakathalessa Redeemed',
+                image: 'assets/monsters/boss-marakathalessa-alt.png'
             }
         };
         return heroMap[category] || { className: 'Hero', identity: '', image: 'assets/heroes/hero-grom-portrait.png' };
@@ -2218,34 +2283,32 @@ class CodeOfMeridaeiaGame {
     // ============ COMBAT VISUAL FEEDBACK (Phase 2) ============
 
     showDamageNumber(damage) {
-        // Try new Pokemon-style damage element first
+        // Monster hurt reaction lands at the moment of "impact",
+        // mid-way through the hero's lunge
+        setTimeout(() => this.playHurtAnimation('monster'), 180);
+
+        // Pokemon-style damage element (if present in layout)
         const monsterDamage = document.getElementById('monster-damage');
         if (monsterDamage) {
             monsterDamage.textContent = `-${damage}`;
             monsterDamage.classList.remove('hidden');
-
-            // Play monster hurt animation
-            this.playHurtAnimation('monster');
-
-            // Hide after animation
-            setTimeout(() => {
-                monsterDamage.classList.add('hidden');
-            }, 1000);
+            setTimeout(() => monsterDamage.classList.add('hidden'), 1000);
             return;
         }
 
-        // Fallback to legacy monster-hud approach
-        const monsterHud = document.getElementById('monster-hud');
-        if (!monsterHud) return;
+        // Float a damage number over whichever monster anchor exists
+        // (portrait orb in the current layout, monster HUD in legacy)
+        const anchor = document.getElementById('monster-portrait-orb') ||
+            document.getElementById('monster-hud');
+        if (!anchor) return;
 
         const damageEl = document.createElement('div');
         damageEl.className = 'damage-number';
         damageEl.textContent = `-${damage}`;
 
-        // Position randomly around the monster HUD
-        const rect = monsterHud.getBoundingClientRect();
-        damageEl.style.left = `${rect.left + rect.width / 2 + (Math.random() - 0.5) * 100}px`;
-        damageEl.style.top = `${rect.top + rect.height / 2}px`;
+        const rect = anchor.getBoundingClientRect();
+        damageEl.style.left = `${rect.left + rect.width / 2 + (Math.random() - 0.5) * 60}px`;
+        damageEl.style.top = `${rect.top}px`;
 
         document.body.appendChild(damageEl);
 

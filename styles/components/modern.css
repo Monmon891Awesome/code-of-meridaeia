@@ -214,6 +214,383 @@
     }
 }
 
+/* ============ CINEMATIC INTRO ============ */
+/* Letterbox bars slide in from the edges */
+.cinema-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: clamp(40px, 8vh, 90px);
+    background: #000;
+    z-index: 5;
+    animation: bar-in 1.2s ease both;
+}
+
+.cinema-bar-top { top: 0; transform-origin: top; }
+.cinema-bar-bottom { bottom: 0; transform-origin: bottom; }
+
+@keyframes bar-in {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+/* Slow Ken Burns drift on the wasteland art */
+#intro-cinematic .intro-bg-image {
+    animation: ken-burns 45s ease-out both;
+}
+
+@keyframes ken-burns {
+    from { transform: scale(1) translateY(0); }
+    to { transform: scale(1.18) translateY(-2.5%); }
+}
+
+/* Cold open: dark stage, lines fade through, then the whole
+   overlay releases into the original intro */
+.intro-coldopen {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.88);
+    animation: coldopen-release 1.8s ease 12.2s both;
+    pointer-events: none;
+}
+
+@keyframes coldopen-release {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+}
+
+.coldopen-line {
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.15rem, 2.6vw, 1.7rem);
+    letter-spacing: 0.12em;
+    color: rgba(244, 244, 255, 0.85);
+    opacity: 0;
+    animation: coldopen-line-in 2.4s ease var(--t) both;
+}
+
+@keyframes coldopen-line-in {
+    0% { opacity: 0; transform: translateY(10px); }
+    22% { opacity: 1; transform: translateY(0); }
+    78% { opacity: 1; }
+    100% { opacity: 0.25; }
+}
+
+.coldopen-tagline {
+    margin-top: 1.4rem;
+    font-family: 'Press Start 2P', 'VT323', monospace;
+    font-size: clamp(1.4rem, 5vw, 3rem);
+    line-height: 1.6;
+}
+
+.coldopen-word {
+    display: inline-block;
+    opacity: 0;
+    color: #f4f4ff;
+    text-shadow: 0 0 30px rgba(129, 140, 248, 0.7);
+    animation: coldopen-word-in 1.4s cubic-bezier(0.22, 1, 0.36, 1) var(--t) both;
+}
+
+.coldopen-awaits {
+    color: var(--retro-accent, #ffe66d);
+    text-shadow: 0 0 40px rgba(255, 176, 61, 0.8);
+}
+
+@keyframes coldopen-word-in {
+    from {
+        opacity: 0;
+        transform: scale(1.6);
+        letter-spacing: 0.35em;
+        filter: blur(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+        letter-spacing: 0.06em;
+        filter: blur(0);
+    }
+}
+
+/* ============ 3D CHARACTER ANIMATION ============ */
+/* Battle portraits get living, dimensional presence:
+   perspective idle sway on the artwork, lunges on attack,
+   shake-and-flash on hit. Idle animates the inner image while
+   combat moves animate the orb itself, so they never conflict. */
+.portrait-orb {
+    perspective: 600px;
+}
+
+.portrait-orb img {
+    transform-style: preserve-3d;
+    animation: orb-idle 7s ease-in-out infinite;
+    backface-visibility: hidden;
+}
+
+.monster-orb img {
+    animation-delay: -3.5s;
+}
+
+@keyframes orb-idle {
+    0%, 100% { transform: translateY(0) rotateY(-8deg) scale(1); }
+    25% { transform: translateY(-4px) rotateY(0deg) scale(1.03); }
+    50% { transform: translateY(0) rotateY(8deg) scale(1); }
+    75% { transform: translateY(3px) rotateY(0deg) scale(0.99); }
+}
+
+/* Attack lunges: hero (left side) strikes right, monster mirrors */
+.portrait-orb.orb-attack-right {
+    animation: orb-lunge-right 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 5;
+}
+
+.portrait-orb.orb-attack-left {
+    animation: orb-lunge-left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 5;
+}
+
+@keyframes orb-lunge-right {
+    30% { transform: translateX(52px) rotateY(22deg) scale(1.18); }
+    100% { transform: none; }
+}
+
+@keyframes orb-lunge-left {
+    30% { transform: translateX(-52px) rotateY(-22deg) scale(1.18); }
+    100% { transform: none; }
+}
+
+/* Floating damage numbers are positioned from viewport coords,
+   so they must be fixed (the battle layout can scroll) */
+body > .damage-number {
+    position: fixed;
+    top: auto;
+    left: auto;
+    transform: none;
+    font-size: 1.6rem;
+    z-index: 300;
+    pointer-events: none;
+}
+
+/* Hit reaction: recoil shake with an impact flash */
+.portrait-orb.orb-hurt {
+    animation: orb-hit 0.45s ease;
+}
+
+@keyframes orb-hit {
+    15% { transform: translateX(-9px) rotate(-5deg); filter: brightness(2.2) saturate(2); }
+    35% { transform: translateX(8px) rotate(4deg); }
+    55% { transform: translateX(-5px) rotate(-2deg); filter: brightness(1.4); }
+    75% { transform: translateX(3px) rotate(1deg); }
+    100% { transform: none; filter: none; }
+}
+
+/* ============ MODERN DASHBOARD (header) ============ */
+.header {
+    background: linear-gradient(135deg, rgba(25, 25, 45, 0.55), rgba(15, 15, 30, 0.65)) !important;
+    border: 1px solid rgba(129, 140, 248, 0.22) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Stats become glass chips */
+.profile-stats .stat {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(129, 140, 248, 0.18);
+    border-radius: 12px;
+    padding: 0.45rem 0.9rem;
+    min-width: 78px;
+    transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.profile-stats .stat:hover {
+    border-color: rgba(129, 140, 248, 0.45);
+    background: rgba(129, 140, 248, 0.08);
+}
+
+.stat-value.gold-value {
+    color: var(--retro-gold);
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.35);
+}
+
+/* XP progress bar: gradient + glow, animated width */
+.xp-bar {
+    overflow: hidden;
+    border-radius: 99px;
+}
+
+#xp-progress {
+    background: linear-gradient(90deg, var(--accent), var(--retro-accent)) !important;
+    box-shadow: 0 0 10px rgba(129, 140, 248, 0.6);
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    height: 100%;
+}
+
+/* Avatar with conic XP ring (fills as you approach next level) */
+.profile-avatar {
+    position: relative;
+    overflow: visible;
+}
+
+.profile-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(var(--retro-accent) var(--xp-ring, 0%),
+            rgba(255, 255, 255, 0.1) var(--xp-ring, 0%));
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-avatar #avatar-emoji.hidden,
+.profile-avatar #avatar-img.hidden {
+    display: none;
+}
+
+/* ============ MODERN STORY POPUPS (per-chapter) ============ */
+.story-modal {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(5, 5, 12, 0.82) !important;
+}
+
+.story-modal .story-modal-content {
+    background: linear-gradient(160deg, rgba(24, 24, 44, 0.92), rgba(14, 14, 28, 0.96));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 32px 36px;
+}
+
+/* Portrait + heading row */
+.story-header-modern {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
+    margin-bottom: 1.25rem;
+}
+
+.story-portrait-ring {
+    flex: 0 0 92px;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, var(--accent), transparent 60%);
+    animation: story-portrait-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s backwards;
+}
+
+.story-portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.6);
+    display: block;
+}
+
+@keyframes story-portrait-in {
+    from {
+        opacity: 0;
+        transform: scale(0.4) rotate(-12deg);
+    }
+}
+
+.story-chapter-badge {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--retro-accent);
+    background: rgba(255, 230, 109, 0.08);
+    border: 1px solid rgba(255, 230, 109, 0.35);
+    border-radius: 99px;
+    padding: 0.35rem 0.8rem;
+    margin-bottom: 0.6rem;
+    animation: fade-slide-in 0.6s ease 0.25s backwards;
+}
+
+.story-heading .story-hero-name {
+    margin: 0 0 0.2rem;
+    animation: fade-slide-in 0.6s ease 0.35s backwards;
+}
+
+.story-heading .story-hero-title {
+    margin: 0;
+    animation: fade-slide-in 0.6s ease 0.45s backwards;
+}
+
+/* Story text reads in with a soft rise, on a subtle parchment panel */
+.story-modal .story-text {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 1.1rem 1.25rem;
+    font-size: 1.08rem;
+    line-height: 1.75;
+    animation: fade-slide-in 0.8s ease 0.55s backwards;
+}
+
+@keyframes fade-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+}
+
+/* Golden continue CTA, consistent with the welcome modal */
+.story-modal .story-continue-btn {
+    font-family: 'VT323', monospace;
+    font-size: 1.35rem;
+    letter-spacing: 0.05em;
+    color: #0d0d1c;
+    background: linear-gradient(135deg, var(--retro-accent, #ffe66d), #ffb03d);
+    border: none;
+    border-radius: 10px;
+    padding: 0.85rem 2.2rem;
+    min-height: 48px;
+    cursor: pointer;
+    box-shadow: 0 8px 26px rgba(255, 176, 61, 0.3);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    animation: fade-slide-in 0.6s ease 0.75s backwards;
+}
+
+.story-modal .story-continue-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(255, 176, 61, 0.5);
+}
+
+.story-modal .story-continue-btn:active {
+    transform: scale(0.96);
+}
+
+@media (max-width: 600px) {
+    .story-header-modern {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .story-modal .story-modal-content {
+        padding: 24px 20px;
+    }
+}
+
 /* ============ REDUCED MOTION: everything off ============ */
 @media (prefers-reduced-motion: reduce) {
 
@@ -231,7 +608,34 @@
     #chapter-select:not(.hidden) .chapter-card,
     .welcome-modal,
     .welcome-card,
-    #results-screen:not(.hidden) .results-icon {
+    #results-screen:not(.hidden) .results-icon,
+    .cinema-bar,
+    #intro-cinematic .intro-bg-image,
+    .portrait-orb img,
+    .portrait-orb.orb-attack-right,
+    .portrait-orb.orb-attack-left,
+    .portrait-orb.orb-hurt {
+        animation: none !important;
+    }
+
+    .story-portrait-ring,
+    .story-chapter-badge,
+    .story-heading .story-hero-name,
+    .story-heading .story-hero-title,
+    .story-modal .story-text,
+    .story-modal .story-continue-btn {
+        animation: none !important;
+    }
+
+    /* Skip the cold open entirely; show the classic intro text */
+    .intro-coldopen {
+        display: none;
+    }
+
+    .intro-text,
+    .intro-logo,
+    .intro-btn {
+        opacity: 1 !important;
         animation: none !important;
     }
 }
