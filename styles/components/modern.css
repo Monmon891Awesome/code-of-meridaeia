@@ -1,0 +1,237 @@
+/* Code of Meridaeia - Modern FX layer
+   Screen transitions, card dealing, welcome modal, ambient embers,
+   glass toasts. All animation is transform/opacity only (GPU-safe)
+   and fully disabled under prefers-reduced-motion. */
+
+/* ============ AMBIENT EMBER BACKGROUND ============ */
+#bg-embers {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+/* Keep app content above the ember canvas */
+.app-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* ============ SCREEN TRANSITIONS ============ */
+/* Screens used to snap between .hidden states; now they ease in.
+   Animation restarts naturally because .hidden toggles display. */
+#category-select:not(.hidden),
+#chapter-select:not(.hidden),
+#game-area:not(.hidden),
+#boss-fight-area:not(.hidden),
+#results-screen:not(.hidden) {
+    animation: screen-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes screen-in {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ============ CARD DEALING ============ */
+/* Answer cards are re-created each question, so the animation
+   replays: cards deal into the hand, staggered left to right.
+   Only a `from` keyframe: each card settles into its natural
+   fan rotation without fighting the nth-child transforms. */
+.card-hand .answer-card {
+    animation: card-deal 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.card-hand .answer-card:nth-child(1) { animation-delay: 0.05s; }
+.card-hand .answer-card:nth-child(2) { animation-delay: 0.13s; }
+.card-hand .answer-card:nth-child(3) { animation-delay: 0.21s; }
+.card-hand .answer-card:nth-child(4) { animation-delay: 0.29s; }
+
+@keyframes card-deal {
+    from {
+        opacity: 0;
+        transform: translateY(60px) rotate(-6deg) scale(0.85);
+    }
+}
+
+/* Hero and chapter cards stagger in when their screen shows */
+#category-select:not(.hidden) .category-card,
+#chapter-select:not(.hidden) .chapter-card {
+    animation: card-deal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+#category-select:not(.hidden) .category-card:nth-child(1),
+#chapter-select:not(.hidden) .chapter-card:nth-child(1) { animation-delay: 0.05s; }
+#category-select:not(.hidden) .category-card:nth-child(2),
+#chapter-select:not(.hidden) .chapter-card:nth-child(2) { animation-delay: 0.12s; }
+#category-select:not(.hidden) .category-card:nth-child(3),
+#chapter-select:not(.hidden) .chapter-card:nth-child(3) { animation-delay: 0.19s; }
+#category-select:not(.hidden) .category-card:nth-child(4) { animation-delay: 0.26s; }
+#category-select:not(.hidden) .category-card:nth-child(5) { animation-delay: 0.33s; }
+#category-select:not(.hidden) .category-card:nth-child(6) { animation-delay: 0.40s; }
+#category-select:not(.hidden) .category-card:nth-child(7) { animation-delay: 0.47s; }
+
+/* ============ WELCOME MODAL (replaces prompt()) ============ */
+.welcome-modal {
+    position: fixed;
+    inset: 0;
+    /* Above the intro cinematic (z-index 2000): the hero names
+       themselves first, then the intro plays */
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(5, 5, 12, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    animation: fade-in-modal 0.35s ease;
+}
+
+.welcome-modal.hidden {
+    display: none;
+}
+
+@keyframes fade-in-modal {
+    from { opacity: 0; }
+}
+
+.welcome-card {
+    width: min(460px, 100%);
+    text-align: center;
+    padding: 2.5rem 2rem 2rem;
+    background: rgba(20, 20, 38, 0.85);
+    border: 2px solid var(--border-glass, rgba(129, 140, 248, 0.35));
+    border-radius: 18px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), 0 0 60px rgba(99, 102, 241, 0.15);
+    animation: screen-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.welcome-card .welcome-emblem {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.welcome-card h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    text-shadow: 0 0 20px rgba(129, 140, 248, 0.5);
+}
+
+.welcome-card p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.55;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-card input {
+    width: 100%;
+    padding: 0.9rem 1.1rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--retro-border);
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 1.25rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.welcome-card input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.welcome-card .welcome-start {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.9rem 1.5rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+    color: #0d0d1c;
+    background: linear-gradient(135deg, var(--retro-accent, #ffe66d), #ffb03d);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 8px 26px rgba(255, 176, 61, 0.35);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.welcome-card .welcome-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(255, 176, 61, 0.5);
+}
+
+.welcome-card .welcome-start:active {
+    transform: scale(0.96);
+}
+
+.welcome-card .welcome-hint {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+/* ============ GLASS TOASTS ============ */
+.toast-notification {
+    background: rgba(25, 25, 45, 0.75) !important;
+    border: 1px solid rgba(129, 140, 248, 0.35) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ============ RESULTS POLISH ============ */
+#results-screen:not(.hidden) .results-icon {
+    display: inline-block;
+    animation: icon-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s backwards;
+}
+
+@keyframes icon-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.2) rotate(-20deg);
+    }
+}
+
+/* ============ REDUCED MOTION: everything off ============ */
+@media (prefers-reduced-motion: reduce) {
+
+    #bg-embers {
+        display: none;
+    }
+
+    #category-select:not(.hidden),
+    #chapter-select:not(.hidden),
+    #game-area:not(.hidden),
+    #boss-fight-area:not(.hidden),
+    #results-screen:not(.hidden),
+    .card-hand .answer-card,
+    #category-select:not(.hidden) .category-card,
+    #chapter-select:not(.hidden) .chapter-card,
+    .welcome-modal,
+    .welcome-card,
+    #results-screen:not(.hidden) .results-icon {
+        animation: none !important;
+    }
+}

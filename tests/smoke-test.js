@@ -63,12 +63,26 @@ function check(label, ok, detail = '') {
     });
 
     try {
-        console.log('1. Boot and intro');
+        console.log('1. Boot, welcome modal, intro');
         await page.goto(BASE, { waitUntil: 'domcontentloaded' });
         await page.waitForTimeout(1500);
+
+        // First run shows the welcome modal instead of a prompt()
+        const welcomeVisible = await page.isVisible('#welcome-modal:not(.hidden)');
+        check('welcome modal shown on first run', welcomeVisible);
+        if (welcomeVisible) {
+            await page.fill('#welcome-username', 'SmokeTester');
+            await page.click('#welcome-start-btn');
+            await page.waitForTimeout(500);
+        }
+        check('welcome modal closed after start',
+            await page.isHidden('#welcome-modal'));
+
         await page.evaluate(() => game.skipIntro());
         await page.waitForTimeout(2300);
         check('category select visible', await page.isVisible('#category-select'));
+        check('username saved from modal',
+            await page.evaluate(() => game.userProfile.username) === 'SmokeTester');
 
         console.log('2. Chapter flow');
         await page.evaluate(() => { game.selectCategory('java'); game.selectChapter(1); game.closeStory(); });
