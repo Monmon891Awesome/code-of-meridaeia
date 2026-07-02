@@ -169,6 +169,22 @@ function check(label, ok, detail = '') {
         check('boss defeats player at 0 barrier',
             (await page.textContent('.results-card h2')).includes('Barrier'));
 
+        console.log('7.5 Loot drop on monster kill');
+        await page.evaluate(() => {
+            document.getElementById('results-screen').classList.add('hidden');
+            game.selectCategory('java'); game.selectChapter(1); game.closeStory();
+        });
+        await page.waitForTimeout(400);
+        await page.evaluate(() => { game.currentMonsterHP = 25; }); // next hit kills
+        const lootCi = await page.evaluate(() => game.currentCorrectIndex);
+        await (await page.$$('#options-container .answer-card'))[lootCi].click();
+        await page.waitForTimeout(900);
+        const lootToast = await page.$('.loot-toast');
+        check('loot drop toast appeared with rarity', lootToast !== null,
+            lootToast ? await lootToast.getAttribute('class') : 'none');
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(300);
+
         console.log('8. Music radio and FX wiring');
         check('wasteland radio loaded with 4 tracks',
             await page.evaluate(() => typeof gameMusic !== 'undefined' && gameMusic.tracks.length === 4));

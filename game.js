@@ -95,6 +95,74 @@ class CodeOfMeridaeiaGame {
 
         // Track answer streak for virtue bonuses
         this.currentStreak = 0;
+
+        // ============ LOOT TABLE (variable rewards) ============
+        // Weighted rarity roll on every monster kill. A hot streak
+        // (3+) upgrades the player's luck by one reroll.
+        this.lootTable = [
+            {
+                rarity: 'common', label: 'Common', weight: 55, gold: [4, 10],
+                items: ["Goblin's Cracked Semicolon", 'Rusty Loop Counter', 'Torn Stack Frame', 'Bent Null Terminator']
+            },
+            {
+                rarity: 'uncommon', label: 'Uncommon', weight: 25, gold: [12, 20],
+                items: ['Vial of Sanitized Input', 'Polished Boolean Gem', 'Cloak of Caught Exceptions', 'Wolf-Fang Pointer']
+            },
+            {
+                rarity: 'rare', label: 'Rare', weight: 13, gold: [25, 40],
+                items: ['Rune of Constant Time', 'Demonhide Debugger', 'Chalice of Closed Sockets', 'Wraithbone Compiler Flag']
+            },
+            {
+                rarity: 'epic', label: 'Epic', weight: 5.5, gold: [50, 80],
+                items: ['Crown of the Root User', 'Heart of the Deadlock Dragon', 'Sigil of Zero Downtime']
+            },
+            {
+                rarity: 'legendary', label: 'LEGENDARY', weight: 1.5, gold: [120, 200],
+                items: ['Blade of the Final Keyword', 'The Uncorrupted Kernel', "Marakathalessa's Lost Tear"]
+            }
+        ];
+    }
+
+    // Roll the loot table; streaks of 3+ grant a second roll, keeping
+    // the better result (luck rewards mastery, not just grinding)
+    rollLoot() {
+        const roll = () => {
+            const total = this.lootTable.reduce((s, t) => s + t.weight, 0);
+            let r = Math.random() * total;
+            for (const tier of this.lootTable) {
+                r -= tier.weight;
+                if (r <= 0) return tier;
+            }
+            return this.lootTable[0];
+        };
+
+        let tier = roll();
+        if (this.currentStreak >= 3) {
+            const second = roll();
+            const rank = (t) => this.lootTable.indexOf(t);
+            if (rank(second) > rank(tier)) tier = second;
+        }
+
+        const gold = tier.gold[0] + Math.floor(Math.random() * (tier.gold[1] - tier.gold[0] + 1));
+        const item = tier.items[Math.floor(Math.random() * tier.items.length)];
+        return { rarity: tier.rarity, label: tier.label, gold, item };
+    }
+
+    showLootDrop(loot) {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification loot-toast loot-${loot.rarity}`;
+        toast.setAttribute('role', 'status');
+        toast.innerHTML = `<span class="loot-label">${loot.label} DROP</span>` +
+            `<span class="loot-name">${this.escapeHtml(loot.item)}</span>` +
+            `<span class="loot-gold">+${loot.gold} 💰</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), loot.rarity === 'legendary' ? 5000 : 3600);
+
+        if (loot.rarity === 'legendary' || loot.rarity === 'epic') {
+            this.playSound('fanfare');
+        } else {
+            this.playSound('coin');
+        }
     }
 
     async init() {
@@ -1371,9 +1439,11 @@ class CodeOfMeridaeiaGame {
     }
 
     monsterDefeated() {
-        // Bonus gold for kill
-        this.goldEarned += 20;
-        this.userProfile.gold = (this.userProfile.gold || 0) + this.goldEarned;
+        // Roll the loot table - the variable-reward moment of the kill
+        const loot = this.rollLoot();
+
+        // Banked per-answer gold + the loot drop
+        this.userProfile.gold = (this.userProfile.gold || 0) + this.goldEarned + loot.gold;
 
         // Increment story progress and update environment
         this.userProfile.storyProgress = (this.userProfile.storyProgress || 0) + 20;
@@ -1381,18 +1451,25 @@ class CodeOfMeridaeiaGame {
 
         // Reset monster HP and spawn a new monster on the next question
         this.currentMonsterHP = this.monsterMaxHP;
+        const slainName = this.currentMonsterName;
         this.currentMonsterName = null;
 
-        // Notification
-        this.showNotification(`🗡️ Monster Slain! +${this.goldEarned} Gold`);
+        // Kill notification, then the loot reveal lands a beat later
+        this.showNotification(`🗡️ ${slainName || 'Monster'} Slain!`);
         this.playSound('victory');
+        setTimeout(() => this.showLootDrop(loot), 650);
 
         // Track event
-        codeQuestDB.trackEvent('monster_defeated', { goldEarned: this.goldEarned });
+        codeQuestDB.trackEvent('monster_defeated', {
+            goldEarned: this.goldEarned,
+            lootRarity: loot.rarity,
+            lootGold: loot.gold
+        });
 
         // Save and reset
         codeQuestDB.saveUserProfile(this.userProfile);
         this.goldEarned = 0;
+        this.updateMonsterHUD();
     }
 
     // Environment Management

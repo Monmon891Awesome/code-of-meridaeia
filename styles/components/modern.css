@@ -591,6 +591,71 @@ body > .damage-number {
     }
 }
 
+/* ============ LOOT DROPS (rarity color grammar) ============ */
+.loot-toast {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.9rem 1.75rem !important;
+    animation: loot-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), fadeOut 0.4s ease 3.1s forwards !important;
+}
+
+.loot-toast .loot-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+}
+
+.loot-toast .loot-name {
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.loot-toast .loot-gold {
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    color: var(--retro-gold);
+}
+
+@keyframes loot-pop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(24px) scale(0.7);
+    }
+}
+
+/* Rarity tiers: the classic color grammar */
+.loot-common { border-color: #9ca3af !important; }
+.loot-common .loot-label { color: #9ca3af; }
+
+.loot-uncommon { border-color: #4ade80 !important; box-shadow: 0 0 20px rgba(74, 222, 128, 0.35) !important; }
+.loot-uncommon .loot-label { color: #4ade80; }
+
+.loot-rare { border-color: #38bdf8 !important; box-shadow: 0 0 26px rgba(56, 189, 248, 0.45) !important; }
+.loot-rare .loot-label { color: #38bdf8; }
+
+.loot-epic { border-color: #c084fc !important; box-shadow: 0 0 32px rgba(192, 132, 252, 0.55) !important; }
+.loot-epic .loot-label { color: #c084fc; }
+
+.loot-legendary {
+    border-color: var(--retro-gold) !important;
+    box-shadow: 0 0 44px rgba(255, 215, 0, 0.7) !important;
+    animation: loot-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+        legendary-pulse 1.2s ease-in-out infinite,
+        fadeOut 0.4s ease 4.5s forwards !important;
+}
+
+.loot-legendary .loot-label {
+    color: var(--retro-gold);
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+}
+
+@keyframes legendary-pulse {
+    50% { box-shadow: 0 0 70px rgba(255, 215, 0, 0.95); }
+}
+
 /* ============ REDUCED MOTION: everything off ============ */
 @media (prefers-reduced-motion: reduce) {
 
