@@ -765,6 +765,18 @@ class CodeOfMeridaeiaGame {
         document.getElementById('story-hero-title').textContent = story.title;
         document.getElementById('story-text').textContent = storyText;
 
+        // Portrait and chapter badge (modern story popup)
+        const portrait = document.getElementById('story-hero-portrait');
+        if (portrait) {
+            const heroData = this.getHeroData(category);
+            portrait.src = heroData.image;
+            portrait.alt = story.heroName;
+        }
+        const badge = document.getElementById('story-chapter-badge');
+        if (badge) {
+            badge.textContent = ['Chapter I', 'Chapter II', 'Chapter III'][chapterNum - 1] || 'Chapter';
+        }
+
         // Set hero-specific color
         const modal = document.getElementById('story-modal');
         modal.setAttribute('data-hero', category);
@@ -859,6 +871,14 @@ class CodeOfMeridaeiaGame {
         document.getElementById('story-hero-name').textContent = "The Twins Reunited";
         document.getElementById('story-hero-title').textContent = "Elemari & Eke";
         document.getElementById('story-text').textContent = reunionText;
+
+        const portrait = document.getElementById('story-hero-portrait');
+        if (portrait) {
+            portrait.src = 'assets/heroes/hero-artemis-portrait.png';
+            portrait.alt = 'The Twins Reunited';
+        }
+        const badge = document.getElementById('story-chapter-badge');
+        if (badge) badge.textContent = 'Finale';
 
         const modal = document.getElementById('story-modal');
         modal.setAttribute('data-hero', 'dataEngineering'); // Purple theme
@@ -1344,6 +1364,10 @@ class CodeOfMeridaeiaGame {
         if (heroBarrier) heroBarrier.textContent = this.userProfile.barrierPoints || 3;
         if (charGold) charGold.textContent = this.userProfile.gold || 0;
         if (charBarrier) charBarrier.textContent = this.userProfile.barrierPoints || 3;
+
+        // Keep the dashboard gold chip in sync during battle
+        const headerGold = document.getElementById('header-gold');
+        if (headerGold) headerGold.textContent = this.userProfile.gold || 0;
     }
 
     monsterDefeated() {
@@ -1889,6 +1913,9 @@ class CodeOfMeridaeiaGame {
         document.getElementById('level').textContent = this.userProfile.level;
         document.getElementById('total-xp').textContent = this.userProfile.xp;
 
+        const headerGold = document.getElementById('header-gold');
+        if (headerGold) headerGold.textContent = this.userProfile.gold || 0;
+
         // XP progress within the current level
         // (level N is reached at (N-1)*100 XP, next level at N*100 XP)
         const prevThreshold = (this.userProfile.level - 1) * 100;
@@ -1897,6 +1924,10 @@ class CodeOfMeridaeiaGame {
             ((this.userProfile.xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100
         ));
         document.getElementById('xp-progress').style.width = `${progress}%`;
+
+        // XP ring around the dashboard avatar
+        const avatar = document.getElementById('profile-avatar');
+        if (avatar) avatar.style.setProperty('--xp-ring', `${progress}%`);
     }
 
     // Hero HP bar reflects barrier points (visible defeat pressure)
@@ -2171,6 +2202,15 @@ class CodeOfMeridaeiaGame {
             portrait.src = heroData.image;
         }
 
+        // Dashboard avatar shows the active hero
+        const avatarImg = document.getElementById('avatar-img');
+        const avatarEmoji = document.getElementById('avatar-emoji');
+        if (avatarImg && heroData.image && this.currentCategory) {
+            avatarImg.src = heroData.image;
+            avatarImg.classList.remove('hidden');
+            if (avatarEmoji) avatarEmoji.classList.add('hidden');
+        }
+
         // Update class name and identity
         const className = document.getElementById('character-class-name');
         const identityName = document.getElementById('character-identity-name');
@@ -2215,6 +2255,11 @@ class CodeOfMeridaeiaGame {
                 className: 'Dragonoid Mercenary',
                 identity: 'Vulkun of Ring Zero',
                 image: 'assets/heroes/hero-vulkun-portrait.png'
+            },
+            marakathalessa: {
+                className: 'Corrupted Mage',
+                identity: 'Marakathalessa Redeemed',
+                image: 'assets/monsters/boss-marakathalessa-alt.png'
             }
         };
         return heroMap[category] || { className: 'Hero', identity: '', image: 'assets/heroes/hero-grom-portrait.png' };

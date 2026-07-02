@@ -31,17 +31,32 @@ class WastelandRadio {
             if (this.errorStreak < this.tracks.length && !this.muted) this.next();
         });
 
-        // Arm on the first user gesture anywhere
-        const arm = () => {
-            document.removeEventListener('pointerdown', arm);
-            document.removeEventListener('keydown', arm);
-            if (!this.muted) this.start();
-            this.started = true;
-        };
-        document.addEventListener('pointerdown', arm);
-        document.addEventListener('keydown', arm);
+        // Arm on user gestures. Browsers only grant audio playback for
+        // "activation" events (click / keydown / touchend - NOT pointerdown
+        // on touch devices), and the first attempt can still be rejected.
+        // So: keep listening and retry on every gesture until playback
+        // genuinely starts.
+        this._armHandler = () => this._tryArm();
+        document.addEventListener('click', this._armHandler);
+        document.addEventListener('keydown', this._armHandler);
+        document.addEventListener('touchend', this._armHandler);
 
         document.addEventListener('DOMContentLoaded', () => this.updateToggleUI());
+    }
+
+    _tryArm() {
+        if (this.started || this.muted) {
+            // Muted players have made a choice; stop watching gestures
+            if (this.muted) this._disarm();
+            return;
+        }
+        this.start();
+    }
+
+    _disarm() {
+        document.removeEventListener('click', this._armHandler);
+        document.removeEventListener('keydown', this._armHandler);
+        document.removeEventListener('touchend', this._armHandler);
     }
 
     shuffleQueue() {
@@ -82,9 +97,12 @@ class WastelandRadio {
         const played = this.audio.play();
         if (played) {
             played.then(() => {
+                // Playback genuinely started: stop watching gestures
+                this.started = true;
+                this._disarm();
                 this.fadeTo(this.targetVolume, 1500);
                 this.announce(track);
-            }).catch(() => { /* autoplay blocked; will start on next gesture */ });
+            }).catch(() => { /* autoplay blocked; retried on the next gesture */ });
         }
     }
 

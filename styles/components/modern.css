@@ -391,6 +391,206 @@ body > .damage-number {
     100% { transform: none; filter: none; }
 }
 
+/* ============ MODERN DASHBOARD (header) ============ */
+.header {
+    background: linear-gradient(135deg, rgba(25, 25, 45, 0.55), rgba(15, 15, 30, 0.65)) !important;
+    border: 1px solid rgba(129, 140, 248, 0.22) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Stats become glass chips */
+.profile-stats .stat {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(129, 140, 248, 0.18);
+    border-radius: 12px;
+    padding: 0.45rem 0.9rem;
+    min-width: 78px;
+    transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.profile-stats .stat:hover {
+    border-color: rgba(129, 140, 248, 0.45);
+    background: rgba(129, 140, 248, 0.08);
+}
+
+.stat-value.gold-value {
+    color: var(--retro-gold);
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.35);
+}
+
+/* XP progress bar: gradient + glow, animated width */
+.xp-bar {
+    overflow: hidden;
+    border-radius: 99px;
+}
+
+#xp-progress {
+    background: linear-gradient(90deg, var(--accent), var(--retro-accent)) !important;
+    box-shadow: 0 0 10px rgba(129, 140, 248, 0.6);
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    height: 100%;
+}
+
+/* Avatar with conic XP ring (fills as you approach next level) */
+.profile-avatar {
+    position: relative;
+    overflow: visible;
+}
+
+.profile-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(var(--retro-accent) var(--xp-ring, 0%),
+            rgba(255, 255, 255, 0.1) var(--xp-ring, 0%));
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-avatar #avatar-emoji.hidden,
+.profile-avatar #avatar-img.hidden {
+    display: none;
+}
+
+/* ============ MODERN STORY POPUPS (per-chapter) ============ */
+.story-modal {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(5, 5, 12, 0.82) !important;
+}
+
+.story-modal .story-modal-content {
+    background: linear-gradient(160deg, rgba(24, 24, 44, 0.92), rgba(14, 14, 28, 0.96));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 32px 36px;
+}
+
+/* Portrait + heading row */
+.story-header-modern {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
+    margin-bottom: 1.25rem;
+}
+
+.story-portrait-ring {
+    flex: 0 0 92px;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, var(--accent), transparent 60%);
+    animation: story-portrait-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s backwards;
+}
+
+.story-portrait {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.6);
+    display: block;
+}
+
+@keyframes story-portrait-in {
+    from {
+        opacity: 0;
+        transform: scale(0.4) rotate(-12deg);
+    }
+}
+
+.story-chapter-badge {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--retro-accent);
+    background: rgba(255, 230, 109, 0.08);
+    border: 1px solid rgba(255, 230, 109, 0.35);
+    border-radius: 99px;
+    padding: 0.35rem 0.8rem;
+    margin-bottom: 0.6rem;
+    animation: fade-slide-in 0.6s ease 0.25s backwards;
+}
+
+.story-heading .story-hero-name {
+    margin: 0 0 0.2rem;
+    animation: fade-slide-in 0.6s ease 0.35s backwards;
+}
+
+.story-heading .story-hero-title {
+    margin: 0;
+    animation: fade-slide-in 0.6s ease 0.45s backwards;
+}
+
+/* Story text reads in with a soft rise, on a subtle parchment panel */
+.story-modal .story-text {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 1.1rem 1.25rem;
+    font-size: 1.08rem;
+    line-height: 1.75;
+    animation: fade-slide-in 0.8s ease 0.55s backwards;
+}
+
+@keyframes fade-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+}
+
+/* Golden continue CTA, consistent with the welcome modal */
+.story-modal .story-continue-btn {
+    font-family: 'VT323', monospace;
+    font-size: 1.35rem;
+    letter-spacing: 0.05em;
+    color: #0d0d1c;
+    background: linear-gradient(135deg, var(--retro-accent, #ffe66d), #ffb03d);
+    border: none;
+    border-radius: 10px;
+    padding: 0.85rem 2.2rem;
+    min-height: 48px;
+    cursor: pointer;
+    box-shadow: 0 8px 26px rgba(255, 176, 61, 0.3);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    animation: fade-slide-in 0.6s ease 0.75s backwards;
+}
+
+.story-modal .story-continue-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(255, 176, 61, 0.5);
+}
+
+.story-modal .story-continue-btn:active {
+    transform: scale(0.96);
+}
+
+@media (max-width: 600px) {
+    .story-header-modern {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .story-modal .story-modal-content {
+        padding: 24px 20px;
+    }
+}
+
 /* ============ REDUCED MOTION: everything off ============ */
 @media (prefers-reduced-motion: reduce) {
 
@@ -415,6 +615,15 @@ body > .damage-number {
     .portrait-orb.orb-attack-right,
     .portrait-orb.orb-attack-left,
     .portrait-orb.orb-hurt {
+        animation: none !important;
+    }
+
+    .story-portrait-ring,
+    .story-chapter-badge,
+    .story-heading .story-hero-name,
+    .story-heading .story-hero-title,
+    .story-modal .story-text,
+    .story-modal .story-continue-btn {
         animation: none !important;
     }
 

@@ -146,6 +146,10 @@
                         <span class="stat-label">Level</span>
                     </div>
                     <div class="stat">
+                        <span class="stat-value gold-value" id="header-gold">0</span>
+                        <span class="stat-label">Gold</span>
+                    </div>
+                    <div class="stat">
                         <span class="stat-value" id="total-xp">0</span>
                         <span class="stat-label">Total XP</span>
                         <div class="xp-bar">
@@ -153,7 +157,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="profile-avatar">👤</div>
+                <div class="profile-avatar" id="profile-avatar" title="XP progress to next level">
+                    <span id="avatar-emoji">👤</span>
+                    <img id="avatar-img" src="" alt="Current hero" class="hidden">
+                </div>
             </div>
         </header>
 
@@ -518,11 +525,17 @@
         </div>
 
         <!-- Character Story Modal (Phase E) -->
-        <div id="story-modal" class="story-modal hidden">
+        <div id="story-modal" class="story-modal hidden" role="dialog" aria-modal="true" aria-labelledby="story-hero-name">
             <div class="story-modal-content">
-                <div class="story-header">
-                    <h2 id="story-hero-name" class="story-hero-name"></h2>
-                    <p id="story-hero-title" class="story-hero-title"></p>
+                <div class="story-header story-header-modern">
+                    <div class="story-portrait-ring">
+                        <img id="story-hero-portrait" class="story-portrait" src="assets/heroes/hero-grom-portrait.png" alt="">
+                    </div>
+                    <div class="story-heading">
+                        <span id="story-chapter-badge" class="story-chapter-badge">Chapter I</span>
+                        <h2 id="story-hero-name" class="story-hero-name"></h2>
+                        <p id="story-hero-title" class="story-hero-title"></p>
+                    </div>
                 </div>
                 <div class="story-body">
                     <p id="story-text" class="story-text"></p>
