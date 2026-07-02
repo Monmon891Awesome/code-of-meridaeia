@@ -102,8 +102,25 @@ class WastelandRadio {
                 this._disarm();
                 this.fadeTo(this.targetVolume, 1500);
                 this.announce(track);
-            }).catch(() => { /* autoplay blocked; retried on the next gesture */ });
+            }).catch((err) => {
+                // Autoplay blocked or codec/network problem: say so instead
+                // of failing silently, and retry on the next gesture
+                console.warn('🎵 Music playback blocked:', err && err.name, err && err.message);
+                this._nudge();
+            });
         }
+    }
+
+    // One-time hint so a blocked radio is discoverable, not silent
+    _nudge() {
+        if (this._nudged) return;
+        this._nudged = true;
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.setAttribute('role', 'status');
+        toast.textContent = '🎵 Click anywhere (or press the Music button) to start the music';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
     }
 
     fadeTo(target, ms) {
@@ -158,3 +175,8 @@ class WastelandRadio {
 
 const gameMusic = new WastelandRadio();
 window.gameMusic = gameMusic;
+
+// Build/diagnostic marker: if you can't hear music, open the console -
+// this line proves the radio is in your build, and any playback problem
+// is logged as "Music playback blocked" above
+console.log(`🎵 Wasteland Radio loaded: ${gameMusic.tracks.length} tracks, muted=${gameMusic.muted}`);
