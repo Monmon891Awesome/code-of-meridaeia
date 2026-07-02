@@ -109,7 +109,7 @@ class CodeOfMeridaeiaGame {
         // Load or create user profile
         this.userProfile = await codeQuestDB.getUserProfile();
         if (!this.userProfile) {
-            const username = prompt('Welcome to Code of Meridaeia! Enter your username:') || 'Player';
+            const username = await this.askUsername();
             this.userProfile = await codeQuestDB.initializeNewUser(username);
         }
 
@@ -1538,10 +1538,10 @@ class CodeOfMeridaeiaGame {
             this.playSound('fanfare');
         }
 
-        document.getElementById('final-score').textContent = this.score;
+        this.countUp(document.getElementById('final-score'), this.score);
         document.getElementById('questions-correct').textContent =
             `${this.correctAnswers} / ${this.totalAnswered}`;
-        document.getElementById('accuracy').textContent = `${accuracy}%`;
+        this.countUp(document.getElementById('accuracy'), accuracy, '%');
 
         // Credit any gold earned that wasn't banked by a monster kill
         if (this.goldEarned > 0) {
@@ -1899,6 +1899,24 @@ class CodeOfMeridaeiaGame {
         if (window.gameSFX) window.gameSFX.play(name);
     }
 
+    // Animated number count-up for results (instant under reduced motion)
+    countUp(el, target, suffix = '') {
+        if (!el) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches || target <= 0) {
+            el.textContent = `${target}${suffix}`;
+            return;
+        }
+        const t0 = performance.now();
+        const duration = 900;
+        const tick = (now) => {
+            const p = Math.min(1, (now - t0) / duration);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = `${Math.round(target * eased)}${suffix}`;
+            if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    }
+
     showNotification(message) {
         const notification = document.createElement('div');
         notification.className = 'toast-notification';
@@ -1921,12 +1939,47 @@ class CodeOfMeridaeiaGame {
     async resetProgress() {
         if (confirm('⚠️ This will delete ALL your progress. Are you sure?')) {
             await codeQuestDB.clearAllData();
-            const username = prompt('Enter new username:') || 'Player';
+            const username = await this.askUsername();
             this.userProfile = await codeQuestDB.initializeNewUser(username);
             this.achievements = [];
             this.updateProfileUI();
             this.showNotification('🔄 Progress reset!');
         }
+    }
+
+    // Welcome modal replaces the old blocking prompt() popup.
+    // Resolves with a sanitized hero name; falls back to prompt()
+    // if the modal markup is missing.
+    askUsername() {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('welcome-modal');
+            const input = document.getElementById('welcome-username');
+            const startBtn = document.getElementById('welcome-start-btn');
+
+            if (!modal || !input || !startBtn) {
+                resolve(prompt('Welcome to Code of Meridaeia! Enter your username:') || 'Player');
+                return;
+            }
+
+            modal.classList.remove('hidden');
+            input.value = '';
+            input.focus();
+
+            const submit = () => {
+                const name = input.value.trim().slice(0, 20) || 'Player';
+                modal.classList.add('hidden');
+                startBtn.removeEventListener('click', submit);
+                input.removeEventListener('keydown', onKey);
+                this.playSound('click');
+                resolve(name);
+            };
+            const onKey = (e) => {
+                if (e.key === 'Enter') submit();
+            };
+
+            startBtn.addEventListener('click', submit);
+            input.addEventListener('keydown', onKey);
+        });
     }
 
     // ============ CHARACTER SHEET (Phase 2) ============

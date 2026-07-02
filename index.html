@@ -35,6 +35,8 @@
     <link rel="stylesheet" href="styles/components/buttons.css">
     <!-- Core legacy styles (to be further modularized) -->
     <link rel="stylesheet" href="styles.css">
+    <!-- Modern FX: screen transitions, card dealing, welcome modal, embers -->
+    <link rel="stylesheet" href="styles/components/modern.css">
     <!-- Responsive overrides -->
     <link rel="stylesheet" href="styles/responsive/mobile.css">
     <!-- Accessibility utilities (loaded last to override) -->
@@ -51,6 +53,22 @@
 
     <!-- Retro Scanline Overlay (Phase F) -->
     <div class="scanlines"></div>
+
+    <!-- Ambient ember background -->
+    <canvas id="bg-embers" aria-hidden="true"></canvas>
+
+    <!-- Welcome Modal (first run / reset) -->
+    <div id="welcome-modal" class="welcome-modal hidden" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+        <div class="welcome-card">
+            <span class="welcome-emblem" aria-hidden="true">⚔️</span>
+            <h2 id="welcome-title">Welcome, Hero</h2>
+            <p>The Great Compiler has fallen and Meridaeia needs a champion.<br>What shall the bards call you?</p>
+            <input type="text" id="welcome-username" maxlength="20" placeholder="Enter your name..."
+                autocomplete="nickname" aria-label="Your hero name">
+            <button type="button" class="welcome-start" id="welcome-start-btn">⚔️ Begin the Siege</button>
+            <p class="welcome-hint">Your legend is saved on this device</p>
+        </div>
+    </div>
 
     <!-- Landscape Orientation Prompt (Phase A) - dismissible, portrait play is supported -->
     <div class="landscape-prompt">
@@ -775,6 +793,7 @@
     </div>
 
     <!-- Scripts - Load in correct order -->
+    <script src="fx.js"></script>
     <script src="audio.js"></script>
     <script src="database.js"></script>
     <script src="shop-data.js"></script>

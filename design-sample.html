@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Code of Meridaeia - an immersive landing experience. Learn real programming by battling the Witch of Corrupted Code.">
+    <title>Code of Meridaeia — The Siege Begins</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icons/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           Design tokens (design-system architecture: single source)
+           ============================================================ */
+        :root {
+            --bg-deep: #07070f;
+            --bg-panel: rgba(20, 20, 38, 0.55);
+            --border-glass: rgba(129, 140, 248, 0.25);
+            --text-hi: #f4f4ff;
+            --text-mid: #b9b9d0;
+            --accent: #818cf8;
+            --accent-hot: #ffe66d;
+            --ember: #ff6b3d;
+            --success: #4ade80;
+
+            /* Fluid type scale (bold minimalism: clamp() sizing) */
+            --fs-hero: clamp(2rem, 7vw, 5.5rem);
+            --fs-sub: clamp(1rem, 2.2vw, 1.5rem);
+            --fs-h2: clamp(1.4rem, 3.5vw, 2.6rem);
+            --fs-body: clamp(1rem, 1.4vw, 1.15rem);
+
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-hi);
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--accent); color: #fff; }
+
+        /* Keyboard focus (a11y: focus-visible only, 3px + offset) */
+        :focus-visible {
+            outline: 3px solid var(--accent-hot);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        /* ============================================================
+           Scroll progress indicator (scrollytelling pattern)
+           ============================================================ */
+        #scroll-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hot));
+            z-index: 50;
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        /* ============================================================
+           Animated ember background (Vanta-style, dependency-free)
+           ============================================================ */
+        #ember-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(5, 5, 12, 0.85) 100%);
+        }
+
+        main { position: relative; z-index: 2; }
+
+        /* ============================================================
+           HERO (immersive hero section pattern)
+           ============================================================ */
+        .hero {
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            position: relative;
+        }
+
+        .hero-kicker {
+            font-family: 'VT323', monospace;
+            font-size: var(--fs-sub);
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--ember);
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-title {
+            font-family: 'Press Start 2P', 'VT323', monospace;
+            font-size: var(--fs-hero);
+            line-height: 1.25;
+            text-shadow: 0 0 30px rgba(129, 140, 248, 0.55), 0 4px 0 rgba(0, 0, 0, 0.6);
+        }
+
+        /* Staggered letter reveal (anime.js-style stagger, pure CSS) */
+        .hero-title .ch {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(0.6em) rotate(6deg);
+            animation: ch-in 0.7s var(--ease-spring) forwards;
+            animation-delay: calc(var(--i) * 55ms + 200ms);
+        }
+
+        .hero-title .ch.space { width: 0.6em; }
+
+        @keyframes ch-in {
+            to { opacity: 1; transform: translateY(0) rotate(0); }
+        }
+
+        .hero-tag {
+            margin-top: 1.75rem;
+            max-width: 42rem;
+            font-size: var(--fs-sub);
+            color: var(--text-mid);
+            line-height: 1.6;
+            opacity: 0;
+            animation: fade-up 1s ease forwards;
+            animation-delay: 1.4s;
+        }
+
+        .hero-tag strong { color: var(--accent-hot); font-weight: 600; }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Magnetic CTA (cursor UX micro-interaction) */
+        .cta {
+            display: inline-block;
+            margin-top: 2.5rem;
+            padding: 1.1rem 2.75rem;
+            min-height: 48px;               /* touch target rule */
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            letter-spacing: 0.08em;
+            color: #0d0d1c;
+            background: linear-gradient(135deg, var(--accent-hot), #ffb03d);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 8px 30px rgba(255, 176, 61, 0.35);
+            transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease;
+            opacity: 0;
+            animation: fade-up 1s ease forwards;
+            animation-delay: 1.8s;
+            will-change: transform;
+        }
+
+        .cta:hover { box-shadow: 0 12px 44px rgba(255, 176, 61, 0.55); }
+        .cta:active { transform: scale(0.95); }  /* press state 0.95x */
+
+        .scroll-cue {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            translate: -50% 0;
+            font-family: 'VT323', monospace;
+            color: var(--text-mid);
+            font-size: 1.1rem;
+            opacity: 0;
+            animation: fade-up 1s ease forwards, bob 2.2s ease-in-out infinite;
+            animation-delay: 2.4s, 3s;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* ============================================================
+           SECTIONS + scroll reveals (AOS-style IntersectionObserver)
+           ============================================================ */
+        section { padding: clamp(4rem, 10vh, 7rem) 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+        .section-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: var(--fs-h2);
+            text-align: center;
+            margin-bottom: 0.75rem;
+            color: var(--text-hi);
+            text-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
+        }
+
+        .section-sub {
+            text-align: center;
+            color: var(--text-mid);
+            font-size: var(--fs-body);
+            max-width: 38rem;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(36px);
+            transition: opacity 0.7s ease, transform 0.7s var(--ease-spring);
+            transition-delay: calc(var(--d, 0) * 90ms);
+        }
+
+        .reveal.in { opacity: 1; transform: translateY(0); }
+
+        /* ============================================================
+           HERO CARDS (tilt gallery: vanilla-tilt pattern + glass)
+           ============================================================ */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            perspective: 1200px;
+        }
+
+        .tilt-card {
+            position: relative;
+            border-radius: 18px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(14px);        /* glassmorphism */
+            -webkit-backdrop-filter: blur(14px);
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: box-shadow 0.3s ease;
+            will-change: transform;
+        }
+
+        .tilt-card:hover { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(129, 140, 248, 0.18); }
+
+        .tilt-card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+            transform: translateZ(30px) scale(1.02);  /* depth layer */
+        }
+
+        .tilt-body {
+            padding: 1.25rem 1.25rem 1.5rem;
+            transform: translateZ(45px);              /* depth layer */
+        }
+
+        .tilt-body h3 {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            color: var(--accent-hot);
+            letter-spacing: 0.04em;
+        }
+
+        .tilt-body .cls { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.5rem; }
+        .tilt-body p { color: var(--text-mid); font-size: 0.95rem; line-height: 1.55; }
+
+        .glare {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.14) 48%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tilt-card:hover .glare { opacity: 1; }
+
+        /* ============================================================
+           STATS strip (animated data viz: count-up on scroll entry)
+           ============================================================ */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.25rem;
+            text-align: center;
+        }
+
+        .stat {
+            padding: 2rem 1rem;
+            border-radius: 16px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .stat .num {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(1.6rem, 4vw, 2.6rem);
+            color: var(--accent-hot);
+            display: block;
+            margin-bottom: 0.6rem;
+            text-shadow: 0 0 18px rgba(255, 230, 109, 0.4);
+        }
+
+        .stat .lbl {
+            font-family: 'VT323', monospace;
+            color: var(--text-mid);
+            font-size: 1.15rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* ============================================================
+           FOOTER CTA
+           ============================================================ */
+        .final-cta {
+            text-align: center;
+            padding-bottom: 6rem;
+        }
+
+        footer {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-mid);
+            font-family: 'VT323', monospace;
+            font-size: 1.05rem;
+            border-top: 1px solid rgba(129, 140, 248, 0.12);
+        }
+
+        /* Cursor follower ring (cursor UX: complements, never replaces) */
+        #cursor-ring {
+            position: fixed;
+            width: 36px; height: 36px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 60;
+            translate: -50% -50%;
+            transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease;
+            opacity: 0;
+        }
+
+        #cursor-ring.active { width: 56px; height: 56px; border-color: var(--accent-hot); }
+
+        @media (hover: none) and (pointer: coarse) {
+            #cursor-ring { display: none; }   /* off on touch devices */
+        }
+
+        /* ============================================================
+           Reduced motion: collapse everything (a11y rule)
+           ============================================================ */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html { scroll-behavior: auto; }
+            .reveal { opacity: 1; transform: none; }
+            #ember-canvas { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="scroll-progress" role="presentation"></div>
+    <canvas id="ember-canvas" aria-hidden="true"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="cursor-ring" aria-hidden="true"></div>
+
+    <main>
+        <!-- Immersive hero -->
+        <header class="hero">
+            <p class="hero-kicker">The Great Compiler has fallen</p>
+            <h1 class="hero-title" id="title" aria-label="Code of Meridaeia">Code of Meridaeia</h1>
+            <p class="hero-tag">
+                Learn <strong>Java, C++, networking, data engineering and kernel dev</strong>
+                by battling the monsters of corrupted code — and face
+                <strong>Marakathalessa</strong>, the Witch who stole the Ancient Logic.
+            </p>
+            <a class="cta" id="magnetic-cta" href="index.html">⚔️ Begin the Siege</a>
+            <p class="scroll-cue">▼ scroll to assemble your fellowship</p>
+        </header>
+
+        <!-- Tilt-card hero gallery -->
+        <section aria-labelledby="fellowship-h">
+            <h2 class="section-title reveal" id="fellowship-h">Assemble Your Fellowship</h2>
+            <p class="section-sub reveal" style="--d:1">
+                Five heroes. Five disciplines. Every battle is a real coding question —
+                answer true and your blade strikes; falter and your barrier cracks.
+            </p>
+            <div class="hero-grid">
+                <article class="tilt-card reveal" style="--d:1">
+                    <img src="assets/heroes/hero-grom-portrait.png" alt="Grom the Uncompiled, Barbarian Warrior" loading="lazy">
+                    <div class="tilt-body">
+                        <h3>Grom the Uncompiled</h3>
+                        <p class="cls">Barbarian Warrior · Java</p>
+                        <p>Master of the "Write Once, Crush Everywhere" arts. High resilience, brute force.</p>
+                    </div>
+                    <div class="glare"></div>
+                </article>
+                <article class="tilt-card reveal" style="--d:2">
+                    <img src="assets/heroes/hero-malloc-portrait.png" alt="Malloc the Void-Walker, Dark Wizard" loading="lazy">
+                    <div class="tilt-body">
+                        <h3>Malloc the Void-Walker</h3>
+                        <p class="cls">Dark Wizard · C++</p>
+                        <p>Wielder of volatile arcane memory. One slip leads to a Void Segfault.</p>
+                    </div>
+                    <div class="glare"></div>
+                </article>
+                <article class="tilt-card reveal" style="--d:3">
+                    <img src="assets/heroes/hero-handshake-portrait.png" alt="Ser Handshake, Knight Paladin" loading="lazy">
+                    <div class="tilt-body">
+                        <h3>Ser Handshake</h3>
+                        <p class="cls">Knight Paladin · Networking</p>
+                        <p>Guardian of the Great Gateway, restoring the Three-Way Handshake of light.</p>
+                    </div>
+                    <div class="glare"></div>
+                </article>
+                <article class="tilt-card reveal" style="--d:4">
+                    <img src="assets/heroes/hero-artemis-portrait.png" alt="Artemis the Stream-Caller, Knight Archer" loading="lazy">
+                    <div class="tilt-body">
+                        <h3>Artemis the Stream-Caller</h3>
+                        <p class="cls">Knight Archer · Data Engineering</p>
+                        <p>Purifier of the Corrupted Lakes. Her Pipeline of Arrows never misses.</p>
+                    </div>
+                    <div class="glare"></div>
+                </article>
+                <article class="tilt-card reveal" style="--d:5">
+                    <img src="assets/heroes/hero-vulkun-portrait.png" alt="Vulkun of Ring Zero, Dragonoid Mercenary" loading="lazy">
+                    <div class="tilt-body">
+                        <h3>Vulkun of Ring Zero</h3>
+                        <p class="cls">Dragonoid Mercenary · Kernel Dev</p>
+                        <p>Born from Silicon fires. Master of low-level Ring Zero magic.</p>
+                    </div>
+                    <div class="glare"></div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Count-up stats (scrollytelling data viz) -->
+        <section aria-labelledby="siege-h">
+            <h2 class="section-title reveal" id="siege-h">The Siege in Numbers</h2>
+            <p class="section-sub reveal" style="--d:1">Every number is earned in battle.</p>
+            <div class="stats">
+                <div class="stat reveal" style="--d:1"><span class="num" data-count="78">0</span><span class="lbl">Challenges</span></div>
+                <div class="stat reveal" style="--d:2"><span class="num" data-count="6">0</span><span class="lbl">Playable Heroes</span></div>
+                <div class="stat reveal" style="--d:3"><span class="num" data-count="15">0</span><span class="lbl">Story Chapters</span></div>
+                <div class="stat reveal" style="--d:4"><span class="num" data-count="1000">0</span><span class="lbl">Boss HP to Break</span></div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="final-cta">
+            <h2 class="section-title reveal">The Witch Awaits</h2>
+            <p class="section-sub reveal" style="--d:1">
+                Reclaim Valerion. Restore the Ancient Logic. Learn something real on the way.
+            </p>
+            <a class="cta reveal" style="--d:2; animation: none; opacity: 1;" href="index.html">🔥 Enter the Wasteland</a>
+        </section>
+    </main>
+
+    <footer>Code of Meridaeia · a retro RPG for learning real programming</footer>
+
+    <script>
+        /* ============================================================
+           Feature gates (perf rule: detect capability, scale down)
+           ============================================================ */
+        const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+        const isSmall = matchMedia('(max-width: 768px)').matches;
+
+        /* ============================================================
+           1. Hero title letter stagger (anime.js-style)
+           ============================================================ */
+        const title = document.getElementById('title');
+        const text = title.textContent;
+        title.textContent = '';
+        [...text].forEach((c, i) => {
+            const span = document.createElement('span');
+            span.className = 'ch' + (c === ' ' ? ' space' : '');
+            span.style.setProperty('--i', i);
+            span.textContent = c === ' ' ? ' ' : c;
+            span.setAttribute('aria-hidden', 'true');
+            title.appendChild(span);
+        });
+
+        /* ============================================================
+           2. Ember particle background (Vanta-style, canvas 2D)
+              - GPU-friendly: single canvas, rAF, alpha fades
+              - mobile: half the particles; hidden tab: paused
+           ============================================================ */
+        const canvas = document.getElementById('ember-canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, embers = [], rafId = null;
+
+        function sizeCanvas() {
+            W = canvas.width = innerWidth;
+            H = canvas.height = innerHeight;
+        }
+
+        function makeEmber() {
+            return {
+                x: Math.random() * W,
+                y: H + Math.random() * H * 0.3,
+                r: 1 + Math.random() * 2.5,
+                vy: 0.3 + Math.random() * 0.9,
+                vx: (Math.random() - 0.5) * 0.35,
+                hue: Math.random() < 0.7 ? 24 : 244,   // embers + arcane sparks
+                life: 0.4 + Math.random() * 0.6,
+                phase: Math.random() * Math.PI * 2
+            };
+        }
+
+        function initEmbers() {
+            const count = reducedMotion ? 0 : (isSmall ? 35 : 80);
+            embers = Array.from({ length: count }, makeEmber);
+        }
+
+        let mouseX = 0.5;
+        function drawEmbers(t) {
+            ctx.clearRect(0, 0, W, H);
+            const drift = (mouseX - 0.5) * 0.6;   // subtle mouse parallax
+            for (const e of embers) {
+                e.y -= e.vy;
+                e.x += e.vx + Math.sin(t / 900 + e.phase) * 0.25 + drift;
+                if (e.y < -10) Object.assign(e, makeEmber(), { y: H + 10 });
+
+                const flicker = 0.55 + 0.45 * Math.sin(t / 220 + e.phase);
+                const alpha = e.life * flicker * Math.min(1, e.y / (H * 0.25));
+                const g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.r * 4);
+                g.addColorStop(0, `hsla(${e.hue}, 95%, 65%, ${alpha})`);
+                g.addColorStop(1, `hsla(${e.hue}, 95%, 55%, 0)`);
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, e.r * 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            rafId = requestAnimationFrame(drawEmbers);
+        }
+
+        function startEmbers() {
+            if (!reducedMotion && rafId === null) rafId = requestAnimationFrame(drawEmbers);
+        }
+        function stopEmbers() {
+            if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+        }
+
+        sizeCanvas();
+        initEmbers();
+        startEmbers();
+        addEventListener('resize', () => { sizeCanvas(); initEmbers(); });
+        document.addEventListener('visibilitychange', () =>
+            document.hidden ? stopEmbers() : startEmbers());   // effect disposal rule
+        addEventListener('pointermove', e => { mouseX = e.clientX / W; }, { passive: true });
+
+        /* ============================================================
+           3. Scroll progress + AOS-style reveals (IntersectionObserver)
+           ============================================================ */
+        const progress = document.getElementById('scroll-progress');
+        addEventListener('scroll', () => {
+            const max = document.documentElement.scrollHeight - innerHeight;
+            progress.style.width = `${(scrollY / max) * 100}%`;
+        }, { passive: true });
+
+        const io = new IntersectionObserver(entries => {
+            for (const en of entries) {
+                if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+            }
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+        /* ============================================================
+           4. Count-up stats on scroll entry
+           ============================================================ */
+        const statIO = new IntersectionObserver(entries => {
+            for (const en of entries) {
+                if (!en.isIntersecting) continue;
+                statIO.unobserve(en.target);
+                const el = en.target, target = +el.dataset.count, t0 = performance.now();
+                const dur = reducedMotion ? 1 : 1400;
+                (function tick(now) {
+                    const p = Math.min(1, (now - t0) / dur);
+                    el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString();
+                    if (p < 1) requestAnimationFrame(tick);
+                })(t0);
+            }
+        }, { threshold: 0.6 });
+        document.querySelectorAll('.num[data-count]').forEach(el => statIO.observe(el));
+
+        /* ============================================================
+           5. Tilt cards (vanilla-tilt pattern: lerp spring, glare,
+              transform-only, disabled on touch)
+           ============================================================ */
+        if (!isTouch && !reducedMotion) {
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                let rx = 0, ry = 0, tx = 0, ty = 0, hovering = false, running = false;
+
+                function loop() {
+                    rx += (tx - rx) * 0.12;   // spring-ish lerp
+                    ry += (ty - ry) * 0.12;
+                    card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+                    if (hovering || Math.abs(rx) > 0.05 || Math.abs(ry) > 0.05) {
+                        requestAnimationFrame(loop);
+                    } else {
+                        card.style.transform = '';
+                        running = false;
+                    }
+                }
+
+                card.addEventListener('pointerenter', () => {
+                    hovering = true;
+                    if (!running) { running = true; requestAnimationFrame(loop); }
+                });
+                card.addEventListener('pointermove', e => {
+                    const r = card.getBoundingClientRect();
+                    ty = ((e.clientX - r.left) / r.width - 0.5) * 14;   // max tilt 7deg each way
+                    tx = -((e.clientY - r.top) / r.height - 0.5) * 14;
+                });
+                card.addEventListener('pointerleave', () => { hovering = false; tx = ty = 0; });
+            });
+        }
+
+        /* ============================================================
+           6. Magnetic CTA + cursor follower ring (cursor UX)
+           ============================================================ */
+        const cta = document.getElementById('magnetic-cta');
+        if (!isTouch && !reducedMotion) {
+            addEventListener('pointermove', e => {
+                const r = cta.getBoundingClientRect();
+                const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+                const dx = e.clientX - cx, dy = e.clientY - cy;
+                const dist = Math.hypot(dx, dy);
+                cta.style.transform = dist < 140
+                    ? `translate(${dx * 0.18}px, ${dy * 0.18}px)`
+                    : '';
+            }, { passive: true });
+
+            const ring = document.getElementById('cursor-ring');
+            let ringX = -100, ringY = -100, curX = -100, curY = -100;
+            addEventListener('pointermove', e => {
+                curX = e.clientX; curY = e.clientY;
+                ring.style.opacity = '0.7';
+            }, { passive: true });
+            (function ringLoop() {
+                ringX += (curX - ringX) * 0.16;   // delayed easing follower
+                ringY += (curY - ringY) * 0.16;
+                ring.style.left = ringX + 'px';
+                ring.style.top = ringY + 'px';
+                requestAnimationFrame(ringLoop);
+            })();
+            document.querySelectorAll('a, button, .tilt-card').forEach(el => {
+                el.addEventListener('pointerenter', () => ring.classList.add('active'));
+                el.addEventListener('pointerleave', () => ring.classList.remove('active'));
+            });
+        }
+    </script>
+</body>
+
+</html>
