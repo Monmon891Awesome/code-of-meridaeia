@@ -75,3 +75,48 @@
     addEventListener('resize', () => { sizeCanvas(); initEmbers(); });
     document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
 })();
+
+// 3D mouse-tracking tilt on the hero selection cards.
+// Desktop pointers only; touch devices and reduced-motion get none.
+(function () {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (reducedMotion || isTouch) return;
+
+    function attachTilt(card) {
+        let rx = 0, ry = 0, tx = 0, ty = 0, hovering = false, running = false;
+
+        function loop() {
+            rx += (tx - rx) * 0.14;
+            ry += (ty - ry) * 0.14;
+            card.style.transform =
+                `perspective(900px) translateY(-6px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+            if (hovering || Math.abs(rx) > 0.05 || Math.abs(ry) > 0.05) {
+                requestAnimationFrame(loop);
+            } else {
+                card.style.transform = '';
+                card.style.transition = '';
+                running = false;
+            }
+        }
+
+        card.addEventListener('pointerenter', () => {
+            hovering = true;
+            card.style.transition = 'box-shadow 0.3s ease';
+            if (!running) { running = true; requestAnimationFrame(loop); }
+        });
+        card.addEventListener('pointermove', (e) => {
+            const r = card.getBoundingClientRect();
+            ty = ((e.clientX - r.left) / r.width - 0.5) * 10;   // max ±5deg
+            tx = -((e.clientY - r.top) / r.height - 0.5) * 10;
+        });
+        card.addEventListener('pointerleave', () => {
+            hovering = false;
+            tx = ty = 0;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.category-card').forEach(attachTilt);
+    });
+})();

@@ -83,26 +83,42 @@
 
     <!-- Cinematic Intro -->
     <div id="intro-cinematic">
+        <!-- Letterbox bars (cinematic framing) -->
+        <div class="cinema-bar cinema-bar-top" aria-hidden="true"></div>
+        <div class="cinema-bar cinema-bar-bottom" aria-hidden="true"></div>
+
         <div class="intro-background">
             <img src="assets/environments/landscape-wasteland.png" alt="Wasteland" class="intro-bg-image">
             <div class="intro-overlay"></div>
         </div>
+
+        <!-- Cold open: "Destiny, awaits." -->
+        <div class="intro-coldopen" aria-hidden="true">
+            <p class="coldopen-line" style="--t: 0.8s">In the beginning, there was only the Code.</p>
+            <p class="coldopen-line" style="--t: 3.4s">And the Great Compiler watched over Meridaeia.</p>
+            <p class="coldopen-line" style="--t: 6s">Then came the corruption.</p>
+            <p class="coldopen-tagline">
+                <span class="coldopen-word" style="--t: 8.8s">Destiny,</span>
+                <span class="coldopen-word coldopen-awaits" style="--t: 10.2s">awaits.</span>
+            </p>
+        </div>
+
         <div class="intro-content">
-            <div class="intro-logo">
+            <div class="intro-logo" style="opacity: 0; animation: fadeInUp 1.6s forwards; animation-delay: 13s;">
                 <h1 class="intro-title">Code of Meridaeia</h1>
                 <p class="intro-subtitle">The Siege of Meridaeia</p>
             </div>
-            
+
             <div class="intro-story">
-                <p class="intro-text" style="animation-delay: 1s">The Great Compiler has fallen...</p>
-                <p class="intro-text" style="animation-delay: 3s">Valerion, your home, is but a whispering echo of ash.</p>
-                <p class="intro-text" style="animation-delay: 5s">Marakathalessa, the Witch of Corrupted Code, has stolen the Ancient Logic and retreated to her fortress in Meridaeia.</p>
-                <p class="intro-text" style="animation-delay: 7s">The land is plagued by syntax errors and memory leaks.</p>
-                <p class="intro-text" style="animation-delay: 9s">Only you can reclaim your heritage and restore order to the realm.</p>
-                <p class="intro-text intro-cta" style="animation-delay: 11s">Assemble your fellowship. The Siege begins now.</p>
+                <p class="intro-text" style="animation-delay: 14s">The Great Compiler has fallen...</p>
+                <p class="intro-text" style="animation-delay: 16s">Valerion, your home, is but a whispering echo of ash.</p>
+                <p class="intro-text" style="animation-delay: 18s">Marakathalessa, the Witch of Corrupted Code, has stolen the Ancient Logic and retreated to her fortress in Meridaeia.</p>
+                <p class="intro-text" style="animation-delay: 20s">The land is plagued by syntax errors and memory leaks.</p>
+                <p class="intro-text" style="animation-delay: 22s">Only you can reclaim your heritage and restore order to the realm.</p>
+                <p class="intro-text intro-cta" style="animation-delay: 24s">Assemble your fellowship. The Siege begins now.</p>
             </div>
-            
-            <button class="btn intro-btn" style="opacity: 0; animation: fadeInUp 2s forwards; animation-delay: 13s;" onclick="game.skipIntro()">
+
+            <button class="btn intro-btn" style="opacity: 0; animation: fadeInUp 2s forwards; animation-delay: 25s;" onclick="game.skipIntro()">
                 ⚔️ Enter the Wasteland
             </button>
         </div>
@@ -659,6 +675,10 @@
             <span class="icon" id="sound-toggle-icon">🔊</span>
             <span class="label">Sound</span>
         </button>
+        <button class="bottom-btn" id="music-toggle" onclick="gameMusic.toggleMute()" aria-label="Toggle background music">
+            <span class="icon" id="music-toggle-icon">🎵</span>
+            <span class="label">Music</span>
+        </button>
     </nav>
 
     <!-- Nav Toggle Button (Phase A - Mobile Only) -->
@@ -794,6 +814,7 @@
 
     <!-- Scripts - Load in correct order -->
     <script src="fx.js"></script>
+    <script src="music.js"></script>
     <script src="audio.js"></script>
     <script src="database.js"></script>
     <script src="shop-data.js"></script>

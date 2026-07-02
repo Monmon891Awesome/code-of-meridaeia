@@ -1452,8 +1452,8 @@ class CodeOfMeridaeiaGame {
             this.currentStreak = 0;
             virtueMsg = this.getRandomVirtueMessage('incorrect');
 
-            // Show hero hurt animation
-            this.playHurtAnimation('hero');
+            // Hero takes the hit at the monster's moment of impact
+            setTimeout(() => this.playHurtAnimation('hero'), 180);
             this.playSound('wrong');
         }
 
@@ -1477,29 +1477,49 @@ class CodeOfMeridaeiaGame {
         return messages[Math.floor(Math.random() * messages.length)];
     }
 
-    // Play attack animation (Pokemon-style)
+    // Play attack animation: 3D lunge on the battle portrait orb.
+    // Hero (left side) lunges right; monster (right side) mirrors.
     playAttackAnimation(who) {
+        const orb = document.getElementById(
+            who === 'hero' ? 'hero-portrait-orb' : 'monster-portrait-orb'
+        );
+        if (orb) {
+            const lungeClass = who === 'hero' ? 'orb-attack-right' : 'orb-attack-left';
+            orb.classList.remove('orb-attack-right', 'orb-attack-left', 'orb-hurt');
+            void orb.offsetWidth; // restart animation if re-triggered quickly
+            orb.classList.add(lungeClass);
+            setTimeout(() => orb.classList.remove(lungeClass), 550);
+        }
+
+        // Legacy sprite layout fallback
         const spriteContainer = document.getElementById(
             who === 'hero' ? 'hero-sprite-container' : 'monster-sprite-container'
         );
         if (spriteContainer) {
             spriteContainer.classList.add('attacking');
-            setTimeout(() => {
-                spriteContainer.classList.remove('attacking');
-            }, 400);
+            setTimeout(() => spriteContainer.classList.remove('attacking'), 400);
         }
     }
 
-    // Play hurt animation
+    // Play hurt animation: recoil shake + impact flash on the orb
     playHurtAnimation(who) {
+        const orb = document.getElementById(
+            who === 'hero' ? 'hero-portrait-orb' : 'monster-portrait-orb'
+        );
+        if (orb) {
+            orb.classList.remove('orb-attack-right', 'orb-attack-left', 'orb-hurt');
+            void orb.offsetWidth;
+            orb.classList.add('orb-hurt');
+            setTimeout(() => orb.classList.remove('orb-hurt'), 500);
+        }
+
+        // Legacy sprite layout fallback
         const spriteContainer = document.getElementById(
             who === 'hero' ? 'hero-sprite-container' : 'monster-sprite-container'
         );
         if (spriteContainer) {
             spriteContainer.classList.add('hurt');
-            setTimeout(() => {
-                spriteContainer.classList.remove('hurt');
-            }, 300);
+            setTimeout(() => spriteContainer.classList.remove('hurt'), 300);
         }
     }
 
@@ -2218,34 +2238,32 @@ class CodeOfMeridaeiaGame {
     // ============ COMBAT VISUAL FEEDBACK (Phase 2) ============
 
     showDamageNumber(damage) {
-        // Try new Pokemon-style damage element first
+        // Monster hurt reaction lands at the moment of "impact",
+        // mid-way through the hero's lunge
+        setTimeout(() => this.playHurtAnimation('monster'), 180);
+
+        // Pokemon-style damage element (if present in layout)
         const monsterDamage = document.getElementById('monster-damage');
         if (monsterDamage) {
             monsterDamage.textContent = `-${damage}`;
             monsterDamage.classList.remove('hidden');
-
-            // Play monster hurt animation
-            this.playHurtAnimation('monster');
-
-            // Hide after animation
-            setTimeout(() => {
-                monsterDamage.classList.add('hidden');
-            }, 1000);
+            setTimeout(() => monsterDamage.classList.add('hidden'), 1000);
             return;
         }
 
-        // Fallback to legacy monster-hud approach
-        const monsterHud = document.getElementById('monster-hud');
-        if (!monsterHud) return;
+        // Float a damage number over whichever monster anchor exists
+        // (portrait orb in the current layout, monster HUD in legacy)
+        const anchor = document.getElementById('monster-portrait-orb') ||
+            document.getElementById('monster-hud');
+        if (!anchor) return;
 
         const damageEl = document.createElement('div');
         damageEl.className = 'damage-number';
         damageEl.textContent = `-${damage}`;
 
-        // Position randomly around the monster HUD
-        const rect = monsterHud.getBoundingClientRect();
-        damageEl.style.left = `${rect.left + rect.width / 2 + (Math.random() - 0.5) * 100}px`;
-        damageEl.style.top = `${rect.top + rect.height / 2}px`;
+        const rect = anchor.getBoundingClientRect();
+        damageEl.style.left = `${rect.left + rect.width / 2 + (Math.random() - 0.5) * 60}px`;
+        damageEl.style.top = `${rect.top}px`;
 
         document.body.appendChild(damageEl);
 
