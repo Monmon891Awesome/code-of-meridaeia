@@ -376,6 +376,20 @@ h4 {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    /* Button reset (cards are <button> for keyboard/screen-reader access) */
+    font-family: inherit;
+    font-size: inherit;
+    color: var(--text-primary);
+    text-align: left;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.category-card:focus-visible,
+.chapter-card:focus-visible {
+    outline: 3px solid var(--accent-light);
+    outline-offset: 3px;
 }
 
 .category-card::before {
@@ -535,6 +549,13 @@ h4 {
     position: relative;
     overflow: hidden;
     text-align: center;
+    /* Button reset (cards are <button> for keyboard/screen-reader access) */
+    font-family: inherit;
+    font-size: inherit;
+    color: var(--text-primary);
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .chapter-card::before {
@@ -2314,6 +2335,11 @@ h4 {
 .portrait-orb {
     width: 70px;
     height: 70px;
+    /* Keep the orb round: never let the large portrait image
+       stretch this flex item beyond its fixed size */
+    flex: 0 0 70px;
+    min-width: 0;
+    max-width: 70px;
     border-radius: 50%;
     overflow: hidden;
     border: 3px solid var(--retro-gold);
@@ -2374,15 +2400,17 @@ h4 {
 /* Question Card (Center) */
 .question-card-bookworm {
     flex: 1;
-    max-width: 450px;
+    max-width: 640px;
     background: rgba(0, 0, 0, 0.75);
     border: 2px solid var(--retro-border);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    max-height: 100%;
 }
 
 .question-header-bookworm {
@@ -2409,6 +2437,13 @@ h4 {
 .timer-display {
     color: var(--retro-gold);
     font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+/* Last 10 seconds: pulse red */
+.timer-display.urgent {
+    color: var(--retro-danger);
+    animation: timer-pulse 0.5s infinite;
 }
 
 .question-text-bookworm {
@@ -2456,108 +2491,99 @@ h4 {
 }
 
 /* --- Card Hand (Poker-Style Fanned Answer Cards) --- */
+/* Answers are always readable (no hover-to-reveal) so touch and
+   keyboard players get the same information as mouse players. */
 .card-hand {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
     align-items: flex-end;
-    height: 140px;
-    padding: 0.25rem 1rem 0.5rem 1rem;
+    min-height: 170px;
+    padding: 0.5rem 1rem 0.75rem 1rem;
     perspective: 1000px;
     flex-shrink: 0;
+    gap: 0.25rem;
 }
 
 .answer-card {
-    width: 75px;
-    height: 105px;
+    width: clamp(120px, 20vw, 170px);
+    min-height: 130px;
+    padding: 0.6rem 0.5rem;
     background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);
     border: 2px solid var(--retro-border);
-    border-radius: 8px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 0.35rem;
     cursor: pointer;
     position: relative;
     transform-origin: bottom center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-left: -15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-}
-
-.answer-card:first-child {
-    margin-left: 0;
+    color: var(--text-primary);
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 /* Card fan rotation - default positions */
 .answer-card:nth-child(1) {
-    transform: rotate(-12deg);
+    transform: rotate(-6deg);
     z-index: 1;
 }
 
 .answer-card:nth-child(2) {
-    transform: rotate(-4deg);
+    transform: rotate(-2deg);
     z-index: 2;
 }
 
 .answer-card:nth-child(3) {
-    transform: rotate(4deg);
+    transform: rotate(2deg);
     z-index: 3;
 }
 
 .answer-card:nth-child(4) {
-    transform: rotate(12deg);
+    transform: rotate(6deg);
     z-index: 4;
 }
 
-/* Hover: Lift card from hand and reveal */
-.answer-card:hover {
-    transform: translateY(-50px) rotate(0deg) scale(1.15) !important;
+/* Hover / keyboard focus: lift card from hand */
+.answer-card:hover,
+.answer-card:focus-visible {
+    transform: translateY(-16px) rotate(0deg) scale(1.06) !important;
     z-index: 10 !important;
     border-color: var(--accent);
     box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
     background: linear-gradient(135deg, #3d3d5a 0%, #25254a 100%);
+    outline: none;
 }
 
-.answer-card:hover .card-answer-text {
-    opacity: 1;
-    max-height: 80px;
-}
-
-.answer-card:hover .card-hidden {
-    opacity: 0;
-    height: 0;
+.answer-card:focus-visible {
+    outline: 3px solid var(--accent-light);
+    outline-offset: 2px;
 }
 
 /* Card content */
 .card-letter {
     font-family: 'VT323', monospace;
-    font-size: 1.8rem;
-    color: var(--retro-gold);
-    margin-bottom: 0.25rem;
-}
-
-.card-hidden {
-    font-family: 'VT323', monospace;
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    transition: opacity 0.3s ease, height 0.3s ease;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--retro-accent);
+    border-bottom: 1px solid var(--retro-border);
+    width: 100%;
+    text-align: center;
+    padding-bottom: 0.25rem;
 }
 
 .card-answer-text {
-    position: absolute;
-    bottom: 8px;
-    left: 6px;
-    right: 6px;
-    font-size: 0.65rem;
+    font-size: 0.78rem;
     text-align: center;
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
     color: var(--text-primary);
-    line-height: 1.3;
+    line-height: 1.35;
     word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Selected/correct/incorrect card states */
@@ -2611,6 +2637,21 @@ h4 {
     40%,
     80% {
         transform: translateX(8px) rotate(2deg);
+    }
+}
+
+/* Keyboard shortcut tip (hidden on touch-only devices) */
+.keyboard-tip {
+    text-align: center;
+    font-family: 'VT323', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding-bottom: 0.5rem;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .keyboard-tip {
+        display: none;
     }
 }
 
@@ -2877,7 +2918,9 @@ h4 {
     border-radius: 0;
 }
 
-.timer-display {
+/* Scoped to the legacy battle-top-bar layout only, so the
+   bookworm question-card timer keeps its plain gold style */
+.battle-top-bar .timer-display {
     display: flex;
     align-items: center;
     gap: 0.3rem;
@@ -6116,22 +6159,24 @@ body:has(#game-area:not(.hidden)) .nav-toggle-btn {
     max-width: 300px;
 }
 
-/* Show landscape prompt on portrait mobile */
+/* Suggest landscape on portrait mobile, but let players continue
+   in portrait - the card grid layout works fine vertically */
 @media (max-width: 768px) and (orientation: portrait) {
-    .landscape-prompt {
+    body:not(.portrait-ok) .landscape-prompt {
         display: flex;
     }
 
-    .app-container,
-    .bottom-bar,
-    #intro-cinematic {
+    body:not(.portrait-ok) .app-container,
+    body:not(.portrait-ok) .bottom-bar,
+    body:not(.portrait-ok) #intro-cinematic {
         display: none !important;
     }
 }
 
-/* A4. Skip Intro Hidden */
+/* A4. Skip Intro button stays visible so returning players
+   aren't forced to wait ~13s for the intro to finish */
 .skip-intro {
-    display: none !important;
+    display: block;
 }
 
 /* Additional responsive improvements */

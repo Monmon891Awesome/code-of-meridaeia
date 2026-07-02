@@ -226,12 +226,17 @@ class LeaderboardManager {
     /**
      * Get player rank from local IndexedDB data (fallback)
      */
-    getLocalPlayerRank(type) {
-        const profile = codeQuestDB ? codeQuestDB.getUserProfile() : null;
-        
+    async getLocalPlayerRank(type) {
+        let profile = null;
+        try {
+            profile = typeof codeQuestDB !== 'undefined' ? await codeQuestDB.getUserProfile() : null;
+        } catch (e) {
+            console.warn('Could not load local profile for rank:', e);
+        }
+
         let value = 0;
-        if (type === 'xp') value = profile?.totalXP || 0;
-        if (type === 'gold') value = profile?.totalGold || 0;
+        if (type === 'xp') value = profile?.xp || 0;
+        if (type === 'gold') value = profile?.gold || 0;
         if (type === 'monsters') value = profile?.monstersDefeated || 0;
 
         return {
