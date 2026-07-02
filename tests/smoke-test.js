@@ -84,6 +84,25 @@ function check(label, ok, detail = '') {
         check('username saved from modal',
             await page.evaluate(() => game.userProfile.username) === 'SmokeTester');
 
+        console.log('1.5 Hero wheel');
+        check('wheel renders 7 medallions',
+            (await page.$$('#hero-wheel .wheel-medallion')).length === 7);
+        check('locked heroes are sealed silhouettes',
+            (await page.$$('#hero-wheel .wheel-medallion.locked')).length === 2);
+        const idxBefore = await page.evaluate(() => game.wheelIndex);
+        await page.keyboard.press('ArrowRight');
+        await page.waitForTimeout(300);
+        check('arrow key spins the wheel',
+            await page.evaluate(() => game.wheelIndex) === (idxBefore + 1) % 7);
+        await page.evaluate(() => { game.wheelIndex = 0; game.renderHeroWheel(); });
+        await page.waitForTimeout(300);
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(400);
+        check('Enter confirms wheel selection (chapter select opens)',
+            await page.isVisible('#chapter-select'));
+        await page.evaluate(() => game.backToHeroSelect());
+        await page.waitForTimeout(300);
+
         console.log('2. Chapter flow');
         await page.evaluate(() => { game.selectCategory('java'); game.selectChapter(1); game.closeStory(); });
         await page.waitForTimeout(400);
@@ -168,6 +187,22 @@ function check(label, ok, detail = '') {
         await page.waitForTimeout(400);
         check('boss defeats player at 0 barrier',
             (await page.textContent('.results-card h2')).includes('Barrier'));
+
+        console.log('7.5 Loot drop on monster kill');
+        await page.evaluate(() => {
+            document.getElementById('results-screen').classList.add('hidden');
+            game.selectCategory('java'); game.selectChapter(1); game.closeStory();
+        });
+        await page.waitForTimeout(400);
+        await page.evaluate(() => { game.currentMonsterHP = 25; }); // next hit kills
+        const lootCi = await page.evaluate(() => game.currentCorrectIndex);
+        await (await page.$$('#options-container .answer-card'))[lootCi].click();
+        await page.waitForTimeout(900);
+        const lootToast = await page.$('.loot-toast');
+        check('loot drop toast appeared with rarity', lootToast !== null,
+            lootToast ? await lootToast.getAttribute('class') : 'none');
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(300);
 
         console.log('8. Music radio and FX wiring');
         check('wasteland radio loaded with 4 tracks',
