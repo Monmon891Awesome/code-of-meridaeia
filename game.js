@@ -952,6 +952,8 @@ class CodeOfMeridaeiaGame {
             document.getElementById('code-content').textContent = this.currentQuestion.code;
             if (codeBlockContainer) {
                 codeBlockContainer.style.display = 'block';
+                // Code is essential to answering - show it expanded by default
+                codeBlockContainer.open = true;
             }
             if (codeBlockLegacy) {
                 codeBlockLegacy.classList.remove('hidden');
@@ -1462,7 +1464,11 @@ class CodeOfMeridaeiaGame {
         }
 
         explanation.textContent = this.currentQuestion.explanation;
-        document.getElementById('next-btn').classList.remove('hidden');
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.classList.remove('hidden');
+        // Focus the continue button so Enter/Space work immediately
+        // and screen readers land on the next action
+        nextBtn.focus();
     }
 
     // Get random virtue message for biblical values integration

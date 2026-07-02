@@ -1576,6 +1576,14 @@ h4 {
     z-index: 1;
 }
 
+/* Exception: the feedback overlay must stay absolutely positioned
+   over the battle area even when an environment class is active,
+   otherwise it falls into the page flow below the answer cards */
+#game-area[class*="env-"]>.feedback-overlay-bookworm {
+    position: absolute;
+    z-index: 100;
+}
+
 /* ============ BATTLE HEADER ============ */
 .battle-header {
     display: flex;
@@ -2240,8 +2248,10 @@ h4 {
 .bookworm-battle-layout {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 140px);
-    max-height: 650px;
+    /* Fill the viewport, but grow with content (long code problems)
+       instead of clipping them - the page scrolls when needed */
+    min-height: calc(100vh - 160px);
+    height: auto;
     background: linear-gradient(180deg, #0a0a18 0%, #12122a 50%, #0a0a14 100%);
     border: 3px solid var(--retro-border);
     border-radius: 8px;
@@ -2324,11 +2334,11 @@ h4 {
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    flex: 1;
-    max-height: 35vh;
-    min-height: 0;
+    /* Grow into spare space, but never shrink below the question
+       content - long code problems expand the layout instead of
+       overlapping the HP bar and answer cards */
+    flex: 1 0 auto;
     padding: 0.25rem;
-    overflow: hidden;
 }
 
 /* Portrait Orbs */
@@ -2409,8 +2419,6 @@ h4 {
     flex-direction: column;
     gap: 0.6rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    overflow-y: auto;
-    max-height: 100%;
 }
 
 .question-header-bookworm {
@@ -2463,8 +2471,8 @@ h4 {
 .code-expander summary {
     padding: 0.5rem 0.75rem;
     cursor: pointer;
-    color: var(--accent);
-    font-size: 0.9rem;
+    color: var(--accent-light);
+    font-size: 1rem;
 }
 
 .code-expander summary:hover {
@@ -2476,18 +2484,20 @@ h4 {
 }
 
 .code-block-inner {
-    padding: 0.75rem;
+    padding: 1rem;
     background: #0d1117;
     border-radius: 0 0 6px 6px;
     overflow-x: auto;
     font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: 0.85rem;
+    font-size: 1rem;
+    line-height: 1.55;
     color: #e6edf3;
     margin: 0;
-    max-height: 180px;
+    max-height: 320px;
     overflow-y: auto;
     border: 1px solid rgba(99, 102, 241, 0.3);
     border-top: none;
+    tab-size: 4;
 }
 
 /* --- Card Hand (Poker-Style Fanned Answer Cards) --- */
@@ -2730,20 +2740,33 @@ h4 {
 }
 
 .btn-continue-bookworm {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 0.75rem auto 0;
     background: var(--accent);
     border: 3px solid var(--accent-light);
     color: white;
-    padding: 0.75rem 2rem;
+    padding: 0.9rem 2rem;
     font-family: 'VT323', monospace;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
+    letter-spacing: 1px;
     cursor: pointer;
     border-radius: 8px;
     transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
 }
 
-.btn-continue-bookworm:hover {
+.btn-continue-bookworm:hover,
+.btn-continue-bookworm:focus-visible {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+    background: var(--accent-light);
+}
+
+.btn-continue-bookworm:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 2px;
 }
 
 /* --- Lore Modals (Hero & Monster) --- */
@@ -4063,22 +4086,16 @@ h4 {
     font-size: 0.9rem;
 }
 
-/* Feedback */
-#feedback-container {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    border-radius: var(--radius-md);
-    background: var(--bg-glass);
+/* Feedback result tint goes on the inner content card, not the
+   full-screen overlay (legacy inline-feedback styles removed) */
+#feedback-container.correct .feedback-content-bookworm {
+    border-color: var(--success);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.25);
 }
 
-#feedback-container.correct {
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid var(--success);
-}
-
-#feedback-container.incorrect {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid var(--error);
+#feedback-container.incorrect .feedback-content-bookworm {
+    border-color: var(--error);
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.25);
 }
 
 .feedback-header {
