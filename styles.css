@@ -940,7 +940,7 @@ h4 {
 
 /* ============ BOSS FIGHT AREA ============ */
 #boss-fight-area {
-    max-width: 900px;
+    max-width: min(1100px, 96vw);
     margin: 0 auto;
     padding: 2rem;
 }
@@ -1507,7 +1507,7 @@ h4 {
 
 /* ============ GAME AREA ============ */
 #game-area {
-    max-width: 900px;
+    max-width: min(1280px, 96vw);
     margin: 0 auto;
     position: relative;
     padding: 1rem;
@@ -2117,7 +2117,7 @@ h4 {
 }
 
 .virtue-feedback-text {
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: var(--retro-secondary);
     font-style: italic;
     margin-bottom: 0.75rem;
@@ -2129,11 +2129,12 @@ h4 {
 }
 
 .explanation-text {
-    font-size: 0.9rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
     color: var(--text-secondary);
     margin-bottom: 1.25rem;
     text-align: left;
-    max-height: 100px;
+    max-height: 240px;
     overflow-y: auto;
     line-height: 1.5;
 }
@@ -2286,7 +2287,7 @@ h4 {
 
 .combatant-name {
     font-family: 'VT323', monospace;
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--retro-gold);
     text-transform: uppercase;
     min-width: 70px;
@@ -2295,8 +2296,8 @@ h4 {
 
 .hp-bar-slim {
     flex: 1;
-    max-width: 120px;
-    height: 10px;
+    max-width: 220px;
+    height: 14px;
     background: rgba(0, 0, 0, 0.6);
     border: 2px solid var(--retro-border);
     border-radius: 5px;
@@ -2410,7 +2411,7 @@ h4 {
 /* Question Card (Center) */
 .question-card-bookworm {
     flex: 1;
-    max-width: 640px;
+    max-width: 720px;
     background: rgba(0, 0, 0, 0.75);
     border: 2px solid var(--retro-border);
     border-radius: 12px;
@@ -2455,8 +2456,8 @@ h4 {
 }
 
 .question-text-bookworm {
-    font-size: 0.95rem;
-    line-height: 1.5;
+    font-size: 1.1rem;
+    line-height: 1.55;
     color: var(--text-primary);
 }
 
@@ -2508,17 +2509,17 @@ h4 {
     flex-wrap: nowrap;
     justify-content: center;
     align-items: flex-end;
-    min-height: 170px;
+    min-height: 190px;
     padding: 0.5rem 1rem 0.75rem 1rem;
     perspective: 1000px;
     flex-shrink: 0;
-    gap: 0.25rem;
+    gap: 0.4rem;
 }
 
 .answer-card {
-    width: clamp(120px, 20vw, 170px);
-    min-height: 130px;
-    padding: 0.6rem 0.5rem;
+    width: clamp(150px, 19vw, 230px);
+    min-height: 150px;
+    padding: 0.75rem 0.6rem;
     background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);
     border: 2px solid var(--retro-border);
     border-radius: 10px;
@@ -2578,20 +2579,20 @@ h4 {
 /* Card content */
 .card-letter {
     font-family: 'VT323', monospace;
-    font-size: 1.6rem;
+    font-size: 1.9rem;
     line-height: 1;
     color: var(--retro-accent);
     border-bottom: 1px solid var(--retro-border);
     width: 100%;
     text-align: center;
-    padding-bottom: 0.25rem;
+    padding-bottom: 0.3rem;
 }
 
 .card-answer-text {
-    font-size: 0.78rem;
+    font-size: 0.95rem;
     text-align: center;
     color: var(--text-primary);
-    line-height: 1.35;
+    line-height: 1.4;
     word-wrap: break-word;
     overflow-wrap: anywhere;
 }
@@ -2675,9 +2676,9 @@ h4 {
 }
 
 .action-btn-bookworm {
-    padding: 0.5rem 1.25rem;
+    padding: 0.65rem 1.6rem;
     font-family: 'VT323', monospace;
-    font-size: 1rem;
+    font-size: 1.2rem;
     border: 2px solid var(--retro-border);
     border-radius: 6px;
     cursor: pointer;
@@ -6225,4 +6226,105 @@ body:has(#game-area:not(.hidden)) .nav-toggle-btn {
 img {
     max-width: 100%;
     height: auto;
+}
+/* ============ LARGE SCREENS: SCALE UP THE BATTLE ============ */
+/* On big displays the game should fill the space, not float
+   small in the middle of it */
+@media (min-width: 1440px) {
+    .app-container {
+        max-width: 1440px;
+    }
+
+    .question-card-bookworm {
+        max-width: 860px;
+    }
+
+    .question-text-bookworm {
+        font-size: 1.3rem;
+    }
+
+    .code-block-inner {
+        font-size: 1.1rem;
+    }
+
+    .code-expander summary {
+        font-size: 1.15rem;
+    }
+
+    .timer-display {
+        font-size: 1.35rem;
+    }
+
+    .difficulty-badge {
+        font-size: 0.9rem;
+    }
+
+    .question-counter {
+        font-size: 1.15rem;
+    }
+
+    .answer-card {
+        width: clamp(190px, 16vw, 280px);
+        min-height: 175px;
+        padding: 1rem 0.75rem;
+    }
+
+    .card-hand {
+        min-height: 215px;
+        gap: 0.6rem;
+    }
+
+    .card-letter {
+        font-size: 2.2rem;
+    }
+
+    .card-answer-text {
+        font-size: 1.1rem;
+    }
+
+    .portrait-orb {
+        width: 96px;
+        height: 96px;
+        flex: 0 0 96px;
+        max-width: 96px;
+    }
+
+    .combatant-name {
+        font-size: 1.4rem;
+    }
+
+    .hp-bar-slim {
+        max-width: 300px;
+        height: 16px;
+    }
+
+    .action-btn-bookworm {
+        font-size: 1.4rem;
+        padding: 0.8rem 2rem;
+    }
+
+    .keyboard-tip {
+        font-size: 1rem;
+    }
+
+    .feedback-content-bookworm {
+        width: min(780px, 90%);
+    }
+
+    .feedback-title-big {
+        font-size: 1.4rem;
+    }
+
+    .virtue-feedback-text {
+        font-size: 1.25rem;
+    }
+
+    .explanation-text {
+        font-size: 1.2rem;
+    }
+
+    .btn-continue-bookworm {
+        font-size: 1.6rem;
+        max-width: 520px;
+    }
 }
