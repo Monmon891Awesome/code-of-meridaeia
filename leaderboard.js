@@ -1,22 +1,37 @@
 // Code of Meridaeia - Leaderboard System
-// Phase 4: Global Leaderboard with Supabase Integration
+// Global leaderboard on Supabase: reads the top 100 and, unlike the old
+// version, actually SUBMITS scores. No login needed - each browser holds a
+// random player id in localStorage and upserts its own row.
 
-// Supabase Configuration
-const SUPABASE_URL = 'https://rocvmzuccptzypnensyu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvY3ZtenVjY3B0enlwbmVuc3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3NjQ5MTYsImV4cCI6MjA4MjM0MDkxNn0.7StbxpyMHhAeIOp-v9_3813qgjKG4aX20PVMbA_UrBI';
+// ============ CONFIG - paste your NEW Supabase project here ============
+// 1. Create a project at https://supabase.com/dashboard
+// 2. SQL Editor -> run supabase-setup.sql (in this repo)
+// 3. Settings -> API -> copy "Project URL" and the "anon public" key below
+const LEADERBOARD_CONFIG = {
+    url: 'PASTE_YOUR_NEW_SUPABASE_URL',        // e.g. 'https://abcdefgh.supabase.co'
+    anonKey: 'PASTE_YOUR_NEW_ANON_PUBLIC_KEY'  // the long 'eyJ...' anon key (safe to ship - RLS protects the data)
+};
+// =======================================================================
 
-// Initialize Supabase client (using CDN)
+const LEADERBOARD_TABLE = 'leaderboard';
+
+function isLeaderboardConfigured() {
+    return LEADERBOARD_CONFIG.url.startsWith('https://') &&
+        LEADERBOARD_CONFIG.anonKey.length > 40;
+}
+
+// Initialize Supabase client (library comes from the CDN script tag)
 let supabaseClient = null;
 
-// Initialize Supabase when script loads
 async function initSupabase() {
+    if (!isLeaderboardConfigured()) return false;
     if (typeof window.supabase === 'undefined') {
         console.warn('Supabase library not loaded yet, will retry...');
         return false;
     }
-    
     if (!supabaseClient) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(
+            LEADERBOARD_CONFIG.url, LEADERBOARD_CONFIG.anonKey);
         console.log('✅ Supabase client initialized for leaderboard');
     }
     return true;
@@ -25,13 +40,71 @@ async function initSupabase() {
 class LeaderboardManager {
     constructor() {
         this.currentTab = 'xp';
-        this.cachedData = {
-            xp: null,
-            gold: null,
-            monsters: null,
-            lastFetch: null
-        };
+        this.cachedData = { xp: null, gold: null, monsters: null, lastFetch: null };
         this.CACHE_DURATION = 30000; // 30 seconds cache
+        this._submitTimer = null;
+        this._lastSubmitted = null;
+    }
+
+    // ============ PLAYER IDENTITY (no login required) ============
+    // A random UUID minted once per browser. It is the row key on the
+    // leaderboard - keep localStorage and you keep your entry.
+    getPlayerId() {
+        let id = null;
+        try { id = localStorage.getItem('meridaeia_player_id'); } catch (_) { /* private mode */ }
+        if (!id) {
+            id = (crypto.randomUUID) ? crypto.randomUUID() :
+                'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                    const r = Math.random() * 16 | 0;
+                    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+            try { localStorage.setItem('meridaeia_player_id', id); } catch (_) { /* ok */ }
+        }
+        return id;
+    }
+
+    // ============ SCORE SUBMISSION ============
+    // Called by the game after kills, level-ups, and run ends. Debounced so
+    // a burst of kills becomes a single network write.
+    queueSubmit(profile) {
+        if (!profile || !isLeaderboardConfigured()) return;
+        clearTimeout(this._submitTimer);
+        this._submitTimer = setTimeout(() => this.submitScore(profile), 4000);
+    }
+
+    async submitScore(profile) {
+        try {
+            if (!(await initSupabase())) return;
+
+            const row = {
+                player_id: this.getPlayerId(),
+                username: String(profile.username || 'Adventurer').slice(0, 24),
+                total_xp: Math.max(0, Math.floor(profile.xp || 0)),
+                total_gold: Math.max(0, Math.floor(profile.gold || 0)),
+                total_monsters_defeated: Math.max(0, Math.floor(profile.monstersDefeated || 0)),
+                level: Math.max(1, Math.floor(profile.level || 1))
+            };
+
+            // Skip the write if nothing changed since the last submit
+            const snapshot = JSON.stringify(row);
+            if (snapshot === this._lastSubmitted) return;
+
+            const { error } = await supabaseClient
+                .from(LEADERBOARD_TABLE)
+                .upsert(row, { onConflict: 'player_id' });
+
+            if (error) {
+                // The guard trigger rejects decreases (e.g. after a profile
+                // reset); that's expected - the board keeps your best run.
+                console.warn('Leaderboard submit rejected:', error.message);
+                return;
+            }
+            this._lastSubmitted = snapshot;
+            this.cachedData.lastFetch = null; // next open refetches
+            console.log('🏆 Score submitted to the leaderboard');
+        } catch (err) {
+            console.warn('Leaderboard submit failed:', err);
+        }
     }
 
     /**
@@ -39,25 +112,26 @@ class LeaderboardManager {
      */
     async showLeaderboard(type = 'xp') {
         this.currentTab = type;
-        
-        // Ensure Supabase is initialized
+
+        // Show modal first so feedback is instant
+        const modal = document.getElementById('leaderboard-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('active');
+        }
+        this.setActiveTab(type);
+
+        if (!isLeaderboardConfigured()) {
+            this.showError('The global leaderboard is not set up yet. (Dev: run supabase-setup.sql and fill LEADERBOARD_CONFIG in leaderboard.js.)');
+            return;
+        }
+
         const isReady = await initSupabase();
         if (!isReady) {
             this.showError('Leaderboard service is initializing. Please try again in a moment.');
             return;
         }
 
-        // Show modal
-        const modal = document.getElementById('leaderboard-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('active');
-        }
-
-        // Set active tab
-        this.setActiveTab(type);
-
-        // Load leaderboard data
         await this.loadLeaderboard(type);
     }
 
@@ -78,6 +152,7 @@ class LeaderboardManager {
     async switchTab(type) {
         this.currentTab = type;
         this.setActiveTab(type);
+        if (!isLeaderboardConfigured()) return;
         await this.loadLeaderboard(type);
     }
 
@@ -104,7 +179,7 @@ class LeaderboardManager {
 
             // Check cache first
             const now = Date.now();
-            if (this.cachedData[type] && this.cachedData.lastFetch && 
+            if (this.cachedData[type] && this.cachedData.lastFetch &&
                 (now - this.cachedData.lastFetch < this.CACHE_DURATION)) {
                 console.log('📦 Using cached leaderboard data');
                 this.displayLeaderboard(this.cachedData[type], type);
@@ -114,7 +189,7 @@ class LeaderboardManager {
 
             // Fetch fresh data
             const leaderboardData = await this.fetchLeaderboard(type);
-            
+
             // Cache the data
             this.cachedData[type] = leaderboardData;
             this.cachedData.lastFetch = now;
@@ -146,9 +221,8 @@ class LeaderboardManager {
 
         // Fetch top 100 players
         const { data, error } = await supabaseClient
-            .from('player_profiles')
+            .from(LEADERBOARD_TABLE)
             .select('username, total_xp, total_gold, total_monsters_defeated, created_at')
-            .eq('leaderboard_visible', true)
             .order(orderColumn, { ascending: false })
             .limit(100);
 
@@ -161,49 +235,35 @@ class LeaderboardManager {
     }
 
     /**
-     * Get the current player's rank
+     * Get the current player's rank: count players with a higher submitted
+     * score than ours. No login needed - our own row is keyed by player id.
      */
     async getPlayerRank(type) {
+        const local = await this.getLocalPlayerValue(type);
+
         if (!supabaseClient) {
-            return { rank: '?', value: 0 };
+            return { rank: '?', value: local };
         }
 
         try {
-            // Get current user
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            
-            if (!user) {
-                // User not logged in, use local data
-                return this.getLocalPlayerRank(type);
+            // Our submitted row (may lag local play by one debounce window)
+            const { data: mine } = await supabaseClient
+                .from(LEADERBOARD_TABLE)
+                .select('total_xp, total_gold, total_monsters_defeated')
+                .eq('player_id', this.getPlayerId())
+                .maybeSingle();
+
+            if (!mine) {
+                return { rank: '?', value: local };
             }
 
-            // Get player profile
-            const { data: profile, error: profileError } = await supabaseClient
-                .from('player_profiles')
-                .select('id, total_xp, total_gold, total_monsters_defeated')
-                .eq('user_id', user.id)
-                .single();
-
-            if (profileError || !profile) {
-                console.warn('Could not fetch player profile:', profileError);
-                return this.getLocalPlayerRank(type);
-            }
-
-            // Determine column to compare
             let column = 'total_xp';
-            let playerValue = profile.total_xp;
-            if (type === 'gold') {
-                column = 'total_gold';
-                playerValue = profile.total_gold;
-            }
-            if (type === 'monsters') {
-                column = 'total_monsters_defeated';
-                playerValue = profile.total_monsters_defeated;
-            }
+            let playerValue = mine.total_xp;
+            if (type === 'gold') { column = 'total_gold'; playerValue = mine.total_gold; }
+            if (type === 'monsters') { column = 'total_monsters_defeated'; playerValue = mine.total_monsters_defeated; }
 
-            // Count how many players have a higher score
             const { count, error: countError } = await supabaseClient
-                .from('player_profiles')
+                .from(LEADERBOARD_TABLE)
                 .select('*', { count: 'exact', head: true })
                 .gt(column, playerValue);
 
@@ -219,14 +279,14 @@ class LeaderboardManager {
 
         } catch (error) {
             console.error('Error getting player rank:', error);
-            return this.getLocalPlayerRank(type);
+            return { rank: '?', value: local };
         }
     }
 
     /**
-     * Get player rank from local IndexedDB data (fallback)
+     * Current value from the local profile (used before the first submit)
      */
-    async getLocalPlayerRank(type) {
+    async getLocalPlayerValue(type) {
         let profile = null;
         try {
             profile = typeof codeQuestDB !== 'undefined' ? await codeQuestDB.getUserProfile() : null;
@@ -234,15 +294,9 @@ class LeaderboardManager {
             console.warn('Could not load local profile for rank:', e);
         }
 
-        let value = 0;
-        if (type === 'xp') value = profile?.xp || 0;
-        if (type === 'gold') value = profile?.gold || 0;
-        if (type === 'monsters') value = profile?.monstersDefeated || 0;
-
-        return {
-            rank: '?',
-            value: value
-        };
+        if (type === 'gold') return profile?.gold || 0;
+        if (type === 'monsters') return profile?.monstersDefeated || 0;
+        return profile?.xp || 0;
     }
 
     /**
@@ -267,7 +321,7 @@ class LeaderboardManager {
             const rank = index + 1;
             let value = player.total_xp;
             let icon = '⭐';
-            
+
             if (type === 'gold') {
                 value = player.total_gold;
                 icon = '💰';
@@ -286,7 +340,7 @@ class LeaderboardManager {
                 <div class="leaderboard-row ${rank <= 3 ? 'top-rank' : ''}" data-rank="${rank}">
                     <span class="rank-badge">${rankDisplay}</span>
                     <span class="player-name">${this.escapeHtml(player.username)}</span>
-                    <span class="player-score">${icon} ${value.toLocaleString()}</span>
+                    <span class="player-score">${icon} ${(value || 0).toLocaleString()}</span>
                 </div>
             `;
         }).join('');
@@ -319,7 +373,7 @@ class LeaderboardManager {
                 <span class="rank-value">#${rank}</span>
             </div>
             <div class="your-score">
-                <span>${icon} ${value.toLocaleString()} ${label}</span>
+                <span>${icon} ${(value || 0).toLocaleString()} ${label}</span>
             </div>
         `;
     }

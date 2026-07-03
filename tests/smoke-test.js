@@ -221,6 +221,28 @@ function check(label, ok, detail = '') {
         await page.keyboard.press('Enter');
         await page.waitForTimeout(300);
 
+        console.log('7.7 Leaderboard submission pipeline');
+        check('monster kill incremented lifetime counter',
+            await page.evaluate(() => (game.userProfile.monstersDefeated || 0) >= 1));
+        check('leaderboard submit API wired', await page.evaluate(() =>
+            typeof leaderboard.queueSubmit === 'function' &&
+            typeof leaderboard.submitScore === 'function'));
+        check('player id minted and persisted', await page.evaluate(() => {
+            const id = leaderboard.getPlayerId();
+            return /^[0-9a-f-]{36}$/.test(id) &&
+                localStorage.getItem('meridaeia_player_id') === id;
+        }));
+        // The board must render something sane whether or not Supabase is
+        // configured (friendly setup notice, loading, rows, or empty state)
+        await page.evaluate(() => leaderboard.showLeaderboard('xp'));
+        await page.waitForTimeout(600);
+        check('leaderboard modal renders without crashing',
+            await page.evaluate(() => {
+                const el = document.getElementById('leaderboard-list');
+                return !!el && el.textContent.trim().length > 0;
+            }));
+        await page.evaluate(() => leaderboard.closeLeaderboard());
+
         console.log('8. Music radio and FX wiring');
         check('wasteland radio loaded with 4 tracks',
             await page.evaluate(() => typeof gameMusic !== 'undefined' && gameMusic.tracks.length === 4));

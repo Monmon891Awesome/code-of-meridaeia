@@ -987,6 +987,10 @@ class CodeOfMeridaeiaGame {
         codeQuestDB.trackEvent('boss_defeated', {
             type: this.userProfile.bossDefeated
         });
+
+        // A slain boss counts on the Monsters tab too - and is worth shouting about
+        this.userProfile.monstersDefeated = (this.userProfile.monstersDefeated || 0) + 1;
+        if (window.leaderboard) leaderboard.queueSubmit(this.userProfile);
     }
 
     bossFightLost(reason) {
@@ -1720,6 +1724,10 @@ class CodeOfMeridaeiaGame {
         // Banked per-answer gold + the loot drop
         this.userProfile.gold = (this.userProfile.gold || 0) + this.goldEarned + loot.gold;
 
+        // Lifetime kill counter feeds the global leaderboard's Monsters tab
+        this.userProfile.monstersDefeated = (this.userProfile.monstersDefeated || 0) + 1;
+        if (window.leaderboard) leaderboard.queueSubmit(this.userProfile);
+
         // Increment story progress and update environment
         this.userProfile.storyProgress = (this.userProfile.storyProgress || 0) + 20;
         this.updateEnvironmentByProgress();
@@ -1953,6 +1961,9 @@ class CodeOfMeridaeiaGame {
         catProgress.completed += this.totalAnswered;
         catProgress.correct += this.correctAnswers;
         codeQuestDB.saveUserProfile(this.userProfile);
+
+        // A finished run is the canonical moment to sync the global leaderboard
+        if (window.leaderboard) leaderboard.queueSubmit(this.userProfile);
 
         // Phase B: Mark chapter as complete if the player survived with at least 50% accuracy
         if (!defeated && accuracy >= 50 && this.currentChapter) {

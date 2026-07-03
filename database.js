@@ -146,6 +146,7 @@ class CodeOfMeridaeiaDatabase {
             // RPG Attributes
             characterClass: null,
             gold: 0,
+            monstersDefeated: 0, // lifetime kills - feeds the global leaderboard
             equipped: {
                 weapon: null,
                 armor: null,
