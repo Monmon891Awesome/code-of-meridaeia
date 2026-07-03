@@ -124,14 +124,31 @@ For these, add this **diorama modifier** after the House Style Block:
 
 ---
 
-## Using the clips in-game (current + future wiring)
+## Using the clips in-game (current wiring)
 
-| Clip | Where it goes | Status |
-|---|---|---|
-| Intro cinematic | `assets/video/intro.mp4` | ✅ Wired — auto-detected |
-| Hero fight scenes | Chapter-complete reward reels / hero lore modals | Future wiring (say the word) |
-| Boss entrance | Plays before the boss fight begins | Future wiring |
-| Monster idles | Battle arena ambience behind the orbs | Future wiring (perf-gated: desktop only) |
+| Clip | File | Where it plays | Status |
+|---|---|---|---|
+| Intro cinematic | `assets/video/intro.mp4` | Behind the "Destiny, awaits." narration | ✅ Live — auto-detected |
+| Grom fight | `assets/video/hero-grom.mp4` | Hero Wheel detail panel (on focus) | ✅ Live |
+| Handshake fight | `assets/video/hero-handshake.mp4` | Hero Wheel detail panel (on focus) | ✅ Live |
+| Artemis fight | `assets/video/hero-artemis.mp4` | Hero Wheel detail panel (on focus) | ✅ Live |
+| Vulkun fight | `assets/video/hero-vulkun.mp4` | Hero Wheel detail panel (on focus) | ✅ Live |
+| Malloc fight | _(not generated yet)_ | Hero Wheel — falls back to portrait | ⬜ Needs a clip |
+| Boss entrance | `assets/video/boss-marakathalessa.mp4` | Full-screen cinematic before the boss fight; also her medallion | ✅ Live |
+| Monster idles | `assets/video/monster-goblin.mp4`, `monster-wolf.mp4` | Battle-arena ambience behind the orbs | ⬜ Future (perf-gated, desktop only) |
+
+**Wiring notes:**
+- Hero fight clips load **lazily** — only the focused hero's clip downloads, and
+  only after the wheel settles ~350ms, so spinning fast never triggers a load.
+  A framed portrait shows first; the clip cross-fades in once ready. Reduced-motion
+  and Save-Data users only ever see the poster.
+- The boss entrance **skips instantly** under reduced-motion or if the clip can't
+  decode, so it never traps the player.
+- **Malloc (C++) has no clip yet** — his medallion shows the static portrait.
+  Generate one with the Malloc prompt above, drop it at `assets/video/hero-malloc.mp4`,
+  and add `video: 'assets/video/hero-malloc.mp4'` to his entry in `getWheelEntries()`.
+- Say the word and I'll wire the **monster idle loops** behind the battle orbs
+  (goblin for Java error-swarms, wolf for null-wraiths), desktop-only for perf.
 
 **Performance notes (the "speed processing damage" hehe):** keep intro.mp4
 under ~8MB (1080p, H.264, high CRF ~28, no audio track needed — the game

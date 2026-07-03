@@ -89,6 +89,20 @@ function check(label, ok, detail = '') {
             (await page.$$('#hero-wheel .wheel-medallion')).length === 7);
         check('locked heroes are sealed silhouettes',
             (await page.$$('#hero-wheel .wheel-medallion.locked')).length === 2);
+        // Focused (unlocked) hero shows a media frame with a poster; the fight
+        // clip fades in over it in browsers with H.264 (not headless Chromium).
+        await page.evaluate(() => { game.wheelIndex = 0; game.renderHeroWheel(); });
+        await page.waitForTimeout(200);
+        check('focused hero shows a media frame with poster',
+            await page.$('#wheel-detail .wheel-hero-media .wheel-hero-poster') !== null);
+        // The Choose button must sit above the fixed nav (not hidden behind it)
+        check('Choose button clears the bottom nav',
+            await page.evaluate(() => {
+                const btn = document.querySelector('#wheel-detail .wheel-begin');
+                const bar = document.querySelector('.bottom-bar');
+                if (!btn || !bar) return false;
+                return btn.getBoundingClientRect().bottom <= bar.getBoundingClientRect().top + 1;
+            }));
         const idxBefore = await page.evaluate(() => game.wheelIndex);
         await page.keyboard.press('ArrowRight');
         await page.waitForTimeout(300);
@@ -161,7 +175,9 @@ function check(label, ok, detail = '') {
             document.getElementById('category-select').classList.remove('hidden');
             game.selectBoss();
         });
-        await page.waitForTimeout(400);
+        // selectBoss plays a short entrance cinematic first (skipped instantly
+        // when the clip can't decode, e.g. headless), then reveals the fight.
+        await page.waitForSelector('#boss-fight-area:not(.hidden)', { timeout: 4000 }).catch(() => {});
         check('boss fight visible', await page.isVisible('#boss-fight-area'));
         const bossAnswer = await page.evaluate(() => game.currentBossQuestion.correctAnswer);
         await page.fill('#code-answer', '  ' + String(bossAnswer).toUpperCase() + '  ');
@@ -176,9 +192,10 @@ function check(label, ok, detail = '') {
 
         await page.evaluate(() => {
             document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('category-select').classList.remove('hidden');
             game.selectBoss();
         });
-        await page.waitForTimeout(400);
+        await page.waitForSelector('#boss-fight-area:not(.hidden)', { timeout: 4000 }).catch(() => {});
         await page.evaluate(() => { game.userProfile.barrierPoints = 0; });
         await page.fill('#code-answer', 'wrong answer on purpose');
         await page.click('.code-input-container button');
@@ -212,6 +229,21 @@ function check(label, ok, detail = '') {
             await page.evaluate(() =>
                 !!document.getElementById('hero-portrait-orb') &&
                 !!document.getElementById('monster-portrait-orb')));
+
+        console.log('8.5 Video assets present and wired');
+        check('boss entrance cinematic wired', await page.evaluate(() =>
+            typeof game.playCinematic === 'function'));
+        const videoAssets = ['assets/video/intro.mp4', 'assets/video/hero-grom.mp4',
+            'assets/video/boss-marakathalessa.mp4', 'assets/video/monster-goblin.mp4'];
+        const missing = await page.evaluate(async (paths) => {
+            const out = [];
+            for (const p of paths) {
+                try { const r = await fetch(p, { method: 'HEAD' }); if (!r.ok) out.push(p); }
+                catch (_) { out.push(p); }
+            }
+            return out;
+        }, videoAssets);
+        check('all wired video files exist (200)', missing.length === 0, missing.join(', '));
 
         console.log('9. Page errors');
         check('no uncaught page errors', pageErrors.length === 0, pageErrors.join(' | '));
