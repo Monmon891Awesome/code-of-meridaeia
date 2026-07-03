@@ -269,6 +269,7 @@ class CodeOfMeridaeiaGame {
             {
                 key: 'java', name: 'Grom the Uncompiled', cls: 'Barbarian Warrior',
                 tag: 'Java', count: '12 Questions', img: 'assets/heroes/hero-grom-portrait.png',
+                video: 'assets/video/hero-grom.mp4',
                 desc: 'Master of the "Write Once, Crush Everywhere" arts. High resilience and brute force.',
                 locked: () => false
             },
@@ -281,24 +282,28 @@ class CodeOfMeridaeiaGame {
             {
                 key: 'networking', name: 'Ser Handshake', cls: 'Knight Paladin',
                 tag: 'Networking', count: '12 Questions', img: 'assets/heroes/hero-handshake-portrait.png',
+                video: 'assets/video/hero-handshake.mp4',
                 desc: 'Guardian of the Great Gateway. Restoring the Three-Way Handshake of light.',
                 locked: () => false
             },
             {
                 key: 'dataEngineering', name: 'Artemis the Stream-Caller', cls: 'Knight Archer',
                 tag: 'Data Eng', count: '12 Questions', img: 'assets/heroes/hero-artemis-portrait.png',
+                video: 'assets/video/hero-artemis.mp4',
                 desc: 'Purifier of the Corrupted Lakes. Her Pipeline of Arrows never misses the mark.',
                 locked: () => false
             },
             {
                 key: 'kernel', name: 'Vulkun of Ring Zero', cls: 'Dragonoid Mercenary',
                 tag: 'Kernel Dev', count: '30 Questions', img: 'assets/heroes/hero-vulkun-portrait.png',
+                video: 'assets/video/hero-vulkun.mp4',
                 desc: 'Born from Silicon fires. Master of the Low-Level Ring Zero magic.',
                 locked: () => false
             },
             {
                 key: 'boss', name: 'Marakathalessa', cls: 'The Witch of Corrupted Code',
                 tag: '⚔️ BOSS FIGHT', count: '10 Trials', img: 'assets/monsters/boss-marakathalessa-alt.png',
+                video: 'assets/video/boss-marakathalessa.mp4',
                 desc: 'The ancient sorceress who corrupted the realm. Face her if you dare.',
                 locked: () => !this.isBossUnlocked(),
                 lockHint: 'A great evil stirs... Complete all 3 chapters of any hero to face her.'
@@ -306,6 +311,7 @@ class CodeOfMeridaeiaGame {
             {
                 key: 'marakathalessa', name: 'Marakathalessa Redeemed', cls: 'Corrupted Mage',
                 tag: '🔮 Her Story', count: '12 Questions', img: 'assets/monsters/boss-marakathalessa-alt.png',
+                video: 'assets/video/boss-marakathalessa.mp4',
                 desc: 'Play her story. Learn how she fell to the Legion of 404.',
                 locked: () => !this.isMarakathalessaUnlocked(),
                 lockHint: 'A soul awaits redemption... Defeat the boss and complete every hero to hear her story.'
@@ -366,6 +372,13 @@ class CodeOfMeridaeiaGame {
         const detail = document.getElementById('wheel-detail');
         if (!detail || !entry) return;
 
+        // Cancel any pending fight-clip load from a previous spin so fast
+        // spinning never stacks up video downloads.
+        if (this._wheelVideoTimer) {
+            clearTimeout(this._wheelVideoTimer);
+            this._wheelVideoTimer = null;
+        }
+
         const isLocked = entry.locked();
         if (isLocked) {
             detail.innerHTML = `
@@ -374,14 +387,51 @@ class CodeOfMeridaeiaGame {
                 <p class="wheel-class">Unknown</p>
                 <p class="wheel-desc">${this.escapeHtml(entry.lockHint || 'This figure is shrouded in darkness.')}</p>
                 <button class="wheel-begin locked" disabled>Sealed by Dark Magic</button>`;
-        } else {
-            detail.innerHTML = `
-                <span class="wheel-tag">${this.escapeHtml(entry.tag)} · ${this.escapeHtml(entry.count)}</span>
-                <h3 class="wheel-name">${this.escapeHtml(entry.name)}</h3>
-                <p class="wheel-class">${this.escapeHtml(entry.cls)}</p>
-                <p class="wheel-desc">${this.escapeHtml(entry.desc)}</p>
-                <button class="wheel-begin" onclick="game.confirmWheelSelection()">⚔️ Choose ${this.escapeHtml(entry.name.split(' ')[0])}</button>`;
+            return;
         }
+
+        // A framed portrait poster shows instantly; the fight clip fades in
+        // once the wheel has settled on this hero.
+        detail.innerHTML = `
+            <div class="wheel-hero-media">
+                <img class="wheel-hero-poster" src="${entry.img}" alt="" draggable="false">
+            </div>
+            <span class="wheel-tag">${this.escapeHtml(entry.tag)} · ${this.escapeHtml(entry.count)}</span>
+            <h3 class="wheel-name">${this.escapeHtml(entry.name)}</h3>
+            <p class="wheel-class">${this.escapeHtml(entry.cls)}</p>
+            <p class="wheel-desc">${this.escapeHtml(entry.desc)}</p>
+            <button class="wheel-begin" onclick="game.confirmWheelSelection()">⚔️ Choose ${this.escapeHtml(entry.name.split(' ')[0])}</button>`;
+
+        this.maybePlayWheelClip(entry, detail);
+    }
+
+    // Lazily bring the focused hero to life with their combat clip. Bails on
+    // reduced-motion or Save-Data, and waits ~350ms so spinning past a hero
+    // never triggers a download.
+    maybePlayWheelClip(entry, detail) {
+        if (!entry.video) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const conn = navigator.connection;
+        if (conn && (conn.saveData || /^(slow-)?2g$/.test(conn.effectiveType || ''))) return;
+
+        this._wheelVideoTimer = setTimeout(() => {
+            const media = detail.querySelector('.wheel-hero-media');
+            if (!media || media.querySelector('video')) return;
+            const video = document.createElement('video');
+            video.className = 'wheel-hero-video';
+            video.muted = true;
+            video.loop = true;
+            video.playsInline = true;
+            video.preload = 'auto';
+            video.setAttribute('aria-hidden', 'true');
+            video.addEventListener('canplay', () => {
+                media.classList.add('has-video');
+                video.play().catch(() => { /* poster remains */ });
+            }, { once: true });
+            video.addEventListener('error', () => video.remove(), { once: true });
+            video.src = entry.video;
+            media.appendChild(video);
+        }, 350);
     }
 
     spinWheel(direction) {
@@ -668,15 +718,66 @@ class CodeOfMeridaeiaGame {
         this.userProfile.barrierPoints = this.getMaxBarrierPoints();
         codeQuestDB.saveUserProfile(this.userProfile);
 
-        // Hide hero select, show boss fight
+        // Hide hero select
         document.getElementById('category-select').classList.add('hidden');
-        document.getElementById('boss-fight-area').classList.remove('hidden');
 
         // Track event
         codeQuestDB.trackEvent('boss_fight_started', {});
 
-        // Show first question
-        this.showBossQuestion();
+        // Her descent plays as a cinematic; then the trial begins. Skips
+        // instantly under reduced-motion or if the clip can't play.
+        this.playCinematic('assets/video/boss-marakathalessa.mp4',
+            'She descends. The Witch of Corrupted Code awaits...').then(() => {
+            document.getElementById('boss-fight-area').classList.remove('hidden');
+            this.showBossQuestion();
+        });
+    }
+
+    // Full-screen video cinematic (boss entrance, etc.). Resolves when the
+    // clip ends, is skipped, fails to load, or under reduced-motion - so it
+    // never traps the player or blocks the flow that follows.
+    playCinematic(src, caption) {
+        return new Promise(resolve => {
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                resolve();
+                return;
+            }
+            const overlay = document.createElement('div');
+            overlay.className = 'cinematic-overlay';
+            overlay.innerHTML = `
+                <video class="cinematic-video" muted playsinline preload="auto" aria-hidden="true"></video>
+                <div class="cinematic-caption">${this.escapeHtml(caption || '')}</div>
+                <button class="cinematic-skip" type="button">Skip ▸</button>`;
+            document.body.appendChild(overlay);
+
+            const video = overlay.querySelector('video');
+            let finished = false;
+            const guard = setTimeout(() => finishFade(), 12000);
+
+            const finishInstant = () => {
+                if (finished) return;
+                finished = true;
+                clearTimeout(guard);
+                overlay.remove();
+                resolve();
+            };
+            const finishFade = () => {
+                if (finished) return;
+                finished = true;
+                clearTimeout(guard);
+                overlay.classList.add('fade-out');
+                setTimeout(() => { overlay.remove(); resolve(); }, 500);
+            };
+
+            overlay.querySelector('.cinematic-skip').addEventListener('click', finishFade);
+            video.addEventListener('ended', finishFade, { once: true });
+            video.addEventListener('error', finishInstant, { once: true });
+            video.addEventListener('canplay', () => {
+                requestAnimationFrame(() => overlay.classList.add('visible'));
+                video.play().catch(finishInstant);
+            }, { once: true });
+            video.src = src;
+        });
     }
 
     showBossQuestion() {

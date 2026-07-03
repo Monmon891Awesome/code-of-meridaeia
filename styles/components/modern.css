@@ -659,6 +659,10 @@ body > .damage-number {
 /* ============ HERO WHEEL (torchlit antechamber) ============ */
 #category-select {
     position: relative;
+    /* Center the antechamber in the space between the header and the fixed
+       bottom bar so the wheel never hides behind the nav. */
+    justify-content: center;
+    min-height: calc(100vh - 250px);
 }
 
 /* Flickering torchlight framing the antechamber */
@@ -704,7 +708,7 @@ body > .damage-number {
 }
 
 .hero-wheel-stage {
-    --wheel-radius: 150px;
+    --wheel-radius: 106px;
     position: relative;
     display: flex;
     align-items: center;
@@ -715,8 +719,8 @@ body > .damage-number {
 
 .hero-wheel {
     position: relative;
-    width: calc(var(--wheel-radius) * 2 + 110px);
-    height: calc(var(--wheel-radius) * 2 + 110px);
+    width: calc(var(--wheel-radius) * 2 + 96px);
+    height: calc(var(--wheel-radius) * 2 + 96px);
     border-radius: 50%;
     border: 1px dashed rgba(129, 140, 248, 0.2);
     flex-shrink: 0;
@@ -832,12 +836,12 @@ body > .damage-number {
 
 /* Focused hero detail panel */
 .wheel-detail {
-    width: min(400px, 90vw);
-    min-height: 250px;
+    width: min(380px, 90vw);
+    min-height: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 1.4rem 1.75rem;
+    padding: 1.1rem 1.5rem;
     text-align: center;
     background: rgba(20, 20, 38, 0.72);
     border: 1px solid rgba(129, 140, 248, 0.25);
@@ -846,6 +850,48 @@ body > .damage-number {
     -webkit-backdrop-filter: blur(14px);
     position: relative;
     z-index: 1;
+}
+
+/* Focused hero comes alive: framed portrait poster, then the combat clip
+   cross-fades in once it can play. */
+.wheel-hero-media {
+    position: relative;
+    width: 100%;
+    height: 108px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0 auto 0.55rem;
+    border: 1px solid rgba(129, 140, 248, 0.28);
+    background: #07070e;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.wheel-hero-poster,
+.wheel-hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wheel-hero-poster {
+    object-position: center top;
+    transition: opacity 0.6s ease;
+}
+
+.wheel-hero-video {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.wheel-hero-media.has-video .wheel-hero-video {
+    opacity: 1;
+}
+
+.wheel-hero-media.has-video .wheel-hero-poster {
+    opacity: 0;
 }
 
 .wheel-tag {
@@ -884,9 +930,14 @@ body > .damage-number {
 
 .wheel-desc {
     color: var(--text-secondary);
-    font-size: 0.98rem;
-    line-height: 1.55;
-    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+    /* Keep the panel compact so the "Choose" button clears the nav */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .wheel-begin {
@@ -936,6 +987,84 @@ body > .damage-number {
     .wheel-arrow {
         width: 48px;
         height: 48px;
+    }
+}
+
+/* Short desktop viewports (netbooks, browsers with heavy chrome): shrink the
+   ring and drop the keyboard tip so the wheel never tucks behind the nav. */
+/* Short desktop viewports (e.g. 1366x768 laptops, viewport ~640-680px):
+   the header + full wheel + nav can't all coexist, so make the antechamber
+   scroll-safe. Content top-aligns and gets bottom padding equal to the fixed
+   nav height, so the "Choose" button is always reachable above the bar. A
+   moderate shrink means most laptops still fit without any scroll at all. */
+@media (min-width: 701px) and (max-height: 820px) {
+    #category-select {
+        min-height: 0;
+        justify-content: flex-start;
+        gap: 0.55rem;
+        padding: 0.6rem 0 calc(88px + 1rem);
+    }
+
+    #category-select h2 {
+        margin-bottom: 0.2rem;
+    }
+
+    .hero-wheel-stage {
+        --wheel-radius: 88px;
+    }
+
+    .wheel-medallion {
+        width: 72px;
+        height: 72px;
+        margin: -36px 0 0 -36px;
+    }
+
+    .wheel-detail {
+        min-height: 0;
+        padding: 0.85rem 1.25rem;
+    }
+
+    .wheel-hero-media {
+        height: 70px;
+        margin-bottom: 0.4rem;
+    }
+
+    /* On short screens the clip carries the vibe; drop the prose so the
+       Choose button clears the nav without scrolling. */
+    .wheel-detail .wheel-desc {
+        -webkit-line-clamp: 1;
+        margin-bottom: 0.45rem;
+    }
+
+    #category-select .keyboard-tip {
+        display: none;
+    }
+}
+
+/* Landscape phones / very short viewports: shrink hard and drop the subtitle
+   so the focused hero and arrows are on-screen at a glance. */
+@media (max-height: 500px) {
+    #category-select {
+        gap: 0.4rem;
+        padding: 0.5rem 0 calc(80px + 0.5rem);
+    }
+
+    #category-select .fantasy-subtitle {
+        display: none;
+    }
+
+    .hero-wheel-stage {
+        --wheel-radius: 74px;
+    }
+
+    .wheel-medallion {
+        width: 58px;
+        height: 58px;
+        margin: -29px 0 0 -29px;
+    }
+
+    .wheel-hero-media {
+        height: 64px;
     }
 }
 
@@ -989,6 +1118,79 @@ body > .damage-number {
 #intro-cinematic.has-video .intro-bg-image {
     opacity: 0;
     animation: none;
+}
+
+/* ============ FULL-SCREEN CINEMATIC (boss entrance, etc.) ============ */
+.cinematic-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.cinematic-overlay.visible {
+    opacity: 1;
+}
+
+.cinematic-overlay.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.cinematic-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cinematic-caption {
+    position: absolute;
+    bottom: 12%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.1rem, 3.4vw, 1.9rem);
+    letter-spacing: 0.08em;
+    color: #f4e9c8;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.95);
+    padding: 0 1.5rem;
+    pointer-events: none;
+    animation: cinematic-caption-in 1.4s ease both;
+}
+
+@keyframes cinematic-caption-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+}
+
+.cinematic-skip {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    letter-spacing: 0.06em;
+    color: #f4e9c8;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(244, 233, 200, 0.4);
+    border-radius: 8px;
+    padding: 0.4rem 1.1rem;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.cinematic-skip:hover,
+.cinematic-skip:focus-visible {
+    background: rgba(0, 0, 0, 0.75);
+    border-color: #f4e9c8;
+    outline: none;
 }
 
 /* ============ REDUCED MOTION: everything off ============ */
