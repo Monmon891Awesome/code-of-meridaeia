@@ -41,3 +41,6 @@ DO NOT PUSH TO GITHUB LMAO/
 *.tar.gz
 *.zip
 *backup*.tar.gz
+
+# Private design docs - local only, never push
+planning/
