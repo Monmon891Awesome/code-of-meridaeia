@@ -99,28 +99,116 @@ class CodeOfMeridaeiaGame {
         // ============ LOOT TABLE (variable rewards) ============
         // Weighted rarity roll on every monster kill. A hot streak
         // (3+) upgrades the player's luck by one reroll.
+        // Each base item carries a slot (weapons/armor/accessories) and icon so
+        // drops can be equipped through the same pipeline as shop gear.
         this.lootTable = [
             {
                 rarity: 'common', label: 'Common', weight: 55, gold: [4, 10],
-                items: ["Goblin's Cracked Semicolon", 'Rusty Loop Counter', 'Torn Stack Frame', 'Bent Null Terminator']
+                items: [
+                    { name: "Goblin's Cracked Semicolon", slot: 'accessories', icon: '🪨' },
+                    { name: 'Rusty Loop Counter', slot: 'accessories', icon: '🔩' },
+                    { name: 'Torn Stack Frame', slot: 'armor', icon: '🧱' },
+                    { name: 'Bent Null Terminator', slot: 'weapons', icon: '🗡️' }
+                ]
             },
             {
                 rarity: 'uncommon', label: 'Uncommon', weight: 25, gold: [12, 20],
-                items: ['Vial of Sanitized Input', 'Polished Boolean Gem', 'Cloak of Caught Exceptions', 'Wolf-Fang Pointer']
+                items: [
+                    { name: 'Vial of Sanitized Input', slot: 'accessories', icon: '🧪' },
+                    { name: 'Polished Boolean Gem', slot: 'accessories', icon: '💎' },
+                    { name: 'Cloak of Caught Exceptions', slot: 'armor', icon: '🧥' },
+                    { name: 'Wolf-Fang Pointer', slot: 'weapons', icon: '🐺' }
+                ]
             },
             {
                 rarity: 'rare', label: 'Rare', weight: 13, gold: [25, 40],
-                items: ['Rune of Constant Time', 'Demonhide Debugger', 'Chalice of Closed Sockets', 'Wraithbone Compiler Flag']
+                items: [
+                    { name: 'Rune of Constant Time', slot: 'accessories', icon: '🔷' },
+                    { name: 'Demonhide Debugger', slot: 'weapons', icon: '🪄' },
+                    { name: 'Chalice of Closed Sockets', slot: 'accessories', icon: '🏆' },
+                    { name: 'Wraithbone Aegis', slot: 'armor', icon: '🛡️' }
+                ]
             },
             {
                 rarity: 'epic', label: 'Epic', weight: 5.5, gold: [50, 80],
-                items: ['Crown of the Root User', 'Heart of the Deadlock Dragon', 'Sigil of Zero Downtime']
+                items: [
+                    { name: 'Crown of the Root User', slot: 'armor', icon: '👑' },
+                    { name: 'Heart of the Deadlock Dragon', slot: 'accessories', icon: '❤️‍🔥' },
+                    { name: 'Sigil of Zero Downtime', slot: 'weapons', icon: '⚡' }
+                ]
             },
             {
                 rarity: 'legendary', label: 'LEGENDARY', weight: 1.5, gold: [120, 200],
-                items: ['Blade of the Final Keyword', 'The Uncorrupted Kernel', "Marakathalessa's Lost Tear"]
+                items: [
+                    { name: 'Blade of the Final Keyword', slot: 'weapons', icon: '⚔️' },
+                    { name: 'The Uncorrupted Kernel', slot: 'armor', icon: '🌟' },
+                    { name: "Marakathalessa's Lost Tear", slot: 'accessories', icon: '💧' }
+                ]
             }
         ];
+
+        // Affixes are the "magic" rolled onto drops. Each maps to a real
+        // gameplay stat the equip pipeline already reads, so gear actually
+        // changes how you play. 'mult' values are +fractions (0.10 = +10%),
+        // 'add' values are flat.
+        this.affixPool = [
+            { suffix: 'of the Scholar', stat: 'xpMultiplier', kind: 'mult', base: 0.08, icon: '📖' },
+            { suffix: 'of Insight', stat: 'xpMultiplier', kind: 'mult', base: 0.14, icon: '🔮' },
+            { suffix: 'of the Miser', stat: 'goldMultiplier', kind: 'mult', base: 0.10, icon: '🪙' },
+            { suffix: 'of Fortune', stat: 'goldMultiplier', kind: 'mult', base: 0.18, icon: '💰' },
+            { suffix: 'of Haste', stat: 'timerBonus', kind: 'add', base: 4, icon: '⏳' },
+            { suffix: 'of the Duelist', stat: 'attackBonus', kind: 'add', base: 6, icon: '⚔️' },
+            { suffix: 'of Fury', stat: 'attackBonus', kind: 'add', base: 11, icon: '🔥' },
+            { suffix: 'of Warding', stat: 'barrierBonus', kind: 'add', base: 1, icon: '🛡️' }
+        ];
+
+        // Rarity governs how many affixes roll and how potent they are.
+        this.affixRules = {
+            common: { min: 0, max: 1, potency: 1 },
+            uncommon: { min: 1, max: 1, potency: 1 },
+            rare: { min: 1, max: 2, potency: 1.5 },
+            epic: { min: 2, max: 3, potency: 2 },
+            legendary: { min: 3, max: 3, potency: 3 }
+        };
+    }
+
+    // Roll a set of distinct affixes for a drop of the given rarity.
+    rollAffixes(rarity) {
+        const rule = this.affixRules[rarity] || this.affixRules.common;
+        const count = rule.min + Math.floor(Math.random() * (rule.max - rule.min + 1));
+        const pool = [...this.affixPool];
+        const chosen = [];
+        const usedStats = new Set();
+        while (chosen.length < count && pool.length) {
+            const a = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+            if (usedStats.has(a.stat)) continue; // one affix per stat, keeps math clean
+            usedStats.add(a.stat);
+            const value = a.kind === 'add'
+                ? Math.max(1, Math.round(a.base * rule.potency))
+                : Math.round(a.base * rule.potency * 100) / 100;
+            chosen.push({ suffix: a.suffix, stat: a.stat, kind: a.kind, value, icon: a.icon });
+        }
+        return chosen;
+    }
+
+    // Fold affixes into the flat {stats} shape the equip pipeline consumes.
+    // Multipliers are stored as factors (1 + fraction); flats as-is.
+    affixesToStats(affixes) {
+        const stats = {};
+        for (const a of affixes) {
+            if (a.kind === 'add') stats[a.stat] = (stats[a.stat] || 0) + a.value;
+            else stats[a.stat] = (stats[a.stat] || 1) * (1 + a.value);
+        }
+        return stats;
+    }
+
+    // Human-readable one-liner of an item's powers (for tooltips/inventory).
+    affixSummary(affixes) {
+        if (!affixes || !affixes.length) return 'No enchantments.';
+        const label = { xpMultiplier: 'XP', goldMultiplier: 'Gold', timerBonus: 'Time', attackBonus: 'Attack', barrierBonus: 'Barrier' };
+        return affixes.map(a => a.kind === 'mult'
+            ? `+${Math.round(a.value * 100)}% ${label[a.stat] || a.stat}`
+            : `+${a.value} ${label[a.stat] || a.stat}`).join(' · ');
     }
 
     // Roll the loot table; streaks of 3+ grant a second roll, keeping
@@ -144,19 +232,36 @@ class CodeOfMeridaeiaGame {
         }
 
         const gold = tier.gold[0] + Math.floor(Math.random() * (tier.gold[1] - tier.gold[0] + 1));
-        const item = tier.items[Math.floor(Math.random() * tier.items.length)];
-        return { rarity: tier.rarity, label: tier.label, gold, item };
+        const base = tier.items[Math.floor(Math.random() * tier.items.length)];
+        const affixes = this.rollAffixes(tier.rarity);
+        const name = affixes.length ? `${base.name} ${affixes[0].suffix}` : base.name;
+        return {
+            rarity: tier.rarity, label: tier.label, gold,
+            item: name, baseName: base.name, slot: base.slot, icon: base.icon,
+            affixes, stats: this.affixesToStats(affixes),
+            id: `loot_${Date.now()}_${Math.floor(Math.random() * 10000)}`
+        };
     }
 
     showLootDrop(loot) {
         const toast = document.createElement('div');
         toast.className = `toast-notification loot-toast loot-${loot.rarity}`;
         toast.setAttribute('role', 'status');
-        toast.innerHTML = `<span class="loot-label">${loot.label} DROP</span>` +
-            `<span class="loot-name">${this.escapeHtml(loot.item)}</span>` +
-            `<span class="loot-gold">+${loot.gold} 💰</span>`;
+
+        // List the rolled enchantments so the player sees the powers, not just a name
+        const affixLines = (loot.affixes && loot.affixes.length)
+            ? `<span class="loot-affixes">` +
+              loot.affixes.map(a => `<span class="loot-affix">${a.icon} ${this.escapeHtml(this.affixSummary([a]))}</span>`).join('') +
+              `</span>`
+            : '';
+
+        toast.innerHTML =
+            `<span class="loot-label">${loot.label} DROP</span>` +
+            `<span class="loot-name">${loot.icon || ''} ${this.escapeHtml(loot.item)}</span>` +
+            affixLines +
+            `<span class="loot-gold">+${loot.gold} 💰${loot.affixes && loot.affixes.length ? ' · 🎒 to bag' : ''}</span>`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), loot.rarity === 'legendary' ? 5000 : 3600);
+        setTimeout(() => toast.remove(), loot.rarity === 'legendary' ? 5200 : 3800);
 
         if (loot.rarity === 'legendary' || loot.rarity === 'epic') {
             this.playSound('fanfare');
@@ -1386,10 +1491,8 @@ class CodeOfMeridaeiaGame {
         // Calculate total timer with bonuses
         let timerDuration = 60; // Base 60 seconds
 
-        // Add accessory bonus
-        if (this.userProfile.equipped?.accessories?.stats?.timerBonus) {
-            timerDuration += this.userProfile.equipped.accessories.stats.timerBonus;
-        }
+        // Add equipment bonus (any slot + affixes)
+        timerDuration += this.getEquipAdd('timerBonus');
 
         // Add skill bonuses
         timerDuration += this.getSkillBonus('timerBonus');
@@ -1554,10 +1657,8 @@ class CodeOfMeridaeiaGame {
             // Calculate gold with multipliers
             let goldEarned = 5;
 
-            // Apply gold multiplier from accessory
-            if (this.userProfile.equipped?.accessories?.stats?.goldMultiplier) {
-                goldEarned *= this.userProfile.equipped.accessories.stats.goldMultiplier;
-            }
+            // Apply gold multiplier from all equipped gear + affixes
+            goldEarned *= this.getEquipMult('goldMultiplier');
 
             // Apply skill bonuses
             const skillMultiplier = 1 + this.getSkillBonus('goldMultiplier');
@@ -1640,10 +1741,8 @@ class CodeOfMeridaeiaGame {
         const timeBonus = Math.floor((this.timeLeft / (this.timerDuration || 60)) * this.maxTimeBonus);
         let totalXP = baseXP + timeBonus;
 
-        // Apply XP multiplier from accessory
-        if (this.userProfile.equipped?.accessories?.stats?.xpMultiplier) {
-            totalXP *= this.userProfile.equipped.accessories.stats.xpMultiplier;
-        }
+        // Apply XP multiplier from all equipped gear + affixes
+        totalXP *= this.getEquipMult('xpMultiplier');
 
         // Apply skill bonuses
         const skillMultiplier = 1 + this.getSkillBonus('xpMultiplier');
@@ -1723,6 +1822,12 @@ class CodeOfMeridaeiaGame {
 
         // Banked per-answer gold + the loot drop
         this.userProfile.gold = (this.userProfile.gold || 0) + this.goldEarned + loot.gold;
+
+        // Enchanted drops become equippable gear in the bag (plain commons are
+        // just gold - no inventory clutter for trash).
+        if (loot.slot && loot.affixes && loot.affixes.length) {
+            this.addLootToInventory(loot);
+        }
 
         // Lifetime kill counter feeds the global leaderboard's Monsters tab
         this.userProfile.monstersDefeated = (this.userProfile.monstersDefeated || 0) + 1;
@@ -2642,10 +2747,8 @@ class CodeOfMeridaeiaGame {
     calculateAttackDamage() {
         let baseDamage = 25;
 
-        // Add weapon bonus
-        if (this.userProfile.equipped?.weapons?.stats?.attackBonus) {
-            baseDamage += this.userProfile.equipped.weapons.stats.attackBonus;
-        }
+        // Add attack from all equipped gear + affixes
+        baseDamage += this.getEquipAdd('attackBonus');
 
         // Add skill bonuses
         const skillBonus = this.getSkillBonus('attackBonus');
@@ -2837,6 +2940,93 @@ class CodeOfMeridaeiaGame {
         this.userProfile.inventory.push(item);
     }
 
+    // Turn a rolled drop into an equippable inventory item.
+    addLootToInventory(loot) {
+        this.userProfile.inventory = this.userProfile.inventory || [];
+        this.userProfile.inventory.push({
+            id: loot.id,
+            name: loot.item,
+            baseName: loot.baseName,
+            rarity: loot.rarity,
+            slot: loot.slot,
+            icon: loot.icon,
+            affixes: loot.affixes,
+            stats: loot.stats,
+            description: this.affixSummary(loot.affixes),
+            equippable: true
+        });
+    }
+
+    // ---- Unified equipment stats: sum/stack a stat across EVERY equipped
+    // slot (weapon, armor, accessory) plus its affixes. This is what makes a
+    // "+XP" affix on a sword actually grant XP, not just accessories.
+    getEquipAdd(stat) {
+        let sum = 0;
+        const eq = this.userProfile.equipped || {};
+        for (const slot of ['weapons', 'armor', 'accessories']) {
+            const v = eq[slot]?.stats?.[stat];
+            if (typeof v === 'number') sum += v;
+        }
+        return sum;
+    }
+
+    getEquipMult(stat) {
+        let mult = 1;
+        const eq = this.userProfile.equipped || {};
+        for (const slot of ['weapons', 'armor', 'accessories']) {
+            const v = eq[slot]?.stats?.[stat];
+            if (typeof v === 'number' && v > 0) mult *= v;
+        }
+        return mult;
+    }
+
+    // Equip a piece of gear from the bag; the previously-equipped item (if any)
+    // returns to the bag. Barrier is re-clamped since armor can change its max.
+    equipFromInventory(itemId) {
+        const inv = this.userProfile.inventory || [];
+        const idx = inv.findIndex(i => i.id === itemId);
+        if (idx < 0) return;
+        const item = inv[idx];
+        const slot = item.slot;
+        if (!slot) { this.showNotification('❌ That item cannot be equipped.'); return; }
+
+        inv.splice(idx, 1);
+        if (!this.userProfile.equipped) this.userProfile.equipped = {};
+        if (this.userProfile.equipped[slot]) {
+            this.addToInventory(this.userProfile.equipped[slot]);
+        }
+        this.userProfile.equipped[slot] = item;
+
+        this.reconcileBarrier();
+        codeQuestDB.saveUserProfile(this.userProfile);
+        this.renderInventory();
+        if (this.updateCharacterSheet) this.updateCharacterSheet();
+        this.showNotification(`⚔️ Equipped ${item.name}`);
+        this.playSound('click');
+        codeQuestDB.trackEvent('item_equipped', { rarity: item.rarity, slot });
+    }
+
+    unequipItem(slot) {
+        if (!this.userProfile.equipped?.[slot]) return;
+        this.addToInventory(this.userProfile.equipped[slot]);
+        this.userProfile.equipped[slot] = null;
+        this.reconcileBarrier();
+        codeQuestDB.saveUserProfile(this.userProfile);
+        this.renderInventory();
+        if (this.updateCharacterSheet) this.updateCharacterSheet();
+        this.playSound('click');
+    }
+
+    // Keep current barrier within the (possibly changed) max.
+    reconcileBarrier() {
+        const max = this.getMaxBarrierPoints();
+        if (typeof this.userProfile.barrierPoints !== 'number') {
+            this.userProfile.barrierPoints = max;
+        }
+        this.userProfile.barrierPoints = Math.min(this.userProfile.barrierPoints, max);
+        if (this.isGameActive && this.updateHeroHPBar) this.updateHeroHPBar();
+    }
+
     updateShopGold() {
         document.getElementById('shop-gold').textContent = this.userProfile.gold || 0;
     }
@@ -2987,27 +3177,88 @@ class CodeOfMeridaeiaGame {
     renderInventory() {
         const container = document.getElementById('inventory-items');
         const inventory = this.userProfile.inventory || [];
+        const equipped = this.userProfile.equipped || {};
 
-        if (inventory.length === 0) {
-            container.innerHTML = '<p class="empty-inventory">Your inventory is empty. Visit the shop to purchase items!</p>';
-            return;
-        }
+        const isGear = (i) => i.equippable || (i.slot && i.stats);
+        const gear = inventory.filter(isGear);
+        const consumables = inventory.filter(i => !isGear(i));
 
-        container.innerHTML = inventory.map(item => `
+        const slotMeta = {
+            weapons: { label: 'Weapon', icon: '⚔️' },
+            armor: { label: 'Armor', icon: '🛡️' },
+            accessories: { label: 'Trinket', icon: '💍' }
+        };
+
+        // Equipped loadout
+        const equippedHtml = Object.keys(slotMeta).map(slot => {
+            const it = equipped[slot];
+            const meta = slotMeta[slot];
+            if (it) {
+                return `
+                    <div class="equip-slot filled inv-${it.rarity || 'common'}">
+                        <span class="equip-slot-icon">${it.icon || meta.icon}</span>
+                        <div class="equip-slot-info">
+                            <span class="equip-slot-label">${meta.label}</span>
+                            <strong>${this.escapeHtml(it.name)}</strong>
+                            <small>${this.escapeHtml(this.affixSummary(it.affixes) )}</small>
+                        </div>
+                        <button class="unequip-btn" onclick="game.unequipItem('${slot}')" aria-label="Unequip ${this.escapeHtml(it.name)}">✕</button>
+                    </div>`;
+            }
+            return `
+                <div class="equip-slot empty">
+                    <span class="equip-slot-icon">${meta.icon}</span>
+                    <div class="equip-slot-info">
+                        <span class="equip-slot-label">${meta.label}</span>
+                        <em>— empty —</em>
+                    </div>
+                </div>`;
+        }).join('');
+
+        // Gear in the bag
+        const gearHtml = gear.length ? gear.map(item => `
+            <div class="inventory-item gear-item inv-${item.rarity || 'common'}">
+                <div class="inventory-item-header">
+                    <span class="inventory-item-icon">${item.icon || '🎁'}</span>
+                    <div class="inventory-item-info">
+                        <h4>${this.escapeHtml(item.name)}</h4>
+                        <p class="gear-affixes">${this.escapeHtml(this.affixSummary(item.affixes))}</p>
+                    </div>
+                </div>
+                <button class="equip-btn" onclick="game.equipFromInventory('${item.id}')">Equip</button>
+            </div>
+        `).join('') : '<p class="empty-inventory">No gear yet — defeat monsters to find enchanted loot!</p>';
+
+        // Consumables
+        const consumablesHtml = consumables.map(item => `
             <div class="inventory-item">
                 <div class="inventory-item-header">
-                    <span class="inventory-item-icon">${item.icon}</span>
+                    <span class="inventory-item-icon">${item.icon || '📦'}</span>
                     <div class="inventory-item-info">
-                        <h4>${item.name}</h4>
-                        <p>${item.description}</p>
+                        <h4>${this.escapeHtml(item.name)}</h4>
+                        <p>${this.escapeHtml(item.description || '')}</p>
                     </div>
                 </div>
                 ${item.quantity ? `<div class="item-quantity">x${item.quantity}</div>` : ''}
-                <button class="use-btn" onclick="game.useConsumable('${item.id}')">
-                    Use
-                </button>
+                <button class="use-btn" onclick="game.useConsumable('${item.id}')">Use</button>
             </div>
         `).join('');
+
+        container.innerHTML = `
+            <div class="inv-section">
+                <h3 class="inv-heading">⚔️ Equipped</h3>
+                <div class="equip-loadout">${equippedHtml}</div>
+            </div>
+            <div class="inv-section">
+                <h3 class="inv-heading">🎒 Gear (${gear.length})</h3>
+                <div class="gear-grid">${gearHtml}</div>
+            </div>
+            ${consumables.length ? `
+            <div class="inv-section">
+                <h3 class="inv-heading">🧪 Consumables</h3>
+                <div class="gear-grid">${consumablesHtml}</div>
+            </div>` : ''}
+        `;
     }
 
     useConsumable(itemId) {
@@ -3076,10 +3327,8 @@ class CodeOfMeridaeiaGame {
     getMaxBarrierPoints() {
         let maxBarrier = 3; // Base barrier
 
-        // Add armor bonus
-        if (this.userProfile.equipped?.armor?.stats?.barrierBonus) {
-            maxBarrier += this.userProfile.equipped.armor.stats.barrierBonus;
-        }
+        // Add barrier from all equipped gear + affixes
+        maxBarrier += this.getEquipAdd('barrierBonus');
 
         // Add skill bonuses
         const skillBonus = this.getSkillBonus('barrierBonus');

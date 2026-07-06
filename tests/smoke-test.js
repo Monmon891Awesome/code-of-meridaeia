@@ -221,6 +221,78 @@ function check(label, ok, detail = '') {
         await page.keyboard.press('Enter');
         await page.waitForTimeout(300);
 
+        console.log('7.6 Loot affixes & procedural gear');
+        // rollLoot now yields equippable gear with rolled affixes
+        check('rollLoot returns gear shape (slot, affixes[], id)', await page.evaluate(() => {
+            const l = game.rollLoot();
+            return !!l.slot && Array.isArray(l.affixes) && typeof l.id === 'string' && !!l.stats;
+        }));
+        check('rarity governs affix count (legendary rolls 3)', await page.evaluate(() =>
+            game.rollAffixes('legendary').length === 3 &&
+            game.rollAffixes('common').length <= 1));
+        check('affixesToStats builds factors for mult, flats for add', await page.evaluate(() => {
+            const s = game.affixesToStats([
+                { stat: 'xpMultiplier', kind: 'mult', value: 0.2 },
+                { stat: 'attackBonus', kind: 'add', value: 7 }
+            ]);
+            return Math.abs(s.xpMultiplier - 1.2) < 1e-9 && s.attackBonus === 7;
+        }));
+        // Equipping enchanted gear must actually change derived stats
+        const gearEffect = await page.evaluate(() => {
+            // clean slate
+            game.userProfile.equipped = { weapons: null, armor: null, accessories: null };
+            const before = {
+                atk: game.calculateAttackDamage(),
+                barrier: game.getMaxBarrierPoints(),
+                xpMult: game.getEquipMult('xpMultiplier')
+            };
+            game.addLootToInventory({
+                id: 'test_blade_1', item: 'Test Blade of Fury', baseName: 'Test Blade',
+                rarity: 'legendary', slot: 'weapons', icon: '⚔️',
+                affixes: [
+                    { suffix: 'of Fury', stat: 'attackBonus', kind: 'add', value: 15, icon: '🔥' },
+                    { suffix: 'of Warding', stat: 'barrierBonus', kind: 'add', value: 2, icon: '🛡️' },
+                    { suffix: 'of Insight', stat: 'xpMultiplier', kind: 'mult', value: 0.3, icon: '🔮' }
+                ],
+                stats: { attackBonus: 15, barrierBonus: 2, xpMultiplier: 1.3 }
+            });
+            const inBag = (game.userProfile.inventory || []).some(i => i.id === 'test_blade_1');
+            game.equipFromInventory('test_blade_1');
+            const after = {
+                atk: game.calculateAttackDamage(),
+                barrier: game.getMaxBarrierPoints(),
+                xpMult: game.getEquipMult('xpMultiplier'),
+                equippedName: game.userProfile.equipped.weapons?.name,
+                stillInBag: (game.userProfile.inventory || []).some(i => i.id === 'test_blade_1')
+            };
+            game.unequipItem('weapons');
+            const afterUnequip = {
+                atk: game.calculateAttackDamage(),
+                backInBag: (game.userProfile.inventory || []).some(i => i.id === 'test_blade_1')
+            };
+            return { before, after, afterUnequip, inBag };
+        });
+        check('enchanted drop lands in the bag', gearEffect.inBag === true);
+        check('equip raises attack (affix on a weapon)',
+            gearEffect.after.atk === gearEffect.before.atk + 15, `${gearEffect.before.atk} -> ${gearEffect.after.atk}`);
+        check('equip raises max barrier (affix on non-armor slot counts)',
+            gearEffect.after.barrier === gearEffect.before.barrier + 2);
+        check('equip applies XP multiplier affix',
+            Math.abs(gearEffect.after.xpMult - 1.3) < 1e-9);
+        check('equipped item leaves the bag', gearEffect.after.stillInBag === false &&
+            gearEffect.after.equippedName === 'Test Blade of Fury');
+        check('unequip restores baseline and returns item to bag',
+            gearEffect.afterUnequip.atk === gearEffect.before.atk && gearEffect.afterUnequip.backInBag === true);
+        // Inventory UI renders the new sections without crashing
+        await page.evaluate(() => game.openInventory());
+        await page.waitForTimeout(200);
+        check('inventory renders equipped + gear sections',
+            await page.evaluate(() => {
+                const el = document.getElementById('inventory-items');
+                return !!el && el.querySelector('.equip-loadout') !== null && el.querySelector('.inv-heading') !== null;
+            }));
+        await page.evaluate(() => game.closeInventory());
+
         console.log('7.7 Leaderboard submission pipeline');
         check('monster kill incremented lifetime counter',
             await page.evaluate(() => (game.userProfile.monstersDefeated || 0) >= 1));

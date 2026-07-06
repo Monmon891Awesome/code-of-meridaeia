@@ -652,6 +652,158 @@ body > .damage-number {
     text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
 }
 
+/* Rolled enchantments on the drop toast */
+.loot-toast .loot-affixes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    margin: 0.2rem 0 0.1rem;
+}
+
+.loot-toast .loot-affix {
+    font-family: 'VT323', monospace;
+    font-size: 0.95rem;
+    color: #a5f3fc;
+    letter-spacing: 0.02em;
+}
+
+/* ============ INVENTORY 2.0 (gear, affixes, equip) ============ */
+.inv-section {
+    margin-bottom: 1.4rem;
+}
+
+.inv-heading {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--accent-light);
+    margin: 0 0 0.7rem;
+    opacity: 0.9;
+}
+
+.equip-loadout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.6rem;
+}
+
+.equip-slot {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid rgba(129, 140, 248, 0.25);
+    border-left-width: 4px;
+    border-radius: 10px;
+    background: rgba(20, 20, 38, 0.6);
+}
+
+.equip-slot.empty {
+    opacity: 0.55;
+    border-left-color: rgba(120, 120, 150, 0.5);
+}
+
+.equip-slot-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.equip-slot-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.equip-slot-label {
+    font-family: 'VT323', monospace;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+.equip-slot-info strong {
+    color: var(--text-primary);
+    font-size: 0.98rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.equip-slot-info small {
+    color: #a5f3fc;
+    font-family: 'VT323', monospace;
+    font-size: 0.9rem;
+}
+
+.unequip-btn {
+    margin-left: auto;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.unequip-btn:hover {
+    background: rgba(220, 60, 60, 0.35);
+    color: #fff;
+}
+
+.gear-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.6rem;
+}
+
+.gear-item {
+    border-left-width: 4px !important;
+}
+
+.gear-affixes {
+    color: #a5f3fc !important;
+    font-family: 'VT323', monospace;
+    font-size: 0.95rem !important;
+}
+
+.equip-btn {
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    color: #0d0d1c;
+    background: linear-gradient(135deg, #ffe66d, #ffb03d);
+    border: none;
+    border-radius: 8px;
+    padding: 0.35rem 1rem;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.equip-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+
+.equip-btn:active {
+    transform: scale(0.96);
+}
+
+/* Rarity accents (left border + subtle glow) applied to gear + equipped slots */
+.inv-common { border-left-color: #9ca3af !important; }
+.inv-uncommon { border-left-color: #4ade80 !important; }
+.inv-rare { border-left-color: #38bdf8 !important; }
+.inv-epic { border-left-color: #c084fc !important; box-shadow: 0 0 14px rgba(192, 132, 252, 0.28); }
+.inv-legendary {
+    border-left-color: var(--retro-gold) !important;
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.35);
+}
+
 @keyframes legendary-pulse {
     50% { box-shadow: 0 0 70px rgba(255, 215, 0, 0.95); }
 }
