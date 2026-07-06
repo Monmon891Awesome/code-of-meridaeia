@@ -315,6 +315,49 @@ function check(label, ok, detail = '') {
             }));
         await page.evaluate(() => leaderboard.closeLeaderboard());
 
+        console.log('7.8 The Codex (bestiary/lore/heroes)');
+        check('codex data loaded (6 foes)', await page.evaluate(() =>
+            typeof CODEX !== 'undefined' && CODEX.bestiary.length === 6));
+        // Defeating monsters earlier should have inscribed at least one page
+        check('a defeated foe was inscribed in the bestiary', await page.evaluate(() =>
+            ((game.userProfile.codex && game.userProfile.codex.monsters) || []).length >= 1));
+        // Directly exercise the unlock path deterministically
+        check('unlockBestiary records a foe by name', await page.evaluate(() => {
+            game.unlockBestiary('Segfault Wraith');
+            return game.userProfile.codex.monsters.includes('segfault-wraith');
+        }));
+        check('unlockBestiary is idempotent', await page.evaluate(() => {
+            const before = game.userProfile.codex.monsters.length;
+            game.unlockBestiary('Segfault Wraith');
+            return game.userProfile.codex.monsters.length === before;
+        }));
+        await page.evaluate(() => game.openCodex());
+        await page.waitForTimeout(200);
+        check('codex opens on bestiary with unlocked + locked cards', await page.evaluate(() => {
+            const body = document.getElementById('codex-body');
+            if (!body) return false;
+            const unlocked = body.querySelectorAll('.codex-card:not(.locked)').length;
+            const locked = body.querySelectorAll('.codex-card.locked').length;
+            return unlocked >= 1 && locked >= 1 && unlocked + locked === 6;
+        }));
+        check('unlocked bestiary card teaches a real concept', await page.evaluate(() => {
+            const body = document.getElementById('codex-body');
+            return !!body.querySelector('.codex-concept') && !!body.querySelector('.codex-code');
+        }));
+        await page.evaluate(() => game.switchCodexTab('lore'));
+        await page.waitForTimeout(150);
+        check('lore tab renders entries (some sealed)', await page.evaluate(() => {
+            const body = document.getElementById('codex-body');
+            return body.querySelectorAll('.codex-lore-entry').length === 5;
+        }));
+        await page.evaluate(() => game.switchCodexTab('heroes'));
+        await page.waitForTimeout(150);
+        check('heroes tab renders 5 dossiers', await page.evaluate(() => {
+            const body = document.getElementById('codex-body');
+            return body.querySelectorAll('.codex-card').length === 5;
+        }));
+        await page.evaluate(() => game.closeCodex());
+
         console.log('8. Music radio and FX wiring');
         check('wasteland radio loaded with 4 tracks',
             await page.evaluate(() => typeof gameMusic !== 'undefined' && gameMusic.tracks.length === 4));

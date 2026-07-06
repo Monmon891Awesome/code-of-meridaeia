@@ -559,6 +559,10 @@
             <span class="icon">🎒</span>
             <span class="label">Inventory</span>
         </button>
+        <button class="bottom-btn" onclick="game.openCodex()">
+            <span class="icon">📖</span>
+            <span class="label">Codex</span>
+        </button>
         <button class="bottom-btn" onclick="leaderboard.showLeaderboard('xp')">
             <span class="icon">🏆</span>
             <span class="label">Leaderboard</span>
@@ -681,6 +685,25 @@
         </div>
     </div>
 
+    <!-- Codex Modal (Bestiary + Lore + Heroes) -->
+    <div id="codex-modal" class="modal hidden">
+        <div class="modal-content codex-content">
+            <div class="modal-header">
+                <h2>📖 The Codex</h2>
+                <button class="close-modal" onclick="game.closeCodex()">×</button>
+            </div>
+            <div class="codex-tabs" role="tablist">
+                <button class="codex-tab active" data-codextab="bestiary" onclick="game.switchCodexTab('bestiary')">🐲 Bestiary</button>
+                <button class="codex-tab" data-codextab="lore" onclick="game.switchCodexTab('lore')">📜 Lore</button>
+                <button class="codex-tab" data-codextab="heroes" onclick="game.switchCodexTab('heroes')">🛡️ Heroes</button>
+            </div>
+            <p class="codex-progress" id="codex-progress"></p>
+            <div id="codex-body" class="codex-body">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
     <!-- Leaderboard Modal -->
     <div id="leaderboard-modal" class="modal hidden">
         <div class="modal-content leaderboard-content">
@@ -735,6 +758,7 @@
     <script src="questions/boss.js"></script>
     <script src="questions/marakathalessa.js"></script>
     <script src="character-stories.js"></script>
+    <script src="codex-data.js"></script>
     <script src="game.js"></script>
 </body>
 

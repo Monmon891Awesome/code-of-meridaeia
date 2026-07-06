@@ -804,6 +804,225 @@ body > .damage-number {
     box-shadow: 0 0 18px rgba(255, 215, 0, 0.35);
 }
 
+/* ============ THE CODEX (Bestiary / Lore / Heroes) ============ */
+.codex-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+}
+
+.codex-tab {
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+    background: rgba(20, 20, 38, 0.6);
+    border: 1px solid rgba(129, 140, 248, 0.25);
+    border-radius: 10px;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.codex-tab:hover { color: var(--text-primary); }
+
+.codex-tab.active {
+    color: #0d0d1c;
+    background: linear-gradient(135deg, var(--accent-light), var(--accent));
+    border-color: transparent;
+    font-weight: bold;
+}
+
+.codex-progress {
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    color: var(--retro-gold);
+    margin: 0 0 0.8rem;
+    letter-spacing: 0.04em;
+}
+
+.codex-body {
+    max-height: 62vh;
+    overflow-y: auto;
+    padding-right: 0.3rem;
+}
+
+.codex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.9rem;
+}
+
+.codex-card {
+    border: 1px solid rgba(129, 140, 248, 0.25);
+    border-radius: 14px;
+    background: rgba(16, 16, 32, 0.7);
+    padding: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.codex-card-portrait {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(129, 140, 248, 0.35);
+    background: #07070e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    flex-shrink: 0;
+}
+
+.codex-card-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.codex-silhouette {
+    font-size: 2.2rem;
+    filter: grayscale(1) brightness(0.5);
+    opacity: 0.6;
+}
+
+.codex-card.locked {
+    opacity: 0.75;
+    border-style: dashed;
+}
+
+.codex-card h4 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.66rem;
+    line-height: 1.5;
+    color: var(--retro-gold);
+    margin: 0.2rem 0 0.4rem;
+}
+
+.codex-card.locked h4 { color: var(--text-muted); }
+
+.codex-badge {
+    font-family: 'VT323', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    background: rgba(99, 102, 241, 0.14);
+    border: 1px solid rgba(129, 140, 248, 0.35);
+    border-radius: 99px;
+    padding: 0.1rem 0.65rem;
+    margin-bottom: 0.35rem;
+}
+
+.codex-lore {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 0.6rem;
+}
+
+.codex-locked-hint {
+    color: var(--text-muted);
+    font-family: 'VT323', monospace;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.codex-hero-title {
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    color: var(--accent-light);
+    margin: 0 0 0.4rem;
+}
+
+.codex-concept {
+    width: 100%;
+    text-align: left;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 10px;
+    padding: 0.6rem 0.7rem;
+    margin-top: auto;
+}
+
+.codex-concept-tag {
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 0.95rem;
+    color: #7dd3fc;
+    margin-bottom: 0.3rem;
+}
+
+.codex-concept p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0 0 0.4rem;
+}
+
+.codex-code {
+    background: #05050b;
+    border: 1px solid rgba(129, 140, 248, 0.25);
+    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #a5f3fc;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    margin: 0;
+}
+
+/* Difficulty accents on bestiary cards */
+.codex-card.rarity-common { border-top: 3px solid #9ca3af; }
+.codex-card.rarity-rare { border-top: 3px solid #38bdf8; }
+.codex-card.rarity-elite { border-top: 3px solid #c084fc; }
+.codex-card.rarity-boss {
+    border-top: 3px solid var(--retro-gold);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.codex-lore-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.codex-lore-entry {
+    border: 1px solid rgba(129, 140, 248, 0.25);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    background: rgba(16, 16, 32, 0.7);
+    padding: 0.9rem 1.1rem;
+}
+
+.codex-lore-entry.locked {
+    border-left-color: rgba(120, 120, 150, 0.5);
+    border-style: dashed;
+    opacity: 0.8;
+}
+
+.codex-lore-entry h4 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.68rem;
+    color: var(--retro-gold);
+    margin: 0 0 0.5rem;
+}
+
+.codex-lore-entry.locked h4 { color: var(--text-muted); }
+
+.codex-lore-entry p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
 @keyframes legendary-pulse {
     50% { box-shadow: 0 0 70px rgba(255, 215, 0, 0.95); }
 }

@@ -1077,6 +1077,9 @@ class CodeOfMeridaeiaGame {
         this.isBossFighting = false;
         this.playSound('fanfare');
 
+        // The Witch takes her page in the Bestiary
+        this.unlockBestiary('Marakathalessa');
+
         // True ending requires every hero's story to be complete (Phase D)
         if (this.isAllHeroesComplete()) {
             this.userProfile.bossDefeated = 'true';
@@ -1842,6 +1845,9 @@ class CodeOfMeridaeiaGame {
         const slainName = this.currentMonsterName;
         this.currentMonsterName = null;
 
+        // First kill of a foe inscribes its page in the Bestiary
+        this.unlockBestiary(slainName);
+
         // Kill notification, then the loot reveal lands a beat later
         this.showNotification(`🗡️ ${slainName || 'Monster'} Slain!`);
         this.playSound('victory');
@@ -2074,6 +2080,7 @@ class CodeOfMeridaeiaGame {
         if (!defeated && accuracy >= 50 && this.currentChapter) {
             this.completeChapter();
         } else if (defeated) {
+            this.userProfile.timesDefeated = (this.userProfile.timesDefeated || 0) + 1;
             this.showNotification('💀 Defeated! Regroup and try the chapter again.');
         } else if (this.currentChapter) {
             this.showNotification('📖 You need at least 50% accuracy to complete the chapter. Try again!');
@@ -3322,6 +3329,114 @@ class CodeOfMeridaeiaGame {
         codeQuestDB.saveUserProfile(this.userProfile);
         this.renderInventory();
         codeQuestDB.trackEvent('consumable_used', { itemId });
+    }
+
+    // ============ THE CODEX (Bestiary + Lore + Heroes) ============
+
+    // Inscribe a defeated foe's page. Idempotent; celebrates first discovery.
+    unlockBestiary(name) {
+        if (!name || typeof CODEX === 'undefined') return;
+        const id = CODEX.monsterId(name);
+        if (!id) return;
+        if (!this.userProfile.codex) this.userProfile.codex = { monsters: [] };
+        if (!Array.isArray(this.userProfile.codex.monsters)) this.userProfile.codex.monsters = [];
+        if (this.userProfile.codex.monsters.includes(id)) return;
+        this.userProfile.codex.monsters.push(id);
+        codeQuestDB.saveUserProfile(this.userProfile);
+        this.showNotification(`📖 Bestiary updated: ${name}`);
+    }
+
+    openCodex() {
+        this.codexTab = this.codexTab || 'bestiary';
+        document.getElementById('codex-modal').classList.remove('hidden');
+        this.switchCodexTab(this.codexTab);
+        this.playSound('click');
+    }
+
+    closeCodex() {
+        document.getElementById('codex-modal').classList.add('hidden');
+    }
+
+    switchCodexTab(tab) {
+        this.codexTab = tab;
+        document.querySelectorAll('.codex-tab').forEach(t =>
+            t.classList.toggle('active', t.dataset.codextab === tab));
+        this.renderCodex(tab);
+    }
+
+    renderCodex(tab) {
+        const body = document.getElementById('codex-body');
+        const progressEl = document.getElementById('codex-progress');
+        if (!body || typeof CODEX === 'undefined') return;
+        const p = this.userProfile;
+        const esc = (s) => this.escapeHtml(s == null ? '' : String(s));
+
+        if (tab === 'bestiary') {
+            const seen = (p.codex && p.codex.monsters) || [];
+            const total = CODEX.bestiary.length;
+            progressEl.textContent = `🐲 ${seen.length} / ${total} foes discovered`;
+            body.innerHTML = `<div class="codex-grid">` + CODEX.bestiary.map(m => {
+                if (!seen.includes(m.id)) {
+                    return `<div class="codex-card locked">
+                        <div class="codex-card-portrait"><span class="codex-silhouette">❔</span></div>
+                        <h4>??? Undiscovered</h4>
+                        <p class="codex-locked-hint">Defeat this foe to inscribe its page.</p>
+                    </div>`;
+                }
+                return `<div class="codex-card rarity-${m.difficulty.toLowerCase()}">
+                    <div class="codex-card-portrait"><img src="${m.portrait}" alt="" draggable="false"></div>
+                    <span class="codex-badge">${esc(m.difficulty)}</span>
+                    <h4>${esc(m.name)}</h4>
+                    <p class="codex-lore">${esc(m.lore)}</p>
+                    <div class="codex-concept">
+                        <span class="codex-concept-tag">📘 ${esc(m.concept.title)}</span>
+                        <p>${esc(m.concept.text)}</p>
+                        ${m.concept.example ? `<pre class="codex-code">${esc(m.concept.example)}</pre>` : ''}
+                    </div>
+                </div>`;
+            }).join('') + `</div>`;
+        } else if (tab === 'lore') {
+            const unlocked = CODEX.lore.filter(l => { try { return l.unlocked(p); } catch (_) { return false; } });
+            progressEl.textContent = `📜 ${unlocked.length} / ${CODEX.lore.length} tomes recovered`;
+            body.innerHTML = `<div class="codex-lore-list">` + CODEX.lore.map(l => {
+                const open = unlocked.includes(l);
+                if (!open) {
+                    return `<div class="codex-lore-entry locked">
+                        <h4>🔒 Sealed Knowledge</h4>
+                        <p class="codex-locked-hint">${esc(l.hint)}</p>
+                    </div>`;
+                }
+                return `<div class="codex-lore-entry">
+                    <h4>${esc(l.title)}</h4>
+                    <p>${esc(l.text)}</p>
+                </div>`;
+            }).join('') + `</div>`;
+        } else {
+            const stories = (typeof characterStories !== 'undefined') ? characterStories : {};
+            const isOpen = (key) => {
+                const h = (p.chapterProgress || {})[key];
+                return !!(h && (h.chapter1 || h.chapter2 || h.chapter3));
+            };
+            const openCount = CODEX.heroes.filter(h => isOpen(h.key)).length;
+            progressEl.textContent = `🛡️ ${openCount} / ${CODEX.heroes.length} heroes chronicled`;
+            body.innerHTML = `<div class="codex-grid">` + CODEX.heroes.map(h => {
+                if (!isOpen(h.key)) {
+                    return `<div class="codex-card locked">
+                        <div class="codex-card-portrait"><span class="codex-silhouette">🛡️</span></div>
+                        <h4>??? Unchronicled</h4>
+                        <p class="codex-locked-hint">Complete a chapter with this hero to unlock their tale.</p>
+                    </div>`;
+                }
+                const story = stories[h.key] || {};
+                return `<div class="codex-card hero">
+                    <div class="codex-card-portrait"><img src="${h.portrait}" alt="" draggable="false"></div>
+                    <span class="codex-badge">${esc(h.cls)}</span>
+                    <h4>${esc(h.name)}</h4>
+                    ${story.title ? `<p class="codex-hero-title">"${esc(story.title)}"</p>` : ''}
+                    <p class="codex-lore">${esc(story.chapter1Intro || 'A hero of Meridaeia.')}</p>
+                </div>`;
+            }).join('') + `</div>`;
+        }
     }
 
     getMaxBarrierPoints() {

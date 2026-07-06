@@ -147,6 +147,8 @@ class CodeOfMeridaeiaDatabase {
             characterClass: null,
             gold: 0,
             monstersDefeated: 0, // lifetime kills - feeds the global leaderboard
+            timesDefeated: 0,    // barrier losses - unlocks a lore entry
+            codex: { monsters: [] }, // bestiary entries discovered (by monster id)
             equipped: {
                 weapon: null,
                 armor: null,
