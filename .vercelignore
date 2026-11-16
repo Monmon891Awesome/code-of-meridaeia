@@ -1,0 +1,5 @@
+legacy
+production
+tests
+*.md
+!README.md

@@ -1,4 +1,44 @@
-# 🏰 Code of Meridaeia
+# 🏰 Code of Meridaeia — 3D Edition
+
+A **single-player 3D coding RPG**. Answer coding questions to make your hero strike; get them wrong and the monster strikes back.
+
+Built with React, Three.js (React Three Fiber) and Vite. All 3D characters, monsters and arenas are built and animated in code — no model files.
+
+## Run it
+
+```bash
+npm install
+npm run dev
+```
+
+## Check it
+
+```bash
+npm test
+npm run build
+npm run smoke
+```
+
+`npm test` checks the game rules. `npm run smoke` plays the real game in a headless browser and saves screenshots to `production/qa/evidence/`.
+
+## Deploy on Vercel
+
+Import this repository in Vercel and pick this branch. `vercel.json` already sets the build command (`npm run build`) and output folder (`dist`). No environment variables are needed — progress saves in the player's browser.
+
+## Where things live
+
+| Folder | What it holds |
+|---|---|
+| `src/data/` | Questions, shop, skills, lore, stories, and all balance numbers (`BALANCE` in `index.ts`) |
+| `src/game/` | Rules (`logic.ts`), game state and saving (`store.ts`), sound (`audio.ts`) |
+| `src/three/` | 3D heroes, monsters, arenas, animation and battle choreography |
+| `src/ui/` | Menus, battle panel, shop, skills, codex, settings |
+| `legacy/` | The original 2D game, kept for reference (not deployed) |
+
+---
+
+# Original 2D game notes
+
 
 **An immersive RPG-style coding quiz game** where you master Java, C++, Networking, Data Engineering, and Kernel Development through epic battles and strategic progression.
 
