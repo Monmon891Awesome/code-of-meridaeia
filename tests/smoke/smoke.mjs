@@ -49,7 +49,8 @@ async function main() {
   const next = async () => { await page.waitForSelector('[data-testid=next]:not([disabled])', { timeout: 8000 }); await click('next'); };
 
   console.log('Title and hero select');
-  await page.goto(BASE);
+  // ?capture keeps each 3D frame readable so screenshots are never blank.
+  await page.goto(`${BASE}/?capture`);
   await page.waitForSelector('[data-testid=begin]');
   await sleep(2500);
   await shot('01-title');

@@ -15,9 +15,9 @@ import { HERO_SHOT, HeroModel, Mara } from './heroes';
 import { MONSTER_SHOT, MonsterModel } from './monsters';
 import { GEO, IMPACT, P, Spin, damp, newCtl, now, play, type Ctl } from './kit';
 
-const HERO_X = -2.3;
-const ENEMY_X = 2.3;
-const fx = { shake: 0 };
+const HERO_X = -2.0;
+const ENEMY_X = 2.0;
+const fx = { shake: 0, punch: 0 };
 
 /* ---------------- spark bursts ---------------- */
 interface BurstHandle { emit(x: number, y: number, z: number, color: string, count: number, power?: number): void }
@@ -33,6 +33,15 @@ const Bursts = forwardRef<BurstHandle>(function Bursts(_, ref) {
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const material = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false }), []);
   const tint = useMemo(() => new THREE.Color(), []);
+
+  // Colour every spark once at start, so its shader is built with the scene
+  // instead of causing a hitch on the first hit.
+  useEffect(() => {
+    const m = mesh.current;
+    if (!m) return;
+    for (let i = 0; i < MAX_SPARKS; i++) m.setColorAt(i, tint.set('#ffffff'));
+    if (m.instanceColor) m.instanceColor.needsUpdate = true;
+  }, [tint]);
 
   useImperativeHandle(ref, () => ({
     emit(x, y, z, color, count, power = 1) {
@@ -76,6 +85,53 @@ const Bursts = forwardRef<BurstHandle>(function Bursts(_, ref) {
   });
 
   return <instancedMesh ref={mesh} args={[GEO.shard, material, MAX_SPARKS]} frustumCulled={false} />;
+});
+
+/* ---------------- slash arc + ground shockwave ---------------- */
+interface ImpactHandle { hit(x: number, color: string, slash: boolean, power?: number): void }
+
+const Impact = forwardRef<ImpactHandle>(function Impact(_, ref) {
+  const arc = useRef<THREE.Mesh>(null);
+  const wave = useRef<THREE.Mesh>(null);
+  const state = useRef({ t0: -9, slash: false, power: 1, dir: 1 });
+  const arcMat = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }), []);
+  const waveMat = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }), []);
+
+  useImperativeHandle(ref, () => ({
+    hit(x, color, slash, power = 1) {
+      state.current = { t0: now(), slash, power, dir: x > 0 ? 1 : -1 };
+      arcMat.color.set(color).multiplyScalar(2.2);
+      waveMat.color.set(color).multiplyScalar(1.6);
+      arc.current?.position.set(x - state.current.dir * 0.35, 1.3, 0.25);
+      wave.current?.position.set(x, 0.2, 0);
+    },
+  }), [arcMat, waveMat]);
+
+  useFrame(() => {
+    const { t0, slash, power, dir } = state.current;
+    const k = (now() - t0) / 0.32;
+    const w = (now() - t0) / 0.55;
+    // Both shapes stay in the scene at zero opacity when idle, so their
+    // shaders are built up front rather than on the first hit.
+    const arcOn = slash && k >= 0 && k < 1;
+    const waveOn = w >= 0 && w < 1;
+    if (arc.current) {
+      arc.current.scale.setScalar(arcOn ? (0.7 + k * 0.9) * power : 0.01);
+      arc.current.rotation.set(0.25, dir > 0 ? 0 : Math.PI, 2.3 - k * 2.6);
+      arcMat.opacity = arcOn ? 1 - k * k : 0;
+    }
+    if (wave.current) {
+      wave.current.scale.setScalar(waveOn ? (0.4 + w * 2.6) * power : 0.01);
+      waveMat.opacity = waveOn ? (1 - w) * 0.9 : 0;
+    }
+  });
+
+  return (
+    <>
+      <mesh ref={arc} geometry={GEO.arc} material={arcMat} position={[0, 1.3, 0]} frustumCulled={false} />
+      <mesh ref={wave} geometry={GEO.wave} material={waveMat} position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} frustumCulled={false} />
+    </>
+  );
 });
 
 /* ---------------- flying bolt / arrow ---------------- */
@@ -126,6 +182,7 @@ function Battle() {
   const heroCtl = useMemo(() => newCtl('spawn'), [heroKey]);
   const enemyCtl = useMemo(() => newCtl('spawn'), [enemyId, !!boss]);
   const bursts = useRef<BurstHandle>(null);
+  const impact = useRef<ImpactHandle>(null);
   const flash = useRef<THREE.PointLight>(null);
   const queue = useRef<{ at: number; fn: () => void }[]>([]);
   const shot = useMemo<Shot>(() => ({ active: false, from: new THREE.Vector3(), to: new THREE.Vector3(), t0: 0, color: '#fff', arrow: false }), []);
@@ -139,7 +196,7 @@ function Battle() {
   };
   const spark = (x: number, color: string, count: number, power = 1) => {
     bursts.current?.emit(x, 1.25, 0.1, color, count, power);
-    if (flash.current) { flash.current.position.set(x, 1.4, 1); flash.current.color.set(color); flash.current.intensity = 90 * power; }
+    if (flash.current) { flash.current.position.set(x, 2.2, 2.2); flash.current.color.set(color); flash.current.intensity = 45 * power; }
   };
   const fire = (fromX: number, toX: number, color: string, arrow = false) => {
     shot.from.set(fromX, 1.45, 0.1); shot.to.set(toX, 1.25, 0.1);
@@ -161,14 +218,17 @@ function Battle() {
         later(IMPACT.cast, () => fire(HERO_X + 0.7, ENEMY_X - 0.3, ranged.color, ranged.arrow));
         hitAt = IMPACT.cast + IMPACT.projectile;
       } else {
-        heroCtl.reach = 3.0;
+        heroCtl.reach = 2.45;
         play(heroCtl, 'attack');
         later(0.28, () => audio.play('swing'));
+        later(0.3, () => bursts.current?.emit(ENEMY_X - 1.1, 0.3, 0.2, '#8a7a70', 10, 0.35));
       }
       later(hitAt, () => {
         shot.active = false;
         audio.play(action.crit ? 'crit' : 'hit');
         fx.shake = action.crit ? 0.42 : 0.24;
+        fx.punch = action.crit || action.kill ? 1 : 0.6;
+        impact.current?.hit(ENEMY_X, action.crit ? '#ffe9a0' : heroAccent, !ranged, action.crit ? 1.35 : 1);
         spark(ENEMY_X - 0.2, action.crit ? '#ffe9a0' : heroAccent, action.crit ? 46 : 24, action.crit ? 1.3 : 1);
         float(`${action.crit ? 'CRIT! ' : ''}-${action.damage}`, action.crit ? 'crit' : 'dmg', ENEMY_X, 2.6);
         if (action.kill) {
@@ -189,7 +249,7 @@ function Battle() {
         later(IMPACT.cast, () => fire(ENEMY_X - 0.7, HERO_X + 0.3, bolt));
         hitAt = IMPACT.cast + IMPACT.projectile;
       } else {
-        enemyCtl.reach = 3.0;
+        enemyCtl.reach = 2.45;
         play(enemyCtl, 'attack');
         later(0.28, () => audio.play('swing'));
       }
@@ -204,6 +264,8 @@ function Battle() {
         }
         audio.play('hit');
         fx.shake = action.fatal ? 0.5 : 0.3;
+        fx.punch = action.fatal ? 1 : 0.6;
+        impact.current?.hit(HERO_X, '#ff4050', !bolt, action.fatal ? 1.3 : 1);
         spark(HERO_X + 0.2, '#ff4050', action.fatal ? 50 : 26);
         float(action.fatal ? 'BARRIER BROKEN' : '-1 BARRIER', 'hurt', HERO_X, 2.7);
         if (action.fatal) play(heroCtl, 'down', 'down');
@@ -244,7 +306,10 @@ function Battle() {
           ? <Mara ctl={enemyCtl} twist={0.4} boss />
           : <MonsterModel key={enemyId} monster={monster} ctl={enemyCtl} twist={0.4} />}
       </group>
+      <pointLight position={[HERO_X - 1.2, 2.6, -2.2]} color={heroAccent} intensity={55} distance={9} decay={2} />
+      <pointLight position={[ENEMY_X + 1.2, 2.6, -2.2]} color={enemyAccent} intensity={55} distance={9} decay={2} />
       <Bursts ref={bursts} />
+      <Impact ref={impact} />
       <Projectile shot={shot} />
       <pointLight ref={flash} intensity={0} distance={10} decay={2} />
       {floaters.map((f) => (
@@ -302,12 +367,14 @@ function CameraRig({ framing }: { framing: Framing }) {
     look.current.z = damp(look.current.z, f.look[2], 4, dt);
     const angle = Math.sin(clock.elapsedTime * 0.25) * f.sway;
     fx.shake = damp(fx.shake, 0, 7, dt);
+    fx.punch = damp(fx.punch, 0, 5, dt);
+    const reach = dist.current * (1 - fx.punch * 0.07);
     const sx = (Math.random() - 0.5) * fx.shake;
     const sy = (Math.random() - 0.5) * fx.shake;
     camera.position.set(
-      look.current.x + Math.sin(angle) * dist.current + sx,
-      look.current.y + f.elev * dist.current + sy,
-      look.current.z + Math.cos(angle) * dist.current,
+      look.current.x + Math.sin(angle) * reach + sx,
+      look.current.y + f.elev * reach + sy,
+      look.current.z + Math.cos(angle) * reach,
     );
     camera.lookAt(look.current);
     offset.current.x = damp(offset.current.x, (0.5 - f.cx) * size.width, 4, dt);
@@ -338,8 +405,8 @@ export function Stage({ shadows }: { shadows: boolean }) {
   let framing: Framing;
   if (fighting) {
     framing = wide
-      ? { look: [0, boss ? 1.75 : 1.4, 0], halfW: 3.7, height: boss ? 5 : 4.2, elev: 0.14, sway: 0.05, cx: 0.28, cy: 0.56, fx: 0.56, fy: 0.84 }
-      : { look: [0, boss ? 1.75 : 1.4, 0], halfW: 3.6, height: boss ? 4.8 : 4, elev: 0.12, sway: 0.04, cx: 0.5, cy: 0.25, fx: 1, fy: 0.3 };
+      ? { look: [0, boss ? 1.75 : 1.4, 0], halfW: 3.25, height: boss ? 5 : 4.0, elev: 0.14, sway: 0.05, cx: 0.28, cy: 0.56, fx: 0.56, fy: 0.84 }
+      : { look: [0, boss ? 1.75 : 1.4, 0], halfW: 3.2, height: boss ? 4.8 : 3.9, elev: 0.12, sway: 0.04, cx: 0.5, cy: 0.25, fx: 1, fy: 0.3 };
   } else if (screen === 'title') {
     framing = { look: [0, 2.3, 0], halfW: 2.6, height: 5.4, elev: 0.05, sway: 0.5, cx: 0.5, cy: wide ? 0.56 : 0.54, fx: 1, fy: wide ? 0.6 : 0.42 };
   } else {

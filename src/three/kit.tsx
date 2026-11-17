@@ -4,6 +4,23 @@ import * as THREE from 'three';
 import { useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 
+/** Double-bitted axe head: two crescents, drawn flat then given thickness. */
+function axeBlade() {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.1, 0.04);
+  shape.lineTo(-0.3, 0.42);
+  shape.quadraticCurveTo(0, 0.62, 0.3, 0.42);
+  shape.lineTo(0.1, 0.04);
+  shape.lineTo(0.1, -0.04);
+  shape.lineTo(0.3, -0.42);
+  shape.quadraticCurveTo(0, -0.62, -0.3, -0.42);
+  shape.lineTo(-0.1, -0.04);
+  shape.closePath();
+  const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.06, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02, bevelSegments: 1 });
+  geometry.translate(0, 0, -0.03);
+  return geometry;
+}
+
 export const GEO = {
   box: new THREE.BoxGeometry(1, 1, 1),
   sphere: new THREE.IcosahedronGeometry(0.5, 2),
@@ -20,6 +37,9 @@ export const GEO = {
   capsule: new THREE.CapsuleGeometry(0.5, 1, 4, 10),
   disc: new THREE.CylinderGeometry(0.5, 0.5, 1, 28),
   plane: new THREE.PlaneGeometry(1, 1),
+  axe: axeBlade(),
+  arc: new THREE.TorusGeometry(1, 0.05, 6, 28, Math.PI * 0.95),
+  wave: new THREE.RingGeometry(0.8, 1, 40),
 };
 export type GeoName = keyof typeof GEO;
 
@@ -33,6 +53,27 @@ interface MatOpts {
   flat?: boolean;
   o?: number;
   side?: THREE.Side;
+  /** Edge glow; switch off for floors and other large flat surfaces. */
+  rim?: boolean;
+}
+
+/**
+ * Shader add-ons for every material: an optional soft glow on edges facing
+ * away from the camera (keeps shapes readable on dark backdrops), and a guard
+ * that stops a broken pixel from blacking out the whole screen through bloom.
+ */
+function extend(material: THREE.MeshStandardMaterial, rim: boolean) {
+  material.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <opaque_fragment>',
+      `${rim ? `float rimK = pow(1.0 - saturate(dot(normalize(normal), normalize(vViewPosition))), 2.6);
+       outgoingLight += (diffuseColor.rgb * 0.9 + vec3(0.16, 0.2, 0.32)) * rimK * 0.85;` : ''}
+       if (!(outgoingLight.r >= 0.0) || !(outgoingLight.g >= 0.0) || !(outgoingLight.b >= 0.0)) outgoingLight = vec3(0.0);
+       outgoingLight = min(outgoingLight, vec3(40.0));
+       #include <opaque_fragment>`,
+    );
+  };
+  material.customProgramCacheKey = () => (rim ? 'rim' : 'plain');
 }
 
 const cache = new Map<string, THREE.MeshStandardMaterial>();
@@ -54,6 +95,7 @@ export function mat(color: string, opts: MatOpts = {}): THREE.MeshStandardMateri
       side: opts.side ?? THREE.FrontSide,
       depthWrite: opts.o === undefined || opts.o > 0.6,
     });
+    extend(material, opts.o === undefined && opts.rim !== false);
     cache.set(key, material);
   }
   return material;
@@ -166,4 +208,16 @@ export function Bob({ speed = 2, height = 0.08, pulse = 0, phase = 0, children, 
     if (pulse) ref.current.scale.setScalar(1 + Math.sin(t * 2.3) * pulse);
   });
   return <group {...rest}><group ref={ref}>{children}</group></group>;
+}
+
+/** Sways its children back and forth like cloth in a breeze (capes, hair, tails). */
+export function Sway({ speed = 1.6, amount = 0.1, phase = 0, children }: { speed?: number; amount?: number; phase?: number; children?: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (!ref.current) return;
+    const t = now() * speed + phase;
+    ref.current.rotation.x = Math.sin(t) * amount + amount * 0.6;
+    ref.current.rotation.z = Math.sin(t * 0.7) * amount * 0.4;
+  });
+  return <group ref={ref}>{children}</group>;
 }

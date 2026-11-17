@@ -12,7 +12,7 @@ interface Props { ctl: Ctl; twist?: number }
 
 /* ---------- Syntax Goblin: small, horned, quick with a jagged dagger ---------- */
 function Goblin({ ctl, twist }: Props) {
-  const skin = '#8d8794', cloth = '#5e1f24', eye = '#ff3030';
+  const skin = '#a39cab', cloth = '#8a2a32', eye = '#ff3030';
   const cfg: RigCfg = { style: 'melee', size: 0.78, hunch: 0.34, tempo: 1.7, twist };
   return (
     <Humanoid
@@ -60,7 +60,7 @@ function Goblin({ ctl, twist }: Props) {
 
 /* ---------- Memory Leak Demon: tall, dripping, never completing ---------- */
 function Demon({ ctl, twist }: Props) {
-  const body = '#1b1730', deep = '#0e0b1c', leak = '#8a6cff', eye = '#f4eeff';
+  const body = '#342a5e', deep = '#1c1636', leak = '#8a6cff', eye = '#f4eeff';
   const cfg: RigCfg = { style: 'melee', size: 1.28, hunch: 0.3, tempo: 0.6, twist };
   const drip = (x: number, z: number, phase: number) => (
     <Bob speed={1.6} height={0.5} phase={phase} position={[x, -0.2, z]}>
@@ -119,7 +119,7 @@ function Demon({ ctl, twist }: Props) {
 
 /* ---------- Segfault Wraith: hooded ghost of a crashed program ---------- */
 function Wraith({ ctl, twist }: Props) {
-  const robe = '#3a1626', deep = '#12070f', glow = '#4de8e0', red = '#ff4a5a';
+  const robe = '#6a2a44', deep = '#2a1220', glow = '#4de8e0', red = '#ff4a5a';
   const cfg: RigCfg = { style: 'cast', float: true, size: 1.15, tempo: 0.7, twist };
   const bits = [];
   for (let i = 0; i < 10; i++) {
@@ -297,6 +297,7 @@ function Wolf({ ctl, twist = 0 }: Props) {
       r.position.y = damp(r.position.y, y, 22, dt);
       r.rotation.z = damp(r.rotation.z, fall, 12, dt);
       r.scale.setScalar(Math.max(damp(r.scale.x, scale, 18, dt), 0.0001));
+      r.visible = r.scale.x > 0.02;
     }
     if (body.current) body.current.rotation.x = damp(body.current.rotation.x, pitch, 20, dt);
     if (head.current) {

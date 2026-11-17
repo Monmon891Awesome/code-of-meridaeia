@@ -4,7 +4,7 @@
 import { useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
-import { DURATION, damp, kf, now, type Ctl } from './kit';
+import { DURATION, Sway, damp, kf, now, type Ctl } from './kit';
 
 export interface RigCfg {
   /** How this character strikes: weapon swing, two-handed spell, or bow shot. */
@@ -206,6 +206,7 @@ export function Humanoid(props: HumanoidProps) {
       r.rotation.x = damp(r.rotation.x, p.fall, 12, dt);
       const s = damp(r.scale.x / size, p.scale, 18, dt) * size;
       r.scale.setScalar(Math.max(s, 0.0001));
+      r.visible = s > 0.02;
     }
     const set = (g: Group | null, x: number, y = 0, z = 0) => {
       if (!g) return;
@@ -257,7 +258,7 @@ export function Humanoid(props: HumanoidProps) {
           {props.hips}
           <group ref={body}>
             {props.torso}
-            {props.back}
+            {props.back && <group position={[0, 0.6, 0]}><Sway><group position={[0, -0.6, 0]}>{props.back}</group></Sway></group>}
             <group ref={head} position={[0, 0.7, 0]}>{props.head}</group>
             {arm(-1)}
             {arm(1)}

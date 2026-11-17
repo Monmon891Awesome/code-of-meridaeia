@@ -18,7 +18,7 @@ interface HeroProps { ctl: Ctl; twist?: number }
 
 /* ---------- Grom: orc barbarian, dark plate, glowing great-axe ---------- */
 function Grom({ ctl, twist }: HeroProps) {
-  const skin = '#4f7d3a', plate = '#2b2a33', trim = '#8a2f2a', fur = '#6d6358';
+  const skin = '#5c9442', plate = '#434152', trim = '#a83a32', fur = '#8a7f72';
   const cfg: RigCfg = { style: 'melee', size: 1.12, hunch: 0.12, tempo: 0.9, twist };
   return (
     <Humanoid
@@ -62,9 +62,9 @@ function Grom({ ctl, twist }: HeroProps) {
         <group rotation={[-0.25, 0, 0]}>
           <P g="cyl" c="#4a3524" s={[0.05, 1.5, 0.05]} p={[0, 0, 0.35]} r={[Math.PI / 2, 0, 0]} />
           <group position={[0, 0, 0.95]}>
-            <P g="disc" c="#3a3a44" s={[0.66, 0.07, 0.5]} r={[0, 0, Math.PI / 2]} m={0.8} ro={0.35} />
-            <P g="torus" c="#ff8a3c" e="#ff5a10" ei={2.2} s={[0.5, 0.66, 0.6]} r={[0, Math.PI / 2, 0]} />
-            <P g="box" c="#2b2a33" s={[0.1, 0.24, 0.2]} m={0.6} />
+            <P g="axe" c="#ff8a3c" e="#ff5a10" ei={2.4} s={[0.7, 0.7, 0.5]} r={[0, -Math.PI / 2, 0]} />
+            <P g="axe" c="#555766" s={[0.62, 0.62, 1.3]} r={[0, -Math.PI / 2, 0]} m={0.85} ro={0.3} />
+            <P g="box" c="#2b2a33" s={[0.12, 0.2, 0.24]} m={0.6} />
             <P g="spike" c="#3a3a44" s={[0.08, 0.2, 0.08]} p={[0, 0, 0.26]} r={[Math.PI / 2, 0, 0]} m={0.8} />
           </group>
         </group>
@@ -81,7 +81,7 @@ function Grom({ ctl, twist }: HeroProps) {
 
 /* ---------- Malloc: horned void wizard, cyan flame in each palm ---------- */
 function Malloc({ ctl, twist }: HeroProps) {
-  const robe = '#3b2466', dark = '#1c1430', glow = '#4de8e0';
+  const robe = '#563a94', dark = '#2a1f48', glow = '#4de8e0';
   const cfg: RigCfg = { style: 'cast', float: true, size: 1.05, tempo: 0.8, twist };
   const flame = (
     <Bob speed={5} height={0.03} pulse={0.18}>
@@ -207,7 +207,7 @@ function Handshake({ ctl, twist }: HeroProps) {
 
 /* ---------- Artemis: visored archer with a bow of violet light ---------- */
 function Artemis({ ctl, twist }: HeroProps) {
-  const armor = '#23232e', trim = '#4a4560', skin = '#e2c2a8', glow = '#b07cff', hair = '#101018';
+  const armor = '#34344a', trim = '#6a6390', skin = '#e2c2a8', glow = '#b07cff', hair = '#101018';
   const cfg: RigCfg = { style: 'bow', size: 1.0, tempo: 1.0, twist };
   const metal = { m: 0.6, ro: 0.4 };
   return (
@@ -265,7 +265,7 @@ function Artemis({ ctl, twist }: HeroProps) {
 
 /* ---------- Vulkun: dragonoid of black rock and living lava ---------- */
 function Vulkun({ ctl, twist }: HeroProps) {
-  const rock = '#26222a', dark = '#17151a', lava = '#ff6a1c', eye = '#ffd23c';
+  const rock = '#3a343f', dark = '#221f27', lava = '#ff6a1c', eye = '#ffd23c';
   const cfg: RigCfg = { style: 'melee', size: 1.2, hunch: 0.22, tempo: 0.7, twist };
   const crack = (p: [number, number, number], s: [number, number, number], r: [number, number, number] = [0, 0, 0]) =>
     <P g="box" c={lava} e={lava} ei={3} s={s} p={p} r={r} />;

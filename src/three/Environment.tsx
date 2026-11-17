@@ -2,10 +2,10 @@
 // rune-ringed arena, and scenery unique to each region.
 import { useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Sparkles, Stars } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import type { EnvKey } from '../data';
-import { Bob, P, Spin, seeded } from './kit';
+import { Bob, P, Spin, mat, seeded } from './kit';
 
 interface EnvLook {
   top: string; bottom: string; fog: string; fogFar: number;
@@ -73,6 +73,58 @@ function SkyDome({ top, bottom }: { top: string; bottom: string }) {
       }`,
   }), [top, bottom]);
   return <mesh material={material}><sphereGeometry args={[120, 24, 16]} /></mesh>;
+}
+
+/**
+ * Drifting motes of light (embers, fireflies, snow). Written here rather than
+ * borrowed, because the usual sparkle shader can emit a broken pixel that the
+ * glow effect then spreads across the whole screen as a black flash.
+ */
+function Motes({ color, speed }: { color: string; speed: number }) {
+  const { geometry, material } = useMemo(() => {
+    const rand = seeded(99);
+    const count = 110;
+    const positions = new Float32Array(count * 3);
+    const seeds = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (rand() - 0.5) * 26;
+      positions[i * 3 + 1] = rand() * 9;
+      positions[i * 3 + 2] = (rand() - 0.5) * 22 - 3;
+      seeds[i] = rand() * 100;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('seed', new THREE.BufferAttribute(seeds, 1));
+    const mat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false,
+      uniforms: { time: { value: 0 }, tint: { value: new THREE.Color(color) }, scale: { value: 1 } },
+      vertexShader: `
+        attribute float seed; uniform float time; uniform float scale; varying float vFade;
+        void main(){
+          vec3 p = position;
+          p.y = mod(p.y + time * (0.25 + fract(seed) * 0.5), 9.0);
+          p.x += sin(time * 0.6 + seed) * 0.5;
+          p.z += cos(time * 0.5 + seed * 1.7) * 0.5;
+          vFade = (0.45 + 0.55 * sin(time * 2.0 + seed)) * smoothstep(0.0, 1.0, p.y) * smoothstep(9.0, 7.5, p.y);
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          gl_PointSize = clamp(scale * (0.5 + fract(seed * 7.0)) / max(-mv.z, 0.5), 1.0, 40.0);
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: `
+        uniform vec3 tint; varying float vFade;
+        void main(){
+          float d = distance(gl_PointCoord, vec2(0.5));
+          float glow = smoothstep(0.5, 0.0, d);
+          gl_FragColor = vec4(tint * 1.6, glow * glow * vFade);
+        }`,
+    });
+    return { geometry: geo, material: mat };
+  }, [color]);
+  useFrame(({ clock, size }) => {
+    material.uniforms.time.value = clock.elapsedTime * speed * 2;
+    material.uniforms.scale.value = size.height * 0.11;
+  });
+  return <points geometry={geometry} material={material} frustumCulled={false} />;
 }
 
 /** Scatter points in an arc behind the arena. */
@@ -185,9 +237,9 @@ function Scenery({ env, look }: { env: EnvKey; look: EnvLook }): ReactNode {
     case 'lakes':
       return (
         <>
-          <mesh position={[0, 0.04, -24]} rotation={[-Math.PI / 2, 0, 0]}>
+          <mesh position={[0, 0.04, -24]} rotation={[-Math.PI / 2, 0, 0]}
+            material={mat('#2a50d8', { e: '#3a8cff', ei: 0.9, ro: 0.15, m: 0.6, o: 0.85, flat: false })}>
             <circleGeometry args={[19, 40]} />
-            <meshStandardMaterial color="#2a50d8" emissive="#3a8cff" emissiveIntensity={0.9} roughness={0.15} metalness={0.6} transparent opacity={0.85} />
           </mesh>
           {place(scatter(41, 16, 7, 24), (k) => <Crystal c={k > 0.5 ? '#4de8e0' : '#7a8cff'} k={k} />)}
           {place(scatter(42, 10, 6.5, 22), () => <Rock c="#2c2f66" />)}
@@ -258,7 +310,7 @@ export function Environment({ env, danger = 0, shadows = true }: { env: EnvKey; 
 
       <hemisphereLight args={[look.fill, look.ground, 1.9 * calm]} />
       <directionalLight
-        position={[5, 10, 7]} color={look.key} intensity={look.keyPower * calm}
+        position={[5, 10, 7]} color={look.key} intensity={look.keyPower * 1.35 * calm}
         castShadow={shadows} shadow-mapSize={[1536, 1536]} shadow-bias={-0.0004}
         shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={9} shadow-camera-bottom={-6} shadow-camera-far={40}
       />
@@ -266,14 +318,13 @@ export function Environment({ env, danger = 0, shadows = true }: { env: EnvKey; 
       <pointLight position={[0, 3.5, 6.5]} color="#fff2e6" intensity={90 * calm} distance={20} decay={2} />
       {danger > 0.3 && <pointLight position={[0, 1.5, 2]} color="#ff2030" intensity={30 * danger} distance={14} decay={2} />}
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow material={mat(look.ground, { ro: 0.95, flat: false, rim: false })}>
         <circleGeometry args={[70, 48]} />
-        <meshStandardMaterial color={look.ground} roughness={0.95} />
       </mesh>
 
       {/* The arena: a stone dais with a slowly turning ring of runes. */}
-      <P g="disc" c={look.stone} s={[11.4, 0.3, 11.4]} p={[0, 0.0, 0]} ro={0.9} flat={false} />
-      <P g="disc" c={look.ground} s={[9.6, 0.32, 9.6]} p={[0, 0.0, 0]} ro={0.9} flat={false} />
+      <P g="disc" c={look.stone} s={[11.4, 0.3, 11.4]} p={[0, 0.0, 0]} ro={0.9} flat={false} rim={false} />
+      <P g="disc" c={look.ground} s={[9.6, 0.32, 9.6]} p={[0, 0.0, 0]} ro={0.9} flat={false} rim={false} />
       <P g="ring" c={look.rune} e={look.rune} ei={1.3} s={[9.9, 9.9, 1]} p={[0, 0.17, 0]} r={[Math.PI / 2, 0, 0]} shadow={false} />
       <Spin speed={0.12} position={[0, 0.18, 0]}>
         {Array.from({ length: 12 }, (_, i) => {
@@ -286,8 +337,22 @@ export function Environment({ env, danger = 0, shadows = true }: { env: EnvKey; 
       </Spin>
       <P g="ring" c={look.rune} e={look.rune} ei={1.0} s={[6.4, 6.4, 1]} p={[0, 0.17, 0]} r={[Math.PI / 2, 0, 0]} shadow={false} />
 
+      {Array.from({ length: 18 }, (_, i) => {
+        const a = (i / 18) * Math.PI * 2;
+        return (
+          <P key={i} g="box" c={i % 2 ? look.stone : look.ground} s={[1.45, 0.06, 1.0]} ro={0.95} rim={false}
+            p={[Math.cos(a) * 3.9, 0.15 + (i % 3) * 0.008, Math.sin(a) * 3.9]} r={[0, -a + Math.PI / 2, 0]} />
+        );
+      })}
+      {scatter(7, 14, 5.9, 7.5).map((it, i) => (
+        <P key={i} g="rock" c={look.stone} s={0.25 + it.k * 0.35} p={[it.x, 0.1, it.z + 1.5]} r={[it.rot, it.rot, 0]} />
+      ))}
+      {env !== 'gates' && scatter(env.length * 13, 16, 48, 62).map((it, i) => (
+        <P key={i} g="spike" c={look.fog} s={[16 + it.k * 14, 7 + it.k * 13, 10]} p={[it.x, 2.5 + it.k * 4, it.z]} r={[0, it.rot, 0]} shadow={false} />
+      ))}
+
       <Scenery env={env} look={look} />
-      <Sparkles count={90} scale={[26, 9, 22]} position={[0, 4.5, -3]} size={5} speed={look.sparkleSpeed} color={look.sparkle} opacity={0.8} />
+      <Motes color={look.sparkle} speed={look.sparkleSpeed} />
     </>
   );
 }
