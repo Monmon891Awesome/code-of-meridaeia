@@ -1,0 +1,186 @@
+{
+  "balance": {
+    "xpByDifficulty": {
+      "easy": 10,
+      "medium": 20,
+      "hard": 30
+    },
+    "maxTimeBonus": 10,
+    "streakStep": 0.1,
+    "streakCap": 5,
+    "goldPerCorrect": 5,
+    "hintCost": 10,
+    "baseBarrier": 3,
+    "monsterHP": 100,
+    "baseDamage": 25,
+    "bossHP": 1000,
+    "bossBaseDamage": 100,
+    "bossHintlessBonus": 30,
+    "bossMaxHints": 3,
+    "baseTimer": 60,
+    "timeCrystalSeconds": 30,
+    "chapterClearAccuracy": 50,
+    "storyPerChapter": 5,
+    "storyPerKill": 20,
+    "luckyStreak": 3
+  },
+  "lootTable": [
+    {
+      "rarity": "common",
+      "label": "Common",
+      "weight": 55,
+      "gold": [
+        4,
+        10
+      ],
+      "items": [
+        "Goblin's Cracked Semicolon",
+        "Rusty Loop Counter",
+        "Torn Stack Frame",
+        "Bent Null Terminator"
+      ]
+    },
+    {
+      "rarity": "uncommon",
+      "label": "Uncommon",
+      "weight": 25,
+      "gold": [
+        12,
+        20
+      ],
+      "items": [
+        "Vial of Sanitized Input",
+        "Polished Boolean Gem",
+        "Cloak of Caught Exceptions",
+        "Wolf-Fang Pointer"
+      ]
+    },
+    {
+      "rarity": "rare",
+      "label": "Rare",
+      "weight": 13,
+      "gold": [
+        25,
+        40
+      ],
+      "items": [
+        "Rune of Constant Time",
+        "Demonhide Debugger",
+        "Chalice of Closed Sockets",
+        "Wraithbone Compiler Flag"
+      ]
+    },
+    {
+      "rarity": "epic",
+      "label": "Epic",
+      "weight": 5.5,
+      "gold": [
+        50,
+        80
+      ],
+      "items": [
+        "Crown of the Root User",
+        "Heart of the Deadlock Dragon",
+        "Sigil of Zero Downtime"
+      ]
+    },
+    {
+      "rarity": "legendary",
+      "label": "LEGENDARY",
+      "weight": 1.5,
+      "gold": [
+        120,
+        200
+      ],
+      "items": [
+        "Blade of the Final Keyword",
+        "The Uncorrupted Kernel",
+        "Marakathalessa's Lost Tear"
+      ]
+    }
+  ],
+  "virtues": {
+    "correct": [
+      "Wisdom grows with each victory.",
+      "Patience and study bear fruit.",
+      "Your perseverance is rewarded.",
+      "Knowledge is the beginning of wisdom.",
+      "Well done! Keep pressing forward.",
+      "Diligence leads to mastery.",
+      "Every step forward is progress.",
+      "Your dedication shines through.",
+      "The path of understanding unfolds.",
+      "Excellence comes through practice."
+    ],
+    "incorrect": [
+      "Grace covers all mistakes. Learn and grow.",
+      "Even heroes stumble. Rise again.",
+      "Every failure plants seeds of wisdom.",
+      "Patience with yourself is strength.",
+      "Mistakes are teachers in disguise.",
+      "The journey matters more than perfection.",
+      "Tomorrow brings new opportunities.",
+      "Growth comes through challenge.",
+      "Persistence overcomes all obstacles.",
+      "Take heart, redemption is always possible."
+    ],
+    "streak": [
+      "Your consistency inspires!",
+      "A pattern of excellence emerges.",
+      "Faithfulness in the small things.",
+      "Building momentum through dedication.",
+      "Steadfast and sure!"
+    ]
+  },
+  "achievements": [
+    {
+      "id": "first_question",
+      "name": "First Steps",
+      "description": "Answer your first question",
+      "icon": "🎯"
+    },
+    {
+      "id": "perfect_round",
+      "name": "Perfect!",
+      "description": "Get every question right in a chapter",
+      "icon": "⭐"
+    },
+    {
+      "id": "level_5",
+      "name": "Getting Good",
+      "description": "Reach Level 5",
+      "icon": "📈"
+    },
+    {
+      "id": "questions_50",
+      "name": "Dedicated Learner",
+      "description": "Answer 50 questions",
+      "icon": "📚"
+    },
+    {
+      "id": "first_blood",
+      "name": "Bug Squasher",
+      "description": "Slay your first monster",
+      "icon": "🗡️"
+    },
+    {
+      "id": "witch_fallen",
+      "name": "Witchbreaker",
+      "description": "Defeat Marakathalessa",
+      "icon": "👑"
+    }
+  ],
+  "chapterNames": [
+    "The Awakening",
+    "Rising Storm",
+    "The Reckoning"
+  ],
+  "environmentNames": {
+    "wasteland": "The Ashen Wasteland",
+    "forest": "The Whispering Forest",
+    "mountains": "The Frozen Peaks",
+    "lakes": "The Data Lakes",
+    "gates": "The Gates of Meridaeia",
+    "throne": "Marakathalessa's Sanctum"
+  }
+}

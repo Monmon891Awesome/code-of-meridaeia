@@ -1,0 +1,57 @@
+{
+  "monsters": {
+    "goblin": {
+      "key": "goblin",
+      "name": "Syntax Goblin",
+      "tier": "easy",
+      "accent": "#ff4a4a",
+      "portrait": "/assets/monsters/monster-syntax-goblin.png",
+      "lore": "Once a humble data structure, corrupted by Marakathalessa's dark magic. It now prowls the wasteland, causing syntax errors in all who cross its path."
+    },
+    "wolf": {
+      "key": "wolf",
+      "name": "Null Pointer Wolf",
+      "tier": "easy",
+      "accent": "#7fd4ff",
+      "portrait": "/assets/monsters/monster-null-wolf.png",
+      "lore": "A spectral beast born from dereferenced memory. It hunts those who forget to initialize their variables, leading them into null dimensions."
+    },
+    "demon": {
+      "key": "demon",
+      "name": "Memory Leak Demon",
+      "tier": "medium",
+      "accent": "#8a6cff",
+      "portrait": "/assets/monsters/monster-memory-demon.png",
+      "lore": "This creature was once a function - clean, pure, purposeful. But when the Great Compiler fell, it lost its return statement and now wanders forever, never completing."
+    },
+    "wraith": {
+      "key": "wraith",
+      "name": "Segfault Wraith",
+      "tier": "medium",
+      "accent": "#4de8e0",
+      "portrait": "/assets/monsters/monster-segfault-wraith.png",
+      "lore": "The ghost of a crashed program, forever trapped between memory segments. It seeks to drag others into the void of undefined behavior."
+    },
+    "compiler": {
+      "key": "compiler",
+      "name": "Corrupted Compiler",
+      "tier": "hard",
+      "accent": "#ff2d3d",
+      "portrait": "/assets/monsters/monster-corrupted-compiler.png",
+      "lore": "A shard of the Great Compiler itself, twisted by Marakathalessa's dark magic. It rejects all who dare challenge the corruption of Meridaeia."
+    }
+  },
+  "byTier": {
+    "easy": [
+      "goblin",
+      "wolf"
+    ],
+    "medium": [
+      "demon",
+      "wraith"
+    ],
+    "hard": [
+      "compiler"
+    ]
+  }
+}

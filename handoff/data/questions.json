@@ -1,0 +1,1544 @@
+{
+  "java": [
+    {
+      "id": "java_1",
+      "chapter": 1,
+      "category": "java",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What is the output of the following Java code?",
+      "code": "public class Test {\n    public static void main(String[] args) {\n        String s1 = \"Hello\";\n        String s2 = new String(\"Hello\");\n        System.out.println(s1 == s2);\n        System.out.println(s1.equals(s2));\n    }\n}",
+      "options": [
+        "true, true",
+        "false, true",
+        "true, false",
+        "false, false"
+      ],
+      "correctAnswer": 1,
+      "explanation": "== compares references (memory addresses), while .equals() compares content. s1 points to the String pool, s2 creates a new object on the heap."
+    },
+    {
+      "id": "java_2",
+      "chapter": 1,
+      "category": "java",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "Which collection should you use when you need fast lookups by key and maintain insertion order?",
+      "code": null,
+      "options": [
+        "HashMap",
+        "TreeMap",
+        "LinkedHashMap",
+        "Hashtable"
+      ],
+      "correctAnswer": 2,
+      "explanation": "LinkedHashMap maintains insertion order while providing O(1) lookups. HashMap doesn't maintain order, TreeMap sorts by key, Hashtable is synchronized but unordered."
+    },
+    {
+      "id": "java_3",
+      "chapter": 1,
+      "category": "java",
+      "difficulty": "hard",
+      "type": "output",
+      "question": "What happens when this code runs?",
+      "code": "public class ThreadTest {\n    private static int count = 0;\n    \n    public static void main(String[] args) throws InterruptedException {\n        Thread t1 = new Thread(() -> {\n            for(int i = 0; i < 1000; i++) count++;\n        });\n        Thread t2 = new Thread(() -> {\n            for(int i = 0; i < 1000; i++) count++;\n        });\n        t1.start(); t2.start();\n        t1.join(); t2.join();\n        System.out.println(count);\n    }\n}",
+      "options": [
+        "Always prints 2000",
+        "May print a value less than 2000 due to race condition",
+        "Compilation error",
+        "Throws ConcurrentModificationException"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Without synchronization, count++ is not atomic. Multiple threads can read the same value before incrementing, causing lost updates (race condition)."
+    },
+    {
+      "id": "java_4",
+      "chapter": 1,
+      "category": "java",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What does this stream operation return?",
+      "code": "List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);\nint result = nums.stream()\n    .filter(n -> n % 2 == 0)\n    .mapToInt(n -> n * 2)\n    .sum();\nSystem.out.println(result);",
+      "options": [
+        "6",
+        "12",
+        "15",
+        "30"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Filter keeps even numbers [2, 4], mapToInt doubles them [4, 8], sum() adds them: 4 + 8 = 12."
+    },
+    {
+      "id": "java_5",
+      "chapter": 2,
+      "category": "java",
+      "difficulty": "hard",
+      "type": "bugfix",
+      "question": "What is wrong with this singleton implementation?",
+      "code": "public class Singleton {\n    private static Singleton instance;\n    \n    public static Singleton getInstance() {\n        if (instance == null) {\n            instance = new Singleton();\n        }\n        return instance;\n    }\n}",
+      "options": [
+        "Missing private constructor",
+        "Not thread-safe - multiple instances possible",
+        "Both A and B are correct",
+        "The code is perfectly fine"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Two issues: 1) No private constructor allows external instantiation. 2) Without synchronization, two threads could both see instance as null and create separate instances."
+    },
+    {
+      "id": "java_6",
+      "chapter": 2,
+      "category": "java",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the purpose of the volatile keyword in Java?",
+      "code": null,
+      "options": [
+        "Makes a variable constant",
+        "Ensures visibility of changes across threads",
+        "Prevents garbage collection",
+        "Increases variable access speed"
+      ],
+      "correctAnswer": 1,
+      "explanation": "volatile ensures that reads and writes to a variable are visible to all threads. It prevents thread-local caching of the variable."
+    },
+    {
+      "id": "java_7",
+      "chapter": 2,
+      "category": "java",
+      "difficulty": "easy",
+      "type": "output",
+      "question": "What is the output?",
+      "code": "ArrayList<Integer> list = new ArrayList<>();\nlist.add(1);\nlist.add(2);\nlist.add(3);\nlist.remove(1);\nSystem.out.println(list);",
+      "options": [
+        "[2, 3]",
+        "[1, 3]",
+        "[1, 2]",
+        "IndexOutOfBoundsException"
+      ],
+      "correctAnswer": 1,
+      "explanation": "remove(1) removes the element at index 1 (which is 2), not the element with value 1. Use remove(Integer.valueOf(1)) to remove by value."
+    },
+    {
+      "id": "java_8",
+      "chapter": 2,
+      "category": "java",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "Which statement about Java Generics is FALSE?",
+      "code": null,
+      "options": [
+        "Generic type information is erased at runtime",
+        "You cannot create arrays of parameterized types",
+        "Generics support primitive types directly",
+        "Wildcards allow flexible type parameters"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Java Generics do NOT support primitive types (int, double, etc.) directly. You must use wrapper classes (Integer, Double). This is due to type erasure."
+    },
+    {
+      "id": "java_9",
+      "chapter": 3,
+      "category": "java",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What exception is thrown?",
+      "code": "public class Test {\n    public static void main(String[] args) {\n        try {\n            throw new RuntimeException(\"Error 1\");\n        } finally {\n            throw new RuntimeException(\"Error 2\");\n        }\n    }\n}",
+      "options": [
+        "RuntimeException: Error 1",
+        "RuntimeException: Error 2",
+        "Both exceptions are thrown",
+        "No exception is thrown"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The finally block's exception \"Error 2\" suppresses the try block's exception \"Error 1\". Only \"Error 2\" propagates."
+    },
+    {
+      "id": "java_10",
+      "chapter": 3,
+      "category": "java",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the difference between Comparable and Comparator interfaces?",
+      "code": null,
+      "options": [
+        "Comparable is in java.util, Comparator is in java.lang",
+        "Comparable defines natural ordering within the class, Comparator defines external custom ordering",
+        "Comparable can sort multiple fields, Comparator cannot",
+        "There is no difference, they are interchangeable"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Comparable is implemented by the class itself for natural ordering (compareTo). Comparator is a separate class for custom ordering (compare), allowing multiple sort strategies."
+    },
+    {
+      "id": "java_11",
+      "chapter": 3,
+      "category": "java",
+      "difficulty": "hard",
+      "type": "output",
+      "question": "What is the output of this code?",
+      "code": "class Parent {\n    Parent() { System.out.print(\"P \"); }\n}\nclass Child extends Parent {\n    Child() { System.out.print(\"C \"); }\n}\nclass GrandChild extends Child {\n    GrandChild() { System.out.print(\"G \"); }\n}\npublic class Main {\n    public static void main(String[] args) {\n        new GrandChild();\n    }\n}",
+      "options": [
+        "G C P",
+        "P C G",
+        "G",
+        "Compilation error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Constructors are called from the top of the hierarchy down. Parent constructor runs first, then Child, then GrandChild."
+    },
+    {
+      "id": "java_12",
+      "chapter": 3,
+      "category": "java",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What does the transient keyword do?",
+      "code": null,
+      "options": [
+        "Makes a field constant",
+        "Excludes a field from serialization",
+        "Makes a field thread-safe",
+        "Allows field to be null"
+      ],
+      "correctAnswer": 1,
+      "explanation": "transient marks a field to be skipped during serialization. This is useful for sensitive data (passwords) or derived/computed fields."
+    }
+  ],
+  "cpp": [
+    {
+      "id": "cpp_1",
+      "chapter": 1,
+      "category": "cpp",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What is the output of this C++ code?",
+      "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int arr[] = {10, 20, 30};\n    int* ptr = arr;\n    cout << *ptr << \" \";\n    ptr++;\n    cout << *ptr << \" \";\n    cout << *(ptr + 1);\n    return 0;\n}",
+      "options": [
+        "10 20 30",
+        "10 11 12",
+        "10 20 21",
+        "Undefined behavior"
+      ],
+      "correctAnswer": 0,
+      "explanation": "ptr starts at arr[0]=10. After ptr++, it points to arr[1]=20. ptr+1 then points to arr[2]=30. Pointer arithmetic moves by sizeof(int)."
+    },
+    {
+      "id": "cpp_2",
+      "chapter": 1,
+      "category": "cpp",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the Rule of Three in C++?",
+      "code": null,
+      "options": [
+        "A class should have at most 3 methods",
+        "If you define destructor, copy constructor, or copy assignment, define all three",
+        "Objects should only be copied 3 times maximum",
+        "A base class should have at most 3 derived classes"
+      ],
+      "correctAnswer": 1,
+      "explanation": "If a class manages resources (like dynamic memory), defining one of destructor, copy constructor, or copy assignment usually means you need all three to properly manage the resource."
+    },
+    {
+      "id": "cpp_3",
+      "chapter": 1,
+      "category": "cpp",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What is the output?",
+      "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> v = {1, 2, 3, 4, 5};\n    v.erase(v.begin() + 2);\n    v.push_back(6);\n    cout << v.size() << \" \" << v[2];\n    return 0;\n}",
+      "options": [
+        "5 3",
+        "5 4",
+        "6 4",
+        "6 6"
+      ],
+      "correctAnswer": 1,
+      "explanation": "After erasing element at index 2 (value 3), vector is {1,2,4,5}. After push_back(6), it's {1,2,4,5,6}. Size is 5, v[2] is 4."
+    },
+    {
+      "id": "cpp_4",
+      "chapter": 1,
+      "category": "cpp",
+      "difficulty": "hard",
+      "type": "bugfix",
+      "question": "What is the memory issue in this code?",
+      "code": "class MyClass {\n    int* data;\npublic:\n    MyClass(int size) {\n        data = new int[size];\n    }\n    ~MyClass() {\n        delete data;  // Line A\n    }\n};",
+      "options": [
+        "No issue, code is correct",
+        "Should use delete[] instead of delete",
+        "data should be initialized to nullptr",
+        "Missing copy constructor"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When memory is allocated with new[], it must be freed with delete[] (not delete). Using delete on array memory causes undefined behavior."
+    },
+    {
+      "id": "cpp_5",
+      "chapter": 2,
+      "category": "cpp",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the difference between unique_ptr and shared_ptr?",
+      "code": null,
+      "options": [
+        "unique_ptr is faster, shared_ptr is slower",
+        "unique_ptr allows exclusive ownership, shared_ptr allows multiple owners with reference counting",
+        "unique_ptr works with arrays, shared_ptr does not",
+        "There is no practical difference"
+      ],
+      "correctAnswer": 1,
+      "explanation": "unique_ptr enforces single ownership - cannot be copied, only moved. shared_ptr uses reference counting to allow multiple pointers to the same resource, deleting when count reaches zero."
+    },
+    {
+      "id": "cpp_6",
+      "chapter": 2,
+      "category": "cpp",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What is the output?",
+      "code": "#include <iostream>\nusing namespace std;\n\nclass Base {\npublic:\n    virtual void show() { cout << \"Base \"; }\n};\n\nclass Derived : public Base {\npublic:\n    void show() override { cout << \"Derived \"; }\n};\n\nint main() {\n    Base* ptr = new Derived();\n    ptr->show();\n    Base obj = *ptr;\n    obj.show();\n    return 0;\n}",
+      "options": [
+        "Derived Derived",
+        "Derived Base",
+        "Base Derived",
+        "Base Base"
+      ],
+      "correctAnswer": 1,
+      "explanation": "First call uses virtual dispatch (Derived). Second call involves object slicing - copying Derived to Base loses the derived part, so Base::show() is called."
+    },
+    {
+      "id": "cpp_7",
+      "chapter": 2,
+      "category": "cpp",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What does the const keyword do when placed after a method declaration?",
+      "code": "void getValue() const;",
+      "options": [
+        "Makes the return value constant",
+        "Promises the method won't modify the object's state",
+        "Makes the method faster",
+        "Prevents the method from being overridden"
+      ],
+      "correctAnswer": 1,
+      "explanation": "const after method declaration makes it a const member function, promising not to modify any member variables (except those marked mutable)."
+    },
+    {
+      "id": "cpp_8",
+      "chapter": 2,
+      "category": "cpp",
+      "difficulty": "hard",
+      "type": "output",
+      "question": "What is the output?",
+      "code": "#include <iostream>\nusing namespace std;\n\ntemplate<typename T>\nT max(T a, T b) {\n    return (a > b) ? a : b;\n}\n\nint main() {\n    cout << max(3, 7) << \" \";\n    cout << max(3.14, 2.72) << \" \";\n    cout << max<int>(3.9, 2.1);\n    return 0;\n}",
+      "options": [
+        "7 3.14 3.9",
+        "7 3.14 3",
+        "7 3.14 4",
+        "Compilation error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "First two use template type deduction. Third explicitly uses int, so 3.9 and 2.1 are truncated to 3 and 2, max returns 3."
+    },
+    {
+      "id": "cpp_9",
+      "chapter": 3,
+      "category": "cpp",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is RAII in C++?",
+      "code": null,
+      "options": [
+        "Random Access Iterator Interface",
+        "Resource Acquisition Is Initialization - tying resource lifetime to object lifetime",
+        "Runtime Allocated Integer Array",
+        "Read After Initialize Instance"
+      ],
+      "correctAnswer": 1,
+      "explanation": "RAII binds resource management to object lifetime. Resources are acquired in constructor and released in destructor, ensuring cleanup even with exceptions."
+    },
+    {
+      "id": "cpp_10",
+      "chapter": 3,
+      "category": "cpp",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What happens with this code?",
+      "code": "#include <iostream>\n#include <map>\nusing namespace std;\n\nint main() {\n    map<string, int> m;\n    m[\"apple\"] = 5;\n    m[\"banana\"] = 3;\n    cout << m[\"cherry\"] << \" \";\n    cout << m.size();\n    return 0;\n}",
+      "options": [
+        "Throws exception",
+        "0 2",
+        "0 3",
+        "Undefined behavior"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Accessing m[\"cherry\"] with operator[] creates the key with default value (0 for int). So it prints 0 and size becomes 3."
+    },
+    {
+      "id": "cpp_11",
+      "chapter": 3,
+      "category": "cpp",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the difference between virtual and pure virtual functions?",
+      "code": null,
+      "options": [
+        "Pure virtual functions are faster",
+        "Virtual functions have a default implementation, pure virtual functions (= 0) must be overridden",
+        "Pure virtual functions cannot be inherited",
+        "Virtual functions cannot be overridden"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Virtual functions can have an implementation in the base class. Pure virtual functions (= 0) have no implementation and make the class abstract - derived classes must override them."
+    },
+    {
+      "id": "cpp_12",
+      "chapter": 3,
+      "category": "cpp",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What is the output?",
+      "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a = 5, b = 10;\n    int& ref = a;\n    ref = b;\n    b = 20;\n    cout << a << \" \" << b << \" \" << ref;\n    return 0;\n}",
+      "options": [
+        "5 20 10",
+        "10 20 10",
+        "10 20 20",
+        "5 20 20"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ref is a reference to a. ref = b copies b's value (10) into a. Changing b to 20 doesn't affect a or ref. Final: a=10, b=20, ref=10."
+    }
+  ],
+  "networking": [
+    {
+      "id": "net_1",
+      "chapter": 1,
+      "category": "networking",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "Which HTTP method is typically used to retrieve data from a server?",
+      "code": null,
+      "options": [
+        "POST",
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "correctAnswer": 1,
+      "explanation": "GET is used to retrieve/read data. POST creates new resources, PUT updates existing resources, DELETE removes resources. These form the CRUD operations."
+    },
+    {
+      "id": "net_2",
+      "chapter": 1,
+      "category": "networking",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What does the HTTP status code 403 mean?",
+      "code": null,
+      "options": [
+        "Not Found - resource doesn't exist",
+        "Forbidden - server refuses to authorize the request",
+        "Bad Request - malformed request syntax",
+        "Internal Server Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "403 Forbidden means the server understood the request but refuses to authorize it. Unlike 401 (Unauthorized), re-authenticating won't help. 404 is Not Found, 400 is Bad Request, 500 is Server Error."
+    },
+    {
+      "id": "net_3",
+      "chapter": 1,
+      "category": "networking",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the main difference between TCP and UDP?",
+      "code": null,
+      "options": [
+        "TCP is faster than UDP",
+        "TCP guarantees delivery and order; UDP is faster but unreliable",
+        "UDP is more secure than TCP",
+        "TCP is used for video streaming, UDP for web browsing"
+      ],
+      "correctAnswer": 1,
+      "explanation": "TCP is connection-oriented with guaranteed delivery, ordering, and error checking. UDP is connectionless, faster, but doesn't guarantee delivery - used for streaming, gaming, DNS."
+    },
+    {
+      "id": "net_4",
+      "chapter": 1,
+      "category": "networking",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "In the OSI model, which layer handles end-to-end communication and flow control?",
+      "code": null,
+      "options": [
+        "Network Layer (Layer 3)",
+        "Transport Layer (Layer 4)",
+        "Session Layer (Layer 5)",
+        "Data Link Layer (Layer 2)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Transport Layer (Layer 4) handles end-to-end communication, flow control, and error recovery. This is where TCP and UDP operate."
+    },
+    {
+      "id": "net_5",
+      "chapter": 2,
+      "category": "networking",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is a WebSocket and why is it used?",
+      "code": null,
+      "options": [
+        "A secure version of HTTP",
+        "A protocol for full-duplex, persistent connections between client and server",
+        "A type of database connection",
+        "A JavaScript library for HTTP requests"
+      ],
+      "correctAnswer": 1,
+      "explanation": "WebSocket enables bidirectional, full-duplex communication over a single TCP connection. Unlike HTTP request-response, both sides can send messages anytime - ideal for chat, gaming, live updates."
+    },
+    {
+      "id": "net_6",
+      "chapter": 2,
+      "category": "networking",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What does REST stand for in REST API?",
+      "code": null,
+      "options": [
+        "Remote Execution Service Transfer",
+        "Representational State Transfer",
+        "Request-Response Service Technology",
+        "Resource Endpoint System Transfer"
+      ],
+      "correctAnswer": 1,
+      "explanation": "REST = Representational State Transfer. It's an architectural style using stateless operations on resources identified by URLs, typically using HTTP methods (GET, POST, PUT, DELETE)."
+    },
+    {
+      "id": "net_7",
+      "chapter": 2,
+      "category": "networking",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What does this JavaScript fetch call return?",
+      "code": "fetch('https://api.example.com/users')\n    .then(response => response.json())\n    .then(data => console.log(typeof data));",
+      "options": [
+        "string",
+        "object",
+        "undefined",
+        "Promise"
+      ],
+      "correctAnswer": 1,
+      "explanation": "response.json() parses the JSON response body into a JavaScript object. Arrays are also objects in JavaScript, so typeof returns \"object\"."
+    },
+    {
+      "id": "net_8",
+      "chapter": 2,
+      "category": "networking",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the purpose of CORS (Cross-Origin Resource Sharing)?",
+      "code": null,
+      "options": [
+        "Encrypting data in transit",
+        "Allowing or blocking cross-origin HTTP requests for security",
+        "Compressing network traffic",
+        "Load balancing across servers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CORS is a security mechanism that allows servers to specify which origins can access their resources. Browsers enforce CORS to prevent malicious cross-site requests."
+    },
+    {
+      "id": "net_9",
+      "chapter": 3,
+      "category": "networking",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the difference between HTTP and HTTPS?",
+      "code": null,
+      "options": [
+        "HTTPS is faster than HTTP",
+        "HTTPS encrypts data using TLS/SSL; HTTP sends data in plain text",
+        "HTTP supports more features",
+        "HTTPS is only for banking websites"
+      ],
+      "correctAnswer": 1,
+      "explanation": "HTTPS = HTTP + TLS/SSL encryption. Data is encrypted in transit, preventing eavesdropping and tampering. Modern best practice is HTTPS for all websites."
+    },
+    {
+      "id": "net_10",
+      "chapter": 3,
+      "category": "networking",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the purpose of DNS?",
+      "code": null,
+      "options": [
+        "Encrypting domain traffic",
+        "Translating domain names to IP addresses",
+        "Storing website files",
+        "Authenticating users"
+      ],
+      "correctAnswer": 1,
+      "explanation": "DNS (Domain Name System) translates human-readable domain names (google.com) to IP addresses (142.250.xxx.xxx) that computers use to identify each other on the network."
+    },
+    {
+      "id": "net_11",
+      "chapter": 3,
+      "category": "networking",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "In a RESTful API, what is the purpose of the PUT method?",
+      "code": null,
+      "options": [
+        "Create a new resource",
+        "Update/replace an existing resource",
+        "Delete a resource",
+        "Retrieve a resource"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PUT is used to update or replace an existing resource entirely. PATCH is for partial updates. PUT is idempotent - multiple identical requests have the same effect as one."
+    },
+    {
+      "id": "net_12",
+      "chapter": 3,
+      "category": "networking",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is a JWT (JSON Web Token) typically used for?",
+      "code": null,
+      "options": [
+        "Encrypting database connections",
+        "Stateless authentication - containing user claims in a signed token",
+        "Compressing JSON data",
+        "Formatting API responses"
+      ],
+      "correctAnswer": 1,
+      "explanation": "JWT is a compact, URL-safe token containing claims (user info, permissions). It's signed to prevent tampering and commonly used for stateless authentication where the server doesn't need to store sessions."
+    }
+  ],
+  "dataEngineering": [
+    {
+      "id": "de_1",
+      "chapter": 1,
+      "category": "dataEngineering",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What does ETL stand for in data engineering?",
+      "code": null,
+      "options": [
+        "Encrypted Transfer Layer",
+        "Extract, Transform, Load",
+        "Efficient Table Lookup",
+        "Extended Transaction Log"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ETL = Extract (get data from sources), Transform (clean, validate, restructure), Load (store in destination). It's the backbone of data pipelines."
+    },
+    {
+      "id": "de_2",
+      "chapter": 1,
+      "category": "dataEngineering",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the main difference between batch processing and stream processing?",
+      "code": null,
+      "options": [
+        "Batch is faster than stream processing",
+        "Batch processes data in chunks at intervals; stream processes data in real-time as it arrives",
+        "Stream processing requires more storage",
+        "Batch processing only works with databases"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Batch processing handles large volumes of data at scheduled intervals (hourly, daily). Stream processing handles data continuously as it arrives - used for real-time analytics, alerts, and monitoring."
+    },
+    {
+      "id": "de_3",
+      "chapter": 1,
+      "category": "dataEngineering",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What does this SQL query return?",
+      "code": "SELECT department, COUNT(*) as emp_count, AVG(salary) as avg_salary\nFROM employees\nGROUP BY department\nHAVING COUNT(*) > 5\nORDER BY avg_salary DESC;",
+      "options": [
+        "All departments with their employee counts",
+        "Departments with more than 5 employees, sorted by average salary descending",
+        "The top 5 highest-paid departments",
+        "Error - HAVING requires WHERE"
+      ],
+      "correctAnswer": 1,
+      "explanation": "GROUP BY aggregates by department, HAVING filters groups (not rows) to those with >5 employees, ORDER BY sorts the result by average salary in descending order."
+    },
+    {
+      "id": "de_4",
+      "chapter": 1,
+      "category": "dataEngineering",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is a Data Lake vs a Data Warehouse?",
+      "code": null,
+      "options": [
+        "They are the same thing",
+        "Data Lake stores raw, unstructured data; Data Warehouse stores structured, processed data",
+        "Data Lake is for real-time, Data Warehouse is for batch",
+        "Data Lake is cheaper but less reliable"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Data Lake: stores raw data in native format (schema-on-read), flexible but can become a \"data swamp\". Data Warehouse: stores cleaned, transformed data in structured schemas (schema-on-write), optimized for analytics."
+    },
+    {
+      "id": "de_5",
+      "chapter": 2,
+      "category": "dataEngineering",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is data normalization in database design?",
+      "code": null,
+      "options": [
+        "Converting all data to the same format",
+        "Organizing data to reduce redundancy and improve integrity",
+        "Scaling data values between 0 and 1",
+        "Encrypting sensitive data"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Database normalization organizes tables to minimize redundancy (repeated data) and dependency. Forms (1NF, 2NF, 3NF) define rules for reducing data anomalies."
+    },
+    {
+      "id": "de_6",
+      "chapter": 2,
+      "category": "dataEngineering",
+      "difficulty": "hard",
+      "type": "output",
+      "question": "What type of JOIN is this SQL performing?",
+      "code": "SELECT a.name, b.order_id\nFROM customers a\nLEFT JOIN orders b ON a.id = b.customer_id;",
+      "options": [
+        "Returns only matching records from both tables",
+        "Returns all customers and their orders, including customers with no orders (NULL)",
+        "Returns only customers who have orders",
+        "Returns only orders without customers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "LEFT JOIN returns all rows from the left table (customers) and matching rows from the right (orders). Customers without orders will have NULL for order columns."
+    },
+    {
+      "id": "de_7",
+      "chapter": 2,
+      "category": "dataEngineering",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the purpose of data partitioning?",
+      "code": null,
+      "options": [
+        "Encrypting data for security",
+        "Dividing data into smaller, manageable chunks for performance and scalability",
+        "Creating backup copies of data",
+        "Converting data formats"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Partitioning splits large datasets by key (date, region, etc.) for faster queries (only scan relevant partitions), parallel processing, and easier management of large-scale data."
+    },
+    {
+      "id": "de_8",
+      "chapter": 2,
+      "category": "dataEngineering",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is Apache Kafka primarily used for?",
+      "code": null,
+      "options": [
+        "Storing files in the cloud",
+        "Distributed streaming platform for building real-time data pipelines",
+        "Running SQL queries on big data",
+        "Managing container deployments"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Kafka is a distributed event streaming platform. It handles high-throughput, real-time data feeds with pub-sub messaging, used for logs, metrics, event-driven architectures, and real-time analytics."
+    },
+    {
+      "id": "de_9",
+      "chapter": 3,
+      "category": "dataEngineering",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is a surrogate key in database design?",
+      "code": null,
+      "options": [
+        "A primary key from another table",
+        "An artificial key (like auto-increment ID) with no business meaning",
+        "A temporary key used during data migration",
+        "An encrypted version of the primary key"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A surrogate key is system-generated (auto-increment, UUID) with no business meaning, vs natural keys (email, SSN) that have real-world significance. Surrogate keys are stable and don't change with business rules."
+    },
+    {
+      "id": "de_10",
+      "chapter": 3,
+      "category": "dataEngineering",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the CAP theorem?",
+      "code": null,
+      "options": [
+        "A theorem about data compression efficiency",
+        "States that distributed systems can only guarantee 2 of 3: Consistency, Availability, Partition tolerance",
+        "A method for calculating database capacity",
+        "A security framework for APIs"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CAP theorem: in a distributed system, you can only guarantee two of: Consistency (all nodes see same data), Availability (every request gets a response), Partition Tolerance (system works despite network failures)."
+    },
+    {
+      "id": "de_11",
+      "chapter": 3,
+      "category": "dataEngineering",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What does this SQL window function do?",
+      "code": "SELECT name, salary,\n       RANK() OVER (ORDER BY salary DESC) as salary_rank\nFROM employees;",
+      "options": [
+        "Sorts employees by salary",
+        "Adds a ranking column based on salary without grouping rows",
+        "Filters to top-ranked employees only",
+        "Calculates average salary"
+      ],
+      "correctAnswer": 1,
+      "explanation": "RANK() is a window function that assigns ranks based on ORDER BY. Unlike GROUP BY, it keeps all rows and adds calculated columns. Equal salaries get same rank, next rank is skipped."
+    },
+    {
+      "id": "de_12",
+      "chapter": 3,
+      "category": "dataEngineering",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the difference between OLTP and OLAP systems?",
+      "code": null,
+      "options": [
+        "OLTP is online, OLAP is offline",
+        "OLTP handles transactional operations; OLAP handles analytical queries on historical data",
+        "OLTP is faster than OLAP",
+        "OLTP uses SQL, OLAP uses NoSQL"
+      ],
+      "correctAnswer": 1,
+      "explanation": "OLTP (Online Transaction Processing): optimized for CRUD operations, normalized data, current data. OLAP (Online Analytical Processing): optimized for complex queries, denormalized, historical data, used in data warehouses."
+    }
+  ],
+  "kernel": [
+    {
+      "id": "kernel_1",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What is the main difference between user space and kernel space?",
+      "code": null,
+      "options": [
+        "User space is faster than kernel space",
+        "Kernel space has direct hardware access and higher privileges",
+        "User space can access all memory addresses",
+        "There is no practical difference"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Kernel space runs with elevated privileges (ring 0 on x86) and can directly access hardware and all memory. User space (ring 3) must use system calls to request kernel services. This separation provides security and stability."
+    },
+    {
+      "id": "kernel_2",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What is a system call?",
+      "code": null,
+      "options": [
+        "A function call between two user programs",
+        "An interface for user programs to request services from the kernel",
+        "A method to call external APIs",
+        "A debugging function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "System calls (syscalls) are the interface between user space and kernel space. When a program needs OS services (file I/O, memory allocation, process creation), it makes a syscall which triggers a context switch to kernel mode."
+    },
+    {
+      "id": "kernel_3",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What is the difference between a process and a thread?",
+      "code": null,
+      "options": [
+        "Processes are faster than threads",
+        "Threads share memory space within a process; processes have separate memory spaces",
+        "Threads cannot access files",
+        "Processes cannot have multiple threads"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A process has its own virtual address space, file descriptors, and resources. Threads within a process share the same address space and resources but have separate stacks and registers. This makes thread creation faster but requires synchronization."
+    },
+    {
+      "id": "kernel_4",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "output",
+      "question": "What does the fork() system call return to the child process?",
+      "code": "pid_t pid = fork();\nif (pid == ???) {\n    // This is the child process\n}",
+      "options": [
+        "1",
+        "-1",
+        "0",
+        "The parent's PID"
+      ],
+      "correctAnswer": 2,
+      "explanation": "fork() returns 0 to the child process, the child's PID to the parent, and -1 on error. This allows both processes to determine which one they are after the fork."
+    },
+    {
+      "id": "kernel_5",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What is a file descriptor?",
+      "code": null,
+      "options": [
+        "A pointer to a file on disk",
+        "An integer handle that refers to an open file or I/O resource",
+        "The file name stored in memory",
+        "A description of file contents"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A file descriptor is a small non-negative integer that the kernel uses to identify open files, sockets, pipes, and other I/O resources. Standard descriptors: 0=stdin, 1=stdout, 2=stderr."
+    },
+    {
+      "id": "kernel_6",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What are the main sections of a process's memory layout?",
+      "code": null,
+      "options": [
+        "Input, Output, Processing",
+        "Text (code), Data, Heap, Stack",
+        "RAM, ROM, Cache",
+        "Primary, Secondary, Tertiary"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Process memory layout: Text (executable code), Data (global/static variables), Heap (dynamic memory, grows up), Stack (local variables, function calls, grows down). BSS holds uninitialized globals."
+    },
+    {
+      "id": "kernel_7",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What is an interrupt?",
+      "code": null,
+      "options": [
+        "A bug in the program",
+        "A signal that causes the CPU to pause current execution and handle an event",
+        "A way to stop a program permanently",
+        "A type of system call"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Interrupts are signals (from hardware or software) that cause the CPU to save its state and execute an interrupt handler. Hardware interrupts come from devices (keyboard, timer), software interrupts are triggered by instructions (syscalls)."
+    },
+    {
+      "id": "kernel_8",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "output",
+      "question": "After this code runs, how many processes exist?",
+      "code": "int main() {\n    fork();\n    fork();\n    return 0;\n}",
+      "options": [
+        "2 processes",
+        "3 processes",
+        "4 processes",
+        "1 process"
+      ],
+      "correctAnswer": 2,
+      "explanation": "First fork() creates 2 processes. Each of those calls fork() again, creating 4 total processes. Each fork() doubles the number of processes: 1 → 2 → 4."
+    },
+    {
+      "id": "kernel_9",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What is the purpose of the exec() family of functions?",
+      "code": null,
+      "options": [
+        "Create a new child process",
+        "Replace the current process image with a new program",
+        "Execute code in parallel",
+        "Terminate the current process"
+      ],
+      "correctAnswer": 1,
+      "explanation": "exec() replaces the current process's memory image with a new program. The PID stays the same, but the code, data, heap, and stack are replaced. Often used after fork() to run a different program."
+    },
+    {
+      "id": "kernel_10",
+      "chapter": 1,
+      "category": "kernel",
+      "difficulty": "easy",
+      "type": "concept",
+      "question": "What is a zombie process?",
+      "code": null,
+      "options": [
+        "A process using too much CPU",
+        "A terminated process whose exit status hasn't been collected by its parent",
+        "A process stuck in an infinite loop",
+        "A malicious background process"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When a process terminates, it becomes a zombie until its parent calls wait() to collect its exit status. Zombies take minimal resources (just a process table entry) but too many indicate a bug in the parent."
+    },
+    {
+      "id": "kernel_11",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is virtual memory and why is it used?",
+      "code": null,
+      "options": [
+        "Extra RAM installed in the computer",
+        "An abstraction that gives each process its own address space, enabling isolation and using disk as extended memory",
+        "Memory used only by virtual machines",
+        "Cache memory for faster access"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Virtual memory maps virtual addresses to physical addresses, giving each process an isolated address space. It allows running programs larger than physical RAM (using disk swap), memory protection, and simplified memory management."
+    },
+    {
+      "id": "kernel_12",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What happens during a page fault?",
+      "code": null,
+      "options": [
+        "The program crashes with a segmentation fault",
+        "The CPU traps to the kernel, which loads the required page from disk or allocates memory",
+        "The page table is deleted",
+        "The process is immediately terminated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A page fault occurs when accessing a virtual address not currently in physical memory. The CPU traps to the kernel which: 1) finds the page on disk/allocates it, 2) loads it into a physical frame, 3) updates the page table, 4) restarts the instruction."
+    },
+    {
+      "id": "kernel_13",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is copy-on-write (COW)?",
+      "code": null,
+      "options": [
+        "A way to copy files between processes",
+        "An optimization where memory pages are shared until one process modifies them",
+        "A write-through cache policy",
+        "A file system journaling technique"
+      ],
+      "correctAnswer": 1,
+      "explanation": "COW defers copying memory until necessary. After fork(), parent and child share the same physical pages (marked read-only). When either writes, a page fault triggers, and only then is the page copied. This makes fork() very fast."
+    },
+    {
+      "id": "kernel_14",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is a context switch?",
+      "code": null,
+      "options": [
+        "Switching between different programming languages",
+        "Saving the state of one process/thread and loading another's state to run it",
+        "Switching between user mode and kernel mode",
+        "Changing the current working directory"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A context switch saves CPU state (registers, program counter, stack pointer) of the current process and restores another's state. It has overhead (cache invalidation, TLB flush), so minimizing switches improves performance."
+    },
+    {
+      "id": "kernel_15",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "output",
+      "question": "What is the output of this code?",
+      "code": "int main() {\n    int x = 10;\n    pid_t pid = fork();\n    if (pid == 0) {\n        x = 20;\n    }\n    printf(\"%d \", x);\n    return 0;\n}",
+      "options": [
+        "10 only",
+        "20 only",
+        "10 20 (or 20 10)",
+        "10 10"
+      ],
+      "correctAnswer": 2,
+      "explanation": "After fork(), parent and child have separate copies of x (due to copy-on-write). Parent prints 10, child prints 20. Order depends on scheduling. Each process has its own memory space."
+    },
+    {
+      "id": "kernel_16",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the Translation Lookaside Buffer (TLB)?",
+      "code": null,
+      "options": [
+        "A buffer for storing translated code",
+        "A cache of recent virtual-to-physical address translations",
+        "A buffer for network packet translation",
+        "A queue for pending translations"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The TLB is a hardware cache that stores recent page table entries (virtual → physical mappings). Without TLB, every memory access would require walking the page table. TLB hits are fast; misses require page table lookup."
+    },
+    {
+      "id": "kernel_17",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What are the states a process can be in?",
+      "code": null,
+      "options": [
+        "On, Off, Standby",
+        "Running, Ready, Blocked (Waiting), Terminated",
+        "Active, Inactive, Paused",
+        "User, Kernel, Hybrid"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Common process states: Running (executing on CPU), Ready (runnable, waiting for CPU), Blocked/Waiting (waiting for I/O or event), Terminated/Zombie (finished, awaiting cleanup). New is initial state before ready."
+    },
+    {
+      "id": "kernel_18",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the difference between kmalloc() and vmalloc() in the Linux kernel?",
+      "code": null,
+      "options": [
+        "kmalloc() is for user space, vmalloc() is for kernel",
+        "kmalloc() allocates physically contiguous memory, vmalloc() allocates virtually contiguous memory",
+        "kmalloc() is slower but safer",
+        "vmalloc() can only allocate small amounts"
+      ],
+      "correctAnswer": 1,
+      "explanation": "kmalloc() allocates physically contiguous memory (required for DMA). vmalloc() allocates memory that's contiguous in virtual space but may be fragmented physically. kmalloc() is faster but limited by physical fragmentation."
+    },
+    {
+      "id": "kernel_19",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is a kernel panic?",
+      "code": null,
+      "options": [
+        "A warning message in the log",
+        "An unrecoverable error that forces the kernel to halt",
+        "High CPU usage by the kernel",
+        "A type of system call"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A kernel panic occurs when the kernel detects an error from which it cannot safely recover (null pointer dereference, stack overflow, hardware failure). The system halts to prevent data corruption. Similar to BSOD on Windows."
+    },
+    {
+      "id": "kernel_20",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is the purpose of the mmap() system call?",
+      "code": null,
+      "options": [
+        "Map a GPS location",
+        "Map files or devices into the process's virtual address space",
+        "Create a new filesystem",
+        "Monitor memory usage"
+      ],
+      "correctAnswer": 1,
+      "explanation": "mmap() creates a mapping between a file (or anonymous memory) and the process's virtual address space. This enables memory-mapped file I/O (faster than read/write), shared memory between processes, and dynamic memory allocation."
+    },
+    {
+      "id": "kernel_21",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is a semaphore used for in the kernel?",
+      "code": null,
+      "options": [
+        "Storing error messages",
+        "Controlling access to shared resources by maintaining a count of available resources",
+        "Encrypting data",
+        "Managing file permissions"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Semaphores are synchronization primitives with a counter. A process can wait (decrement and block if zero) or signal (increment and wake waiters). Binary semaphores act like mutexes. Counting semaphores limit concurrent access to N resources."
+    },
+    {
+      "id": "kernel_22",
+      "chapter": 2,
+      "category": "kernel",
+      "difficulty": "medium",
+      "type": "concept",
+      "question": "What is DMA (Direct Memory Access)?",
+      "code": null,
+      "options": [
+        "A type of RAM",
+        "Hardware feature allowing devices to transfer data directly to/from memory without CPU",
+        "A debugging mode",
+        "Dynamic Memory Allocation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "DMA allows hardware devices (disk controllers, network cards) to transfer data directly to/from RAM without CPU involvement. The CPU sets up the transfer, then is free to do other work until a completion interrupt arrives."
+    },
+    {
+      "id": "kernel_23",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "Why are spinlocks preferred over mutexes in interrupt handlers?",
+      "code": null,
+      "options": [
+        "Spinlocks are faster in all cases",
+        "Mutexes can cause the caller to sleep, which is forbidden in interrupt context",
+        "Spinlocks use less memory",
+        "Mutexes don't work with hardware"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Interrupt handlers cannot sleep/block because there's no process context to schedule. Mutexes may put the thread to sleep if the lock is contended. Spinlocks busy-wait, keeping the CPU active, which is required in interrupt context."
+    },
+    {
+      "id": "kernel_24",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is RCU (Read-Copy-Update)?",
+      "code": null,
+      "options": [
+        "A backup copying mechanism",
+        "A synchronization technique allowing concurrent reads with infrequent, deferred writes",
+        "A CPU caching policy",
+        "A type of lock"
+      ],
+      "correctAnswer": 1,
+      "explanation": "RCU allows readers to access data without locks while writers create updated copies. Old data is freed only after all readers finish (grace period). This enables extremely fast reads for read-mostly data structures in the kernel."
+    },
+    {
+      "id": "kernel_25",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is a memory barrier (fence)?",
+      "code": null,
+      "options": [
+        "A physical limit on RAM",
+        "An instruction that enforces ordering of memory operations across CPUs",
+        "A protection against buffer overflow",
+        "Virtual memory page boundary"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CPUs and compilers may reorder memory operations for performance. Memory barriers enforce ordering: operations before the barrier complete before those after. Critical for lock-free programming and multi-processor synchronization."
+    },
+    {
+      "id": "kernel_26",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "bugfix",
+      "question": "What is the bug in this kernel code?",
+      "code": "spinlock_t lock;\n\nvoid irq_handler(void) {\n    spin_lock(&lock);\n    process_data();\n    spin_unlock(&lock);\n}\n\nvoid kernel_thread(void) {\n    spin_lock(&lock);\n    // If interrupt occurs here...\n    do_work();\n    spin_unlock(&lock);\n}",
+      "options": [
+        "spin_lock should be spin_trylock",
+        "Deadlock: if irq_handler runs while kernel_thread holds lock on same CPU",
+        "process_data() should be called after unlock",
+        "No bug, code is correct"
+      ],
+      "correctAnswer": 1,
+      "explanation": "If an interrupt occurs while kernel_thread holds the lock, irq_handler tries to acquire the same lock on the same CPU, causing deadlock (spinlock spins forever). Solution: use spin_lock_irqsave() to disable interrupts while holding the lock."
+    },
+    {
+      "id": "kernel_27",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the purpose of the Linux kernel's CFS (Completely Fair Scheduler)?",
+      "code": null,
+      "options": [
+        "Scheduling disk I/O operations",
+        "Fair CPU time distribution using virtual runtime in a red-black tree",
+        "Managing file caches",
+        "Scheduling network packets"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CFS tracks each task's virtual runtime (weighted CPU time). Tasks are stored in a red-black tree sorted by vruntime. The scheduler always picks the task with smallest vruntime (leftmost node), ensuring fair CPU distribution based on priority/weight."
+    },
+    {
+      "id": "kernel_28",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What are the four conditions required for a deadlock to occur?",
+      "code": null,
+      "options": [
+        "Speed, Memory, CPU, I/O",
+        "Mutual exclusion, Hold and wait, No preemption, Circular wait",
+        "Read, Write, Execute, Delete",
+        "Init, Run, Block, Terminate"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Coffman conditions for deadlock: 1) Mutual exclusion (resource held exclusively), 2) Hold and wait (hold one, wait for another), 3) No preemption (can't force release), 4) Circular wait (cycle in wait graph). Prevent any one to avoid deadlock."
+    },
+    {
+      "id": "kernel_29",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "concept",
+      "question": "What is the purpose of the inode in a filesystem?",
+      "code": null,
+      "options": [
+        "Store the file name",
+        "Store metadata and block pointers for a file",
+        "Cache file contents in memory",
+        "Index network connections"
+      ],
+      "correctAnswer": 1,
+      "explanation": "An inode contains file metadata (permissions, owner, timestamps, size) and pointers to data blocks. Notably, it does NOT contain the filename - that's stored in directory entries that map names to inode numbers."
+    },
+    {
+      "id": "kernel_30",
+      "chapter": 3,
+      "category": "kernel",
+      "difficulty": "hard",
+      "type": "output",
+      "question": "What problem does this code have?",
+      "code": "// Thread 1\nx = 1;\nready = true;\n\n// Thread 2\nwhile (!ready) {}\nassert(x == 1);  // Can this fail?",
+      "options": [
+        "No problem, x will always be 1",
+        "The assertion can fail due to compiler/CPU reordering without memory barriers",
+        "The while loop will never exit",
+        "x will be 0 because it's uninitialized"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Without memory barriers, the compiler or CPU may reorder: ready=true could be visible before x=1 is visible to Thread 2. Thread 2 might see ready=true but x=0. Solution: use atomic operations with proper memory ordering (acquire/release)."
+    }
+  ],
+  "marakathalessa": [
+    {
+      "id": "mara_1",
+      "chapter": 1,
+      "category": "marakathalessa",
+      "difficulty": "easy",
+      "type": "story",
+      "question": "In Java, what keyword is used to inherit from a parent class?",
+      "code": "// Marakathalessa was once a brilliant mage\n// who studied under the Arcane Academy...\nclass Apprentice ??? MasterMage {\n    // ...\n}",
+      "options": [
+        "inherits",
+        "extends",
+        "implements",
+        "uses"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The \"extends\" keyword is used for class inheritance in Java. Young Marakathalessa extended her master's teachings..."
+    },
+    {
+      "id": "mara_2",
+      "chapter": 1,
+      "category": "marakathalessa",
+      "difficulty": "easy",
+      "type": "story",
+      "question": "What access modifier makes a method visible to all classes?",
+      "code": "// Her magical research was open to all\n??? void shareKnowledge() {\n    System.out.println(\"The light guides us.\");\n}",
+      "options": [
+        "private",
+        "protected",
+        "public",
+        "default"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The \"public\" modifier makes methods accessible from anywhere. Marakathalessa believed in open knowledge sharing."
+    },
+    {
+      "id": "mara_3",
+      "chapter": 1,
+      "category": "marakathalessa",
+      "difficulty": "easy",
+      "type": "story",
+      "question": "In C++, what is the output?",
+      "code": "// Her hope was measureless\nint hope = 100;\nstd::cout << \"Hope level: \" << hope << std::endl;",
+      "options": [
+        "Hope level: 100",
+        "100",
+        "hope",
+        "Compilation error"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The stream operator << concatenates the strings and values. Her hope was 100% in those days."
+    },
+    {
+      "id": "mara_4",
+      "chapter": 1,
+      "category": "marakathalessa",
+      "difficulty": "easy",
+      "type": "story",
+      "question": "What data structure uses FIFO (First In, First Out)?",
+      "code": "// The Academy processed students fairly\n// The first to arrive would be the first to learn",
+      "options": [
+        "Stack",
+        "Queue",
+        "Tree",
+        "Graph"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A Queue uses FIFO ordering. The Academy's fair system would soon be corrupted..."
+    },
+    {
+      "id": "mara_5",
+      "chapter": 2,
+      "category": "marakathalessa",
+      "difficulty": "medium",
+      "type": "story",
+      "question": "What exception occurs when accessing a null object in Java?",
+      "code": "// The void whispered to her...\nMasterMage teacher = null;\nteacher.castSpell(); // ???",
+      "options": [
+        "ArrayIndexOutOfBoundsException",
+        "NullPointerException",
+        "ClassCastException",
+        "IOException"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NullPointerException occurs when calling methods on null. Her mentor had vanished into the void..."
+    },
+    {
+      "id": "mara_6",
+      "chapter": 2,
+      "category": "marakathalessa",
+      "difficulty": "medium",
+      "type": "story",
+      "question": "What is the result of this bitwise operation?",
+      "code": "// The corruption spread bit by bit\nint light = 0b1111;  // 15\nint darkness = 0b0101; // 5\nint result = light ^ darkness; // XOR",
+      "options": [
+        "10",
+        "5",
+        "15",
+        "20"
+      ],
+      "correctAnswer": 0,
+      "explanation": "XOR returns 1 where bits differ (1111 ^ 0101 = 1010 = 10). Light and darkness merged into something new."
+    },
+    {
+      "id": "mara_7",
+      "chapter": 2,
+      "category": "marakathalessa",
+      "difficulty": "medium",
+      "type": "story",
+      "question": "What happens to an infinite loop without break?",
+      "code": "// She was trapped in endless darkness\nwhile(true) {\n    despair++;\n    // No break...\n}",
+      "options": [
+        "Compiles but crashes",
+        "Runs forever until stopped",
+        "Compilation error",
+        "Returns 0"
+      ],
+      "correctAnswer": 1,
+      "explanation": "An infinite loop runs forever. She was trapped in an endless cycle of despair..."
+    },
+    {
+      "id": "mara_8",
+      "chapter": 2,
+      "category": "marakathalessa",
+      "difficulty": "medium",
+      "type": "story",
+      "question": "What does a memory leak cause?",
+      "code": "// The darkness consumed more and more...\nwhile(corruption) {\n    void* memory = malloc(1024);\n    // Never freed...\n}",
+      "options": [
+        "Faster execution",
+        "Memory exhaustion",
+        "Better performance",
+        "Automatic cleanup"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Memory leaks cause memory exhaustion over time. The corruption consumed all of her light."
+    },
+    {
+      "id": "mara_9",
+      "chapter": 3,
+      "category": "marakathalessa",
+      "difficulty": "hard",
+      "type": "story",
+      "question": "What HTTP status code means \"Not Found\"?",
+      "code": "// The Legion of 404 found her\n// Their code was their name\n// Status: ???",
+      "options": [
+        "200",
+        "403",
+        "404",
+        "500"
+      ],
+      "correctAnswer": 2,
+      "explanation": "404 is \"Not Found\". The Legion of 404 corrupts and erases - making things \"not found\"."
+    },
+    {
+      "id": "mara_10",
+      "chapter": 3,
+      "category": "marakathalessa",
+      "difficulty": "hard",
+      "type": "story",
+      "question": "What design pattern allows only one instance of a class?",
+      "code": "// The Legion Master - there can be only one\nclass LegionMaster {\n    private static LegionMaster instance;\n    private LegionMaster() {}\n    // ???\n}",
+      "options": [
+        "Factory",
+        "Singleton",
+        "Observer",
+        "Decorator"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Singleton pattern ensures one instance. The Legion has but one true master..."
+    },
+    {
+      "id": "mara_11",
+      "chapter": 3,
+      "category": "marakathalessa",
+      "difficulty": "hard",
+      "type": "story",
+      "question": "In cryptography, what attack tries all possible keys?",
+      "code": "// The Legion breaks all defenses\nfor(key = 0; key < MAX_KEY; key++) {\n    if(decrypt(ciphertext, key)) break;\n}",
+      "options": [
+        "SQL Injection",
+        "Brute Force",
+        "Man-in-the-Middle",
+        "Phishing"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Brute force tries all possible combinations. The Legion breaks through all barriers."
+    },
+    {
+      "id": "mara_12",
+      "chapter": 3,
+      "category": "marakathalessa",
+      "difficulty": "hard",
+      "type": "story",
+      "question": "What is the final output?",
+      "code": "// Her last words before full corruption...\nString message = \"I was once good\";\nmessage = message.replace(\"good\", \"404\");\nSystem.out.println(message);",
+      "options": [
+        "\"I was once good\"",
+        "\"I was once 404\"",
+        "null",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "String.replace() substitutes text. \"I was once 404\" - the last trace of her humanity."
+    }
+  ]
+}

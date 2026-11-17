@@ -1,0 +1,100 @@
+{
+  "combat": {
+    "name": "Combat Mastery",
+    "icon": "⚔️",
+    "skills": [
+      {
+        "id": "extra_time",
+        "name": "Extended Focus",
+        "description": "Increase question timer by 10 seconds per level.",
+        "cost": 100,
+        "maxLevel": 3,
+        "effect": {
+          "timerBonus": 10
+        }
+      },
+      {
+        "id": "critical_strike",
+        "name": "Critical Strike",
+        "description": "10% chance to deal double damage.",
+        "cost": 200,
+        "maxLevel": 1,
+        "effect": {
+          "critChance": 0.1
+        }
+      },
+      {
+        "id": "barrier_mastery",
+        "name": "Barrier Mastery",
+        "description": "Start each quest with +1 barrier point.",
+        "cost": 150,
+        "maxLevel": 2,
+        "effect": {
+          "startingBarrier": 1
+        }
+      }
+    ]
+  },
+  "economy": {
+    "name": "Wealth & Fortune",
+    "icon": "💰",
+    "skills": [
+      {
+        "id": "gold_boost",
+        "name": "Treasure Hunter",
+        "description": "+20% gold from all sources per level.",
+        "cost": 150,
+        "maxLevel": 3,
+        "effect": {
+          "goldMultiplier": 1.2
+        }
+      },
+      {
+        "id": "xp_boost",
+        "name": "Quick Learner",
+        "description": "+15% XP from all sources per level.",
+        "cost": 150,
+        "maxLevel": 3,
+        "effect": {
+          "xpMultiplier": 1.15
+        }
+      },
+      {
+        "id": "bonus_loot",
+        "name": "Monster Bounty",
+        "description": "+10 bonus gold when defeating monsters.",
+        "cost": 100,
+        "maxLevel": 2,
+        "effect": {
+          "bonusGold": 10
+        }
+      }
+    ]
+  },
+  "utility": {
+    "name": "Arcane Knowledge",
+    "icon": "🌟",
+    "skills": [
+      {
+        "id": "auto_hint",
+        "name": "Mystic Insight",
+        "description": "Automatically eliminate one wrong answer on hard questions.",
+        "cost": 250,
+        "maxLevel": 1,
+        "effect": {
+          "autoHint": true
+        }
+      },
+      {
+        "id": "second_chance",
+        "name": "Second Chance",
+        "description": "First wrong answer each quest doesn't reduce barrier.",
+        "cost": 200,
+        "maxLevel": 1,
+        "effect": {
+          "freeWrongAnswer": true
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "heroes": {
+    "java": {
+      "key": "java",
+      "name": "Grom the Uncompiled",
+      "short": "Grom",
+      "cls": "Barbarian Warrior",
+      "tag": "Java",
+      "desc": "Master of the \"Write Once, Crush Everywhere\" arts. High resilience and brute force.",
+      "portrait": "/assets/heroes/hero-grom-portrait.png",
+      "accent": "#ff8a3c",
+      "style": "melee"
+    },
+    "cpp": {
+      "key": "cpp",
+      "name": "Malloc the Void-Walker",
+      "short": "Malloc",
+      "cls": "Dark Wizard",
+      "tag": "C++",
+      "desc": "Wielder of volatile arcane memory. High power, but one slip leads to a Void Segfault.",
+      "portrait": "/assets/heroes/hero-malloc-portrait.png",
+      "accent": "#4de8e0",
+      "style": "ranged"
+    },
+    "networking": {
+      "key": "networking",
+      "name": "Ser Handshake",
+      "short": "Handshake",
+      "cls": "Knight Paladin",
+      "tag": "Networking",
+      "desc": "Guardian of the Great Gateway. Restoring the Three-Way Handshake of light.",
+      "portrait": "/assets/heroes/hero-handshake-portrait.png",
+      "accent": "#7fd4ff",
+      "style": "melee"
+    },
+    "dataEngineering": {
+      "key": "dataEngineering",
+      "name": "Artemis the Stream-Caller",
+      "short": "Artemis",
+      "cls": "Knight Archer",
+      "tag": "Data Eng",
+      "desc": "Purifier of the Corrupted Lakes. Her Pipeline of Arrows never misses the mark.",
+      "portrait": "/assets/heroes/hero-artemis-portrait.png",
+      "accent": "#b07cff",
+      "style": "ranged"
+    },
+    "kernel": {
+      "key": "kernel",
+      "name": "Vulkun of Ring Zero",
+      "short": "Vulkun",
+      "cls": "Dragonoid Mercenary",
+      "tag": "Kernel Dev",
+      "desc": "Born from Silicon fires. Master of the Low-Level Ring Zero magic.",
+      "portrait": "/assets/heroes/hero-vulkun-portrait.png",
+      "accent": "#ff5a2a",
+      "style": "melee"
+    },
+    "marakathalessa": {
+      "key": "marakathalessa",
+      "name": "Marakathalessa Redeemed",
+      "short": "Marakathalessa",
+      "cls": "Corrupted Mage",
+      "tag": "Her Story",
+      "desc": "Play her story. Learn how she fell to the Legion of 404.",
+      "portrait": "/assets/monsters/boss-marakathalessa-alt.png",
+      "accent": "#d264ff",
+      "style": "ranged"
+    }
+  },
+  "mainHeroes": [
+    "java",
+    "cpp",
+    "networking",
+    "dataEngineering",
+    "kernel"
+  ]
+}
